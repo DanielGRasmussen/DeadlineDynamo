@@ -1,0 +1,19 @@
+{
+	"manifest_version": 3, 
+	"name": "DeadlineDynamo", 
+	"version": "1.0", 
+	"description": "A Chrome extension to plan Canvas assignments efficiently.", 
+	"permissions": [ "storage", "activeTab" ], 
+	"content_scripts": [
+		{
+			"matches": ["https://byui.instructure.com/"], "js": [
+				"dist/main.js"
+			]
+		},
+		{
+		"matches": ["https://byui.instructure.com/DeadlineDynamo/Settings"], "js": [
+				"dist/main.js"
+			]
+		}
+	]
+}

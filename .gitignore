@@ -1,0 +1,27 @@
+# Compiled output
+dist/
+
+# Node modules
+node_modules/
+
+# TypeScript intermediate files
+*.tsbuildinfo
+
+# TypeScript source maps
+*.map
+
+# Sass cache
+.sass-cache/
+
+# Editor configuration files
+.vscode/
+.idea/
+
+# Operating system-specific files
+.DS_Store
+
+# Log files
+*.log
+
+# Personal files
+*.bak
