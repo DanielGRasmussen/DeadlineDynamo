@@ -1,18 +1,26 @@
 {
-	"manifest_version": 3, 
-	"name": "DeadlineDynamo", 
-	"version": "1.0", 
-	"description": "A Chrome extension to plan Canvas assignments efficiently.", 
-	"permissions": [ "storage", "activeTab" ], 
+	"manifest_version": 3,
+	"name": "DeadlineDynamo",
+	"version": "1.0",
+	"description": "A Chrome extension to plan Canvas assignments efficiently.",
+	"permissions": [ "storage", "activeTab" ],
 	"content_scripts": [
 		{
 			"matches": ["https://byui.instructure.com/"], "js": [
-				"dist/main.js"
+				"dist/out-tsc/ApiFetch.js",
+				"dist/out-tsc/Assignment.js",
+				"dist/out-tsc/Course.js",
+				"dist/out-tsc/LocalStorage.js",
+				"dist/out-tsc/Main.js"
 			]
 		},
 		{
 		"matches": ["https://byui.instructure.com/DeadlineDynamo/Settings"], "js": [
-				"dist/main.js"
+			"dist/out-tsc/ApiFetch.js",
+			"dist/out-tsc/Assignment.js",
+			"dist/out-tsc/Course.js",
+			"dist/out-tsc/LocalStorage.js",
+			"dist/out-tsc/Main.js"
 			]
 		}
 	]
