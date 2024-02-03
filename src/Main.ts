@@ -7,7 +7,7 @@
 class Main {
 	courses?: Course[];
 	apiFetcher: ApiFetcher = new ApiFetcher();
-	localStorage: LocalStorage = new LocalStorage();
+	utility: Utility = new Utility();
 
 	constructor() {
 		this.Main();
@@ -17,7 +17,7 @@ class Main {
 		const first: boolean = await this.getCourses();
 
 		if (this.courses === undefined) {
-			this.alerter("Fatal Error: No courses found!");
+			this.utility.alerter("Fatal Error: No courses found!");
 			return;
 		}
 
@@ -27,7 +27,7 @@ class Main {
 	}
 
 	async getCourses(): Promise<boolean> {
-		const courseIds: string | null = await this.localStorage.loadStorage("courseIds");
+		const courseIds: string | null = await this.utility.loadStorage("courseIds");
 
 		if (courseIds !== null) {
 			// Load stuff from local storage.
@@ -39,7 +39,7 @@ class Main {
 			let courseJson: LocalCourseJson;
 			let course: Course;
 			for (const id of ids) {
-				courseData = await this.localStorage.loadStorage(id);
+				courseData = await this.utility.loadStorage(id);
 
 				if (courseData === null) {
 					// If the course data is null, get everything from scratch.
@@ -78,27 +78,32 @@ class Main {
 	}
 
 	async updateAssignments(): Promise<void> {
+		// Gets updated info for assignments
 		if (this.courses === undefined) {
-			this.alerter("Fatal Error: Courses not loaded!");
+			// If this happens, I have no clue how.
+			this.utility.alerter("Fatal Error: Courses not loaded!");
 			return;
 		}
 
 		for (const course of this.courses) {
+			// Get API info for all assignments for each course.
 			const assignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments(course.id);
 
 			let currentAssignment: Assignment | undefined;
 			let dueDate: string;
 			let unlockDate: string;
 			for (const assignment of assignments) {
+				// Match API info with local info to update the user on changes.
+				// Then update the local info.
 				currentAssignment = course.assignments.find(item => item.id === assignment.id);
 				if (currentAssignment === undefined) {
-					this.alerter(`New assignment in ${course.name}: ${assignment.name}`);
+					this.utility.alerter(`New assignment in ${course.name}: ${assignment.name}`);
 				} else {
 					// .toISOString() returns a string with .000 unlike the API.
 					dueDate = currentAssignment.dueDate.toISOString();
 					dueDate = dueDate.substring(0, dueDate.length - 5) + "Z";
 					if (dueDate !== assignment.due_at) {
-						this.alerter(
+						this.utility.alerter(
 							`Due date changed for ${currentAssignment.name} in ${course.name}`
 						);
 					}
@@ -106,7 +111,7 @@ class Main {
 						unlockDate = currentAssignment.unlockAt.toISOString();
 						unlockDate = unlockDate.substring(0, unlockDate.length - 5) + "Z";
 						if (unlockDate !== assignment.unlock_at) {
-							this.alerter(
+							this.utility.alerter(
 								`Unlock date changed for ${currentAssignment.name} in ${course.name}`
 							);
 						}
@@ -116,11 +121,6 @@ class Main {
 
 			course.makeAssignments(assignments, []);
 		}
-	}
-
-	alerter(message: string): void {
-		// TODO: Make it much more smooth lol.
-		console.log(message);
 	}
 }
 

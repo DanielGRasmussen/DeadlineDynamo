@@ -6,21 +6,28 @@
 	"permissions": [ "storage", "activeTab" ],
 	"content_scripts": [
 		{
+			"matches": ["https://byui.instructure.com/*"], "js": [
+				"dist/out-tsc/Utility.js",
+				"dist/out-tsc/SettingsPreparer.js"
+			],
+			"css": [
+				"dist/links.css"
+			],
+			"run_at": "document_start"
+		},
+		{
+			"matches": ["https://byui.instructure.com/deadline-dynamo"], "js": [
+				"dist/out-tsc/Settings.js"
+			], "css": [
+				"dist/settings.css"
+			]
+		},
+		{
 			"matches": ["https://byui.instructure.com/"], "js": [
 				"dist/out-tsc/ApiFetch.js",
 				"dist/out-tsc/Assignment.js",
 				"dist/out-tsc/Course.js",
-				"dist/out-tsc/LocalStorage.js",
 				"dist/out-tsc/Main.js"
-			]
-		},
-		{
-		"matches": ["https://byui.instructure.com/DeadlineDynamo/Settings"], "js": [
-			"dist/out-tsc/ApiFetch.js",
-			"dist/out-tsc/Assignment.js",
-			"dist/out-tsc/Course.js",
-			"dist/out-tsc/LocalStorage.js",
-			"dist/out-tsc/Main.js"
 			]
 		}
 	]

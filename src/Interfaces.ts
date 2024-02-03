@@ -123,3 +123,19 @@ interface LocalAssignmentJson {
 	pointsPossible: number;
 	link: string;
 }
+
+interface HtmlElement {
+	element: string;
+	attributes?: { [key: string]: string };
+	textContent?: string;
+	innerHTML?: string;
+	children?: HtmlElement[];
+}
+
+interface WorkHours {
+	[day: string]: number;
+}
+
+interface EstimateMultiplier {
+	[courseId: string]: number;
+}

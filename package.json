@@ -8,6 +8,7 @@
 		"format": "eslint --fix src/ && stylelint \"src/**/*.scss\" --fix --color --formatter verbose"
 	},
 	"devDependencies": {
+		"@types/chrome": "^0.0.260",
 		"@typescript-eslint/eslint-plugin": "^6.19.0",
 		"@typescript-eslint/parser": "^6.19.0",
 		"eslint": "^8.56.0",

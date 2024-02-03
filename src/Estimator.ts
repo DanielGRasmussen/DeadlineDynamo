@@ -3,7 +3,7 @@
 
 export class Estimator {
 	courses: Course[];
-	localStorage: LocalStorage = new LocalStorage();
+	utility: Utility = new Utility();
 
 	constructor(courses: Course[]) {
 		this.courses = courses;

@@ -6,7 +6,7 @@ class Course {
 	name: string;
 	code: string;
 	assignments!: Assignment[];
-	localStorage: LocalStorage = new LocalStorage();
+	utility: Utility = new Utility();
 
 	constructor(
 		id: number,
@@ -70,20 +70,20 @@ class Course {
 		}
 		const data: string = JSON.stringify(this);
 
-		const courseIds: string | null = await this.localStorage.loadStorage("courseIds");
+		const courseIds: string | null = await this.utility.loadStorage("courseIds");
 		// Ensure we can access this course id again.
 		if (courseIds === null) {
-			await this.localStorage.saveStorage("courseIds", JSON.stringify([key]));
+			await this.utility.saveStorage("courseIds", JSON.stringify([key]));
 		} else {
 			const courses: string[] = JSON.parse(courseIds);
 			if (!courses.includes(key)) {
 				courses.push(key);
-				await this.localStorage.saveStorage("courseIds", JSON.stringify(courses));
+				await this.utility.saveStorage("courseIds", JSON.stringify(courses));
 				console.log("Added course id", key);
 			}
 		}
 
-		await this.localStorage.saveStorage(key, data);
+		await this.utility.saveStorage(key, data);
 	}
 }
 

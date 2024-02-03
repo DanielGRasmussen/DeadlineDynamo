@@ -1,3 +1,40 @@
-main {
-	width: 300px; // Filler rule for linting/formatting
+input[type = "checkbox"] + label {
+	margin-left: 4px;
+}
+
+// Put the textbox on a new line.
+label + input[type = "number"] {
+	display: block;
+}
+
+#content > div {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.settings-container {
+	display: flex;
+	flex-direction: row;
+
+	.work-hours,
+	.estimate-multiplier {
+		flex: 50%;
+	}
+}
+
+.button-container {
+	display: flex;
+	justify-content: flex-end;
+
+	.cancel_button {
+		margin-right: 20px;
+	}
+}
+
+@media (width <= 600px) {
+	.settings-container,
+	.prioritize-poor-grades {
+		flex-direction: column;
+		padding-left: 25px;
+	}
 }
