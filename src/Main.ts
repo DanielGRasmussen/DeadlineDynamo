@@ -1,12 +1,7 @@
-// import { ApiFetcher } from './ApiFetch';
-// import { Assignment } from './Assignment';
-// import { Course } from './Course';
-// import { Estimator } from './Estimator';
-// import { LocalStorage } from './LocalStorage';
-
 class Main {
 	courses?: Course[];
 	apiFetcher: ApiFetcher = new ApiFetcher();
+	estimator: Estimator = new Estimator();
 	utility: Utility = new Utility();
 
 	constructor() {
@@ -17,9 +12,17 @@ class Main {
 		const first: boolean = await this.getCourses();
 
 		if (this.courses === undefined) {
-			this.utility.alerter("Fatal Error: No courses found!");
+			this.utility.alerter("Error: No courses found!");
 			return;
 		}
+
+		// Temporary test code.
+		// for (const course of this.courses) {
+		// 	for (const assignment of course.assignments) {
+		// 		this.estimator.estimateTime(assignment, course.id);
+		// 	}
+		// 	course.saveCourse();
+		// }
 
 		if (first) {
 			await this.updateAssignments();
@@ -31,7 +34,6 @@ class Main {
 
 		if (courseIds !== null) {
 			// Load stuff from local storage.
-			console.log("Stuff was saved!");
 			const ids: string[] = JSON.parse(courseIds);
 			const courses: Course[] = [];
 
@@ -46,7 +48,7 @@ class Main {
 					// The main way this would occur would be if it is a new semester.
 					// It could also occur if the user drops a course though.
 					// TODO: Fix for if the user drops a course so it doesn't reset all their plans.
-					console.log("Course data was null.");
+					this.utility.alerter("Course data was null.");
 					await this.apiFetcher.makeCourses();
 					this.courses = this.apiFetcher.courses;
 					return false;
@@ -66,7 +68,6 @@ class Main {
 			return true;
 		} else {
 			// First time loading up, therefore we need to get everything from scratch.
-			console.log("Stuff wasn't saved.");
 			await this.apiFetcher.makeCourses();
 			this.courses = this.apiFetcher.courses;
 
@@ -81,7 +82,7 @@ class Main {
 		// Gets updated info for assignments
 		if (this.courses === undefined) {
 			// If this happens, I have no clue how.
-			this.utility.alerter("Fatal Error: Courses not loaded!");
+			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
 

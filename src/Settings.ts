@@ -6,49 +6,13 @@ class Settings {
 	estimateMultiplier!: EstimateMultiplier;
 
 	constructor() {
-		if (window.location.pathname === this.link) {
-			// Load settings from local storage.
-			this.loadSettings().then(_ => this.createSettingsPage());
-		}
-	}
-
-	async loadSettings(): Promise<void> {
-		const settingsJson: string | null = await this.utility.loadStorage("settings");
-
-		if (settingsJson === null) {
-			// Create default settings.
-			this.prioritizePoorGrades = false;
-			this.workHours = {
-				monday: 6,
-				tuesday: 6,
-				wednesday: 6,
-				thursday: 6,
-				friday: 6,
-				saturday: 6,
-				sunday: 0
-			};
-			const courseIds: string | null = await this.utility.loadStorage("courseIds");
-			if (courseIds !== null) {
-				// Set default estimate multipliers.
-				const ids: string[] = JSON.parse(courseIds);
-				this.estimateMultiplier = {};
-				for (const id of ids) {
-					this.estimateMultiplier[id] = 1;
-				}
-			} else {
-				this.estimateMultiplier = {};
-			}
-			return;
-		} else {
-			const settings: {
-				prioritizePoorGrades: boolean;
-				workHours: WorkHours;
-				estimateMultiplier: EstimateMultiplier;
-			} = JSON.parse(settingsJson);
+		// Load settings from local storage.
+		this.utility.loadSettings().then(settings => {
 			this.prioritizePoorGrades = settings.prioritizePoorGrades;
 			this.workHours = settings.workHours;
 			this.estimateMultiplier = settings.estimateMultiplier;
-		}
+			this.createSettingsPage();
+		});
 	}
 
 	async saveSettings(): Promise<void> {

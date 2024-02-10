@@ -1,5 +1,3 @@
-// import { Course } from "./Course";
-
 class ApiFetcher {
 	apiUrl: string =
 		"https://byui.instructure.com/api/v1/courses?enrollment_state=active&per_page=50";
@@ -44,5 +42,3 @@ class ApiFetcher {
 		}
 	}
 }
-
-// export { ApiFetcher };

@@ -1,6 +1,3 @@
-// import { Assignment } from "./Assignment";
-// import { LocalStorage } from "./LocalStorage";
-
 class Course {
 	id: number;
 	name: string;
@@ -79,12 +76,9 @@ class Course {
 			if (!courses.includes(key)) {
 				courses.push(key);
 				await this.utility.saveStorage("courseIds", JSON.stringify(courses));
-				console.log("Added course id", key);
 			}
 		}
 
 		await this.utility.saveStorage(key, data);
 	}
 }
-
-// export { Course };

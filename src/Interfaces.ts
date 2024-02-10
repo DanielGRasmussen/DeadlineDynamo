@@ -118,6 +118,7 @@ interface LocalAssignmentJson {
 	dueDate: string;
 	unlockAt: string;
 	description: string;
+	lock: boolean;
 	submissionTypes: string[];
 	allowedExtensions: string[];
 	pointsPossible: number;
@@ -130,6 +131,12 @@ interface HtmlElement {
 	textContent?: string;
 	innerHTML?: string;
 	children?: HtmlElement[];
+}
+
+interface SettingsJson {
+	prioritizePoorGrades: boolean;
+	workHours: WorkHours;
+	estimateMultiplier: EstimateMultiplier;
 }
 
 interface WorkHours {

@@ -9,6 +9,7 @@ class Assignment {
 	allowedExtensions: string[];
 	pointsPossible: number;
 	link: string;
+	lock: boolean = false; // Lock to due date.
 	basicEstimate?: number | null;
 	historyEstimate?: number | null;
 	priorityValue?: number | null;
@@ -38,5 +39,3 @@ class Assignment {
 		this.link = link;
 	}
 }
-
-// export { Assignment };

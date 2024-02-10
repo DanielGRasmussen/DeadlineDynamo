@@ -28,6 +28,39 @@ class Utility {
 		return element;
 	}
 
+	async loadSettings(): Promise<SettingsJson> {
+		const settingsJson: string | null = await this.loadStorage("settings");
+		// Default settings. To be overridden if settings are found in local storage.
+		let settings: SettingsJson = {
+			prioritizePoorGrades: false,
+			workHours: {
+				monday: 6,
+				tuesday: 6,
+				wednesday: 6,
+				thursday: 6,
+				friday: 6,
+				saturday: 6,
+				sunday: 0
+			},
+			estimateMultiplier: {}
+		};
+
+		if (settingsJson === null) {
+			// Default estimateMultiplier
+			const courseIds: string | null = await this.loadStorage("courseIds");
+			if (courseIds !== null) {
+				// Set default estimate multipliers.
+				const ids: string[] = JSON.parse(courseIds);
+				for (const id of ids) {
+					settings.estimateMultiplier[id] = 1;
+				}
+			}
+		} else {
+			settings = JSON.parse(settingsJson);
+		}
+		return settings;
+	}
+
 	async loadStorage(key: string): Promise<string | null> {
 		const data: string | null = await localStorage.getItem(key);
 		return data;
