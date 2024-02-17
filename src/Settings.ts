@@ -4,6 +4,7 @@ class Settings {
 	prioritizePoorGrades!: boolean;
 	workHours!: WorkHours;
 	estimateMultiplier!: EstimateMultiplier;
+	planDistance!: number;
 
 	constructor() {
 		// Load settings from local storage.
@@ -19,7 +20,8 @@ class Settings {
 		const settings: string = JSON.stringify({
 			prioritizePoorGrades: this.prioritizePoorGrades,
 			workHours: this.workHours,
-			estimateMultiplier: this.estimateMultiplier
+			estimateMultiplier: this.estimateMultiplier,
+			planDistance: this.planDistance
 		});
 		await this.utility.saveStorage("settings", settings);
 

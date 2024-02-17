@@ -10,10 +10,10 @@ class Estimator {
 		});
 	}
 
-	estimateTime(assignment: Assignment, courseId: number): void {
+	estimateTime(assignment: Assignment): void {
 		// Get the base estimated time for the assignment.
 		this.assignment = assignment;
-		this.courseId = courseId;
+		this.courseId = assignment.courseId;
 
 		// Attendance quizzes can't be done early. Lock them.
 		// Also make them take 1 minute.

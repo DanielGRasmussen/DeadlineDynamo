@@ -23,39 +23,63 @@ class Course {
 		// Use the right format depending on if the assignments are from the API or local storage.
 		// TypeScript is not a big fan of the || tool when I have both formats as options for the same variable.
 		if (assignments.length !== 0) {
-			this.assignments = assignments.map(
-				assignment =>
-					new Assignment(
-						assignment.id,
-						assignment.name,
-						assignment.has_submitted_submissions,
-						new Date(assignment.due_at),
-						// If unlock_at is null, set to null, otherwise set to new Date(unlock_at)
-						assignment.unlock_at === null ? null : new Date(assignment.unlock_at),
-						assignment.description,
-						assignment.submission_types,
-						assignment.allowed_extensions,
-						assignment.points_possible,
-						`https://byui.instructure.com/courses/${this.id}/assignments/${assignment.id}`
-					)
-			);
+			// This is API data.
+			// Sort assignments by due date.
+			assignments.sort((a, b) => {
+				if (a.due_at < b.due_at) {
+					return -1;
+				}
+				if (a.due_at > b.due_at) {
+					return 1;
+				}
+				return 0;
+			});
+
+			this.assignments = assignments.map(assignment => {
+				return new Assignment(
+					assignment.id,
+					this.id,
+					assignment.name,
+					assignment.has_submitted_submissions,
+					new Date(assignment.due_at),
+					// If unlock_at is null, set to null, otherwise set to new Date(unlock_at)
+					assignment.unlock_at === null ? null : new Date(assignment.unlock_at),
+					assignment.description,
+					assignment.submission_types,
+					assignment.allowed_extensions,
+					assignment.points_possible,
+					`https://byui.instructure.com/courses/${this.id}/assignments/${assignment.id}`,
+					false, // lock should be false for API by default.
+					false, // planned should be false for API by default.
+					// No estimates yet.
+					null,
+					null,
+					null
+				);
+			});
 		} else {
-			this.assignments = localAssignments.map(
-				assignment =>
-					new Assignment(
-						assignment.id,
-						assignment.name,
-						assignment.submitted,
-						new Date(assignment.dueDate),
-						// If unlockAt is null, set to null, otherwise set to new Date(unlockAt)
-						assignment.unlockAt === null ? null : new Date(assignment.unlockAt),
-						assignment.description,
-						assignment.submissionTypes,
-						assignment.allowedExtensions,
-						assignment.pointsPossible,
-						assignment.link
-					)
-			);
+			// This is local storage data.
+			this.assignments = localAssignments.map(assignment => {
+				return new Assignment(
+					assignment.id,
+					this.id,
+					assignment.name,
+					assignment.submitted,
+					new Date(assignment.dueDate),
+					// If unlockAt is null, set to null, otherwise set to new Date(unlockAt)
+					assignment.unlockAt === null ? null : new Date(assignment.unlockAt),
+					assignment.description,
+					assignment.submissionTypes,
+					assignment.allowedExtensions,
+					assignment.pointsPossible,
+					assignment.link,
+					assignment.lock,
+					assignment.planned,
+					assignment.basicEstimate,
+					assignment.historyEstimate,
+					assignment.userEstimate
+				);
+			});
 		}
 	}
 

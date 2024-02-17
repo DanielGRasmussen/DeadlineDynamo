@@ -113,6 +113,7 @@ interface LocalCourseJson {
 interface LocalAssignmentJson {
 	percComplete: number;
 	id: number;
+	courseId: number;
 	name: string;
 	submitted: boolean;
 	dueDate: string;
@@ -123,6 +124,10 @@ interface LocalAssignmentJson {
 	allowedExtensions: string[];
 	pointsPossible: number;
 	link: string;
+	planned: boolean;
+	basicEstimate: number | null;
+	historyEstimate: number | null;
+	userEstimate: number | null;
 }
 
 interface HtmlElement {
@@ -137,6 +142,7 @@ interface SettingsJson {
 	prioritizePoorGrades: boolean;
 	workHours: WorkHours;
 	estimateMultiplier: EstimateMultiplier;
+	planDistance: number;
 }
 
 interface WorkHours {
@@ -145,4 +151,9 @@ interface WorkHours {
 
 interface EstimateMultiplier {
 	[courseId: string]: number;
+}
+
+interface Plan {
+	// Date = "YYYY-MM-DD"
+	[date: string]: Assignment[];
 }

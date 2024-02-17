@@ -1,15 +1,16 @@
 class Main {
 	courses?: Course[];
+	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
-	utility: Utility = new Utility();
+	planner!: Planner;
 
 	constructor() {
 		this.Main();
 	}
 
 	async Main(): Promise<void> {
-		const first: boolean = await this.getCourses();
+		const firstLoadup: boolean = await this.getCourses();
 
 		if (this.courses === undefined) {
 			this.utility.alerter("Error: No courses found!");
@@ -24,9 +25,11 @@ class Main {
 		// 	course.saveCourse();
 		// }
 
-		if (first) {
+		if (firstLoadup) {
 			await this.updateAssignments();
 		}
+
+		this.planner = new Planner(this.courses, this.estimator, this.utility);
 	}
 
 	async getCourses(): Promise<boolean> {
@@ -120,7 +123,10 @@ class Main {
 				}
 			}
 
-			course.makeAssignments(assignments, []);
+			// TODO: Fix so if there is a new assignment it'll be added to the local storage.
+			// Remaking the assignments array will not work because it will not have the local storage data.
+
+			// course.makeAssignments(assignments, []);
 		}
 	}
 }
