@@ -4,12 +4,13 @@ class ApiFetcher {
 	courses: Course[] = [];
 
 	async fetchCourses(): Promise<CourseJson[]> {
+		// Gets all courses from the API.
 		const response: Response = await fetch(this.apiUrl);
-		const data: CourseJson[] = await response.json();
-		return data;
+		return await response.json();
 	}
 
 	async fetchAssignments(courseId: number): Promise<AssignmentJson[]> {
+		// Gets all assignments for a course.
 		const assignmentUrl = `https://byui.instructure.com/api/v1/courses/${courseId}/assignments?per_page=50`;
 
 		let length: number = 50;
@@ -29,6 +30,7 @@ class ApiFetcher {
 	}
 
 	async makeCourses(): Promise<void> {
+		// Makes all courses from the API.
 		const courses: CourseJson[] = await this.fetchCourses();
 		for (const course of courses) {
 			const assignments: AssignmentJson[] = await this.fetchAssignments(course.id);

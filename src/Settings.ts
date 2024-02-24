@@ -16,61 +16,8 @@ class Settings {
 		});
 	}
 
-	async saveSettings(): Promise<void> {
-		const settings: string = JSON.stringify({
-			prioritizePoorGrades: this.prioritizePoorGrades,
-			workHours: this.workHours,
-			estimateMultiplier: this.estimateMultiplier,
-			planDistance: this.planDistance
-		});
-		await this.utility.saveStorage("settings", settings);
-
-		this.utility.alerter("Settings saved!");
-	}
-
-	getSettings(): void {
-		// Prioritize poor grades
-		this.prioritizePoorGrades = (
-			document.querySelector("#prioritizePoorGrades") as HTMLInputElement
-		).checked;
-
-		// Work hours
-		for (const day in this.workHours) {
-			this.workHours[day] = parseInt(
-				(document.querySelector(`#${day}`) as HTMLInputElement).value
-			);
-			if (this.workHours[day] < 0) {
-				this.workHours[day] = 0;
-			}
-		}
-
-		// Estimate multipliers
-		for (const courseId in this.estimateMultiplier) {
-			this.estimateMultiplier[courseId] = parseFloat(
-				(document.querySelector(`#${courseId}`) as HTMLInputElement).value
-			);
-		}
-	}
-
-	restoreSettings(): void {
-		// Prioritize poor grades
-		(document.getElementById("prioritizePoorGrades") as HTMLInputElement).checked =
-			this.prioritizePoorGrades;
-
-		// Work hours
-		for (const day in this.workHours) {
-			(document.getElementById(day) as HTMLInputElement).value =
-				this.workHours[day].toString();
-		}
-
-		// Estimate multipliers
-		for (const courseId in this.estimateMultiplier) {
-			(document.getElementById(courseId) as HTMLInputElement).value =
-				this.estimateMultiplier[courseId].toString();
-		}
-	}
-
 	async createSettingsPage(): Promise<void> {
+		// Creates the settings page.
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
 			this.utility.alerter("Error: Couldn't find the content wrapper.");
@@ -265,6 +212,63 @@ class Settings {
 		});
 
 		target.appendChild(buttons);
+	}
+
+	getSettings(): void {
+		// Gets settings from the page and updates the class properties.
+		// Prioritize poor grades
+		this.prioritizePoorGrades = (
+			document.querySelector("#prioritizePoorGrades") as HTMLInputElement
+		).checked;
+
+		// Work hours
+		for (const day in this.workHours) {
+			this.workHours[day] = parseInt(
+				(document.querySelector(`#${day}`) as HTMLInputElement).value
+			);
+			if (this.workHours[day] < 0) {
+				this.workHours[day] = 0;
+			}
+		}
+
+		// Estimate multipliers
+		for (const courseId in this.estimateMultiplier) {
+			this.estimateMultiplier[courseId] = parseFloat(
+				(document.querySelector(`#${courseId}`) as HTMLInputElement).value
+			);
+		}
+	}
+
+	restoreSettings(): void {
+		// Restores the settings to their previous state if the user presses the cancel button.
+		// Prioritize poor grades
+		(document.getElementById("prioritizePoorGrades") as HTMLInputElement).checked =
+			this.prioritizePoorGrades;
+
+		// Work hours
+		for (const day in this.workHours) {
+			(document.getElementById(day) as HTMLInputElement).value =
+				this.workHours[day].toString();
+		}
+
+		// Estimate multipliers
+		for (const courseId in this.estimateMultiplier) {
+			(document.getElementById(courseId) as HTMLInputElement).value =
+				this.estimateMultiplier[courseId].toString();
+		}
+	}
+
+	async saveSettings(): Promise<void> {
+		// Stringifies and saves the settings to local storage.
+		const settings: string = JSON.stringify({
+			prioritizePoorGrades: this.prioritizePoorGrades,
+			workHours: this.workHours,
+			estimateMultiplier: this.estimateMultiplier,
+			planDistance: this.planDistance
+		});
+		await this.utility.saveStorage("settings", settings);
+
+		this.utility.alerter("Settings saved!");
 	}
 }
 

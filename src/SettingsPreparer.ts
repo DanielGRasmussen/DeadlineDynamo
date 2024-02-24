@@ -1,61 +1,85 @@
 class SettingsPreparer {
-	// This runs at the document start to check for mutations and trigger our modifications immediately.
 	utility: Utility = new Utility();
 	link: string = "/deadline-dynamo";
+	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
+	insertedSidebarLink: boolean = false;
+	titleHeaderChanged: boolean = false;
+	removedNotFound: boolean = false;
+	addedHeader: boolean = false;
 
 	constructor() {
-		const observer = new MutationObserver(this.listener.bind(this));
-		observer.observe(document, { childList: true, subtree: true });
+		this.observer.observe(document, { childList: true, subtree: true });
 	}
 
 	// Prepare the settings page.
 	listener(mutationsList: MutationRecord[]): void {
+		// The goal of this is to catch any changes that we don't like and remove them or use them as a reference to
+		// make our own changes.
+		// This is to make sure that the changes don't appear for a split second before we remove them.
 		for (const mutation of mutationsList) {
-			if (mutation.type === "childList") {
-				mutation.addedNodes.forEach(node => {
-					const element: HTMLElement = node as HTMLElement;
-					const parent: HTMLElement | null = element.parentElement;
-
-					// Add the sidebar link after the courses link has been added.
-					if (element.id === "global_nav_courses_link") {
-						this.insertSidebarLink();
-					}
-					if (window.location.pathname === this.link) {
-						// The rest of the changes should only occur on the settings page.
-						// Set the title and fix the mobile header.
-						if (
-							element.classList &&
-							element.classList.contains("mobile-header-title")
-						) {
-							element.innerHTML = "Deadline Dynamo Settings";
-							document.title = "Deadline Dynamo Settings";
-						}
-
-						// Remove the "Page not found" message & svg.
-						else if (
-							parent &&
-							parent.id === "content" &&
-							element.id !== "byui-copyright" &&
-							// Either no classes or not the settings wrapper.
-							(!element.classList || !element.classList.contains("settings-wrapper"))
-						) {
-							element.remove();
-
-							// Removed the div and all its content, but we need the div.
-							this.addContainer();
-						}
-
-						// Add our header to the settings page.
-						else if (element.id === "main") {
-							this.addHeader();
-						}
-					}
-				});
+			if (mutation.type !== "childList") {
+				continue;
 			}
+
+			mutation.addedNodes.forEach(node => {
+				const element: HTMLElement = node as HTMLElement;
+				const parent: HTMLElement | null = element.parentElement;
+
+				// Add the sidebar link after the courses link has been added.
+				if (element.id === "global_nav_courses_link") {
+					this.insertSidebarLink();
+					this.insertedSidebarLink = true;
+				}
+				if (window.location.pathname === this.link) {
+					// The rest of the changes should only occur on the settings page.
+					// Set the title and fix the mobile header.
+					if (element.classList && element.classList.contains("mobile-header-title")) {
+						element.innerHTML = "Deadline Dynamo Settings";
+						document.title = "Deadline Dynamo Settings";
+						this.titleHeaderChanged = true;
+					}
+
+					// Remove the "Page not found" message & svg.
+					else if (
+						parent &&
+						parent.id === "content" &&
+						element.id !== "byui-copyright" &&
+						// Either no classes or not the settings wrapper.
+						(!element.classList || !element.classList.contains("settings-wrapper"))
+					) {
+						element.remove();
+
+						// Removed the div and all its content, but we need the div.
+						this.addContainer();
+
+						this.removedNotFound = true;
+					}
+
+					// Add our header to the settings page.
+					else if (element.id === "main") {
+						this.addHeader();
+						this.addedHeader = true;
+					}
+
+					// If all the changes have been made, we don't need to keep observing.
+					if (
+						this.insertedSidebarLink &&
+						this.titleHeaderChanged &&
+						this.removedNotFound &&
+						this.addedHeader
+					) {
+						this.observer.disconnect();
+					}
+				} else if (this.insertedSidebarLink) {
+					// If the sidebar link was inserted and nothing else needs to be, we don't need to keep observing.
+					this.observer.disconnect();
+				}
+			});
 		}
 	}
 
 	insertSidebarLink(): void {
+		// Creates the link to /deadline-dynamo in the left sidebar.
 		// Create the element to insert.
 		let aria_current: string = "false";
 		let icon_fill: string = "#fff";
@@ -138,7 +162,7 @@ class SettingsPreparer {
 	}
 
 	addHeader(): void {
-		// Add the header to the settings page.
+		// Adds our header to the settings page.
 		const settingsPageJson: HtmlElement = {
 			element: "div",
 			attributes: {

@@ -3,7 +3,6 @@ class Main {
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
-	planner!: Planner;
 
 	constructor() {
 		this.Main();
@@ -12,27 +11,15 @@ class Main {
 	async Main(): Promise<void> {
 		const firstLoadup: boolean = await this.getCourses();
 
-		if (this.courses === undefined) {
-			this.utility.alerter("Error: No courses found!");
-			return;
-		}
-
-		// Temporary test code.
-		// for (const course of this.courses) {
-		// 	for (const assignment of course.assignments) {
-		// 		this.estimator.estimateTime(assignment, course.id);
-		// 	}
-		// 	course.saveCourse();
-		// }
-
 		if (firstLoadup) {
 			await this.updateAssignments();
 		}
-
-		this.planner = new Planner(this.courses, this.estimator, this.utility);
 	}
 
 	async getCourses(): Promise<boolean> {
+		// Gets all courses.
+		// If it's the first time loading up, it gets everything from scratch.
+		// If it's not the first time, it gets everything from local storage.
 		const courseIds: string | null = await this.utility.loadStorage("courseIds");
 
 		if (courseIds !== null) {
@@ -124,11 +111,10 @@ class Main {
 			}
 
 			// TODO: Fix so if there is a new assignment it'll be added to the local storage.
-			// Remaking the assignments array will not work because it will not have the local storage data.
+			// Remaking the assignments array will not work because it will not have the local storage data like
+			// estimates.
 
 			// course.makeAssignments(assignments, []);
 		}
 	}
 }
-
-new Main();

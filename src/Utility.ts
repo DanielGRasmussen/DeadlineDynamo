@@ -1,6 +1,5 @@
 class Utility {
 	alerter(message: string): void {
-		// TODO: Make it much more smooth lol.
 		console.log(message);
 	}
 
@@ -26,6 +25,10 @@ class Utility {
 			}
 		}
 		return element;
+	}
+
+	async loadStorage(key: string): Promise<string | null> {
+		return await localStorage.getItem(key);
 	}
 
 	async loadSettings(): Promise<SettingsJson> {
@@ -62,11 +65,6 @@ class Utility {
 		return settings;
 	}
 
-	async loadStorage(key: string): Promise<string | null> {
-		const data: string | null = await localStorage.getItem(key);
-		return data;
-	}
-
 	async saveStorage(key: string, data: string): Promise<void> {
 		localStorage.setItem(key, data);
 	}
@@ -87,6 +85,27 @@ class Utility {
 		} else {
 			return JSON.parse(plan);
 		}
+	}
+
+	getEstimate(assignment: Assignment, estimator: Estimator): string {
+		let estimate = "";
+		if (assignment.userEstimate !== undefined && assignment.userEstimate !== null) {
+			estimate = assignment.userEstimate.toString();
+		} else if (
+			assignment.historyEstimate !== undefined &&
+			assignment.historyEstimate !== null
+		) {
+			estimate = assignment.historyEstimate.toString();
+		} else {
+			estimator.estimateTime(assignment);
+
+			if (assignment.basicEstimate === undefined || assignment.basicEstimate === null) {
+				this.alerter("Error: No estimator failed to estimate.");
+			} else {
+				estimate = assignment.basicEstimate.toString();
+			}
+		}
+		return estimate;
 	}
 
 	formatDate(date: Date): [string, string] {
@@ -116,26 +135,5 @@ class Utility {
 
 		// Combine the date and time parts
 		return [formattedDate, formattedTime];
-	}
-
-	getEstimate(assignment: Assignment, estimator: Estimator): string {
-		let estimate = "";
-		if (assignment.userEstimate !== undefined && assignment.userEstimate !== null) {
-			estimate = assignment.userEstimate.toString();
-		} else if (
-			assignment.historyEstimate !== undefined &&
-			assignment.historyEstimate !== null
-		) {
-			estimate = assignment.historyEstimate.toString();
-		} else {
-			estimator.estimateTime(assignment);
-
-			if (assignment.basicEstimate === undefined || assignment.basicEstimate === null) {
-				this.alerter("Error: No estimator failed to estimate.");
-			} else {
-				estimate = assignment.basicEstimate.toString();
-			}
-		}
-		return estimate;
 	}
 }

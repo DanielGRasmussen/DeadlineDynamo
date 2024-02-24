@@ -16,7 +16,6 @@ class Assignment {
 	historyEstimate: number | null;
 	userEstimate: number | null;
 	priorityValue?: number | null;
-	percComplete: number = 0;
 
 	constructor(
 		id: number,

@@ -1,57 +1,153 @@
 class PlannerPreparer {
-	// This runs at the document start to check for mutations and trigger our modifications immediately.
 	utility: Utility = new Utility();
+	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
+	removedDefaultPlanner: boolean = false;
+	addedPlanner: boolean = false;
+	addedSidebarButton: boolean = false;
+	triggeredMain: boolean = false;
+	clickedTodoClose: boolean = false;
+	main: Main = new Main();
 
 	constructor() {
-		const observer = new MutationObserver(this.listener.bind(this));
-		observer.observe(document, { childList: true, subtree: true });
+		this.observer.observe(document, { childList: true, subtree: true });
 	}
 
 	// Prepare the settings page.
 	listener(mutationsList: MutationRecord[]): void {
+		// The goal of this is to catch any changes that we don't like and remove them or use them as a reference to
+		// make our own changes.
+		// This is to make sure that the changes don't appear for a split second before we remove them.
 		for (const mutation of mutationsList) {
-			if (mutation.type === "childList") {
-				mutation.addedNodes.forEach(node => {
-					const element: HTMLElement = node as HTMLElement;
-
-					// TODO: Modify this to trigger an event that trigger the loading of all main scripts when all
-					//  items have been loaded.
-
-					if (element.id === "dashboard-planner") {
-						// Remove the canvas planner element.
-						// TODO: Removing it causes an error causing the canvas add assignment close button to need
-						//  to be pressed twice to work.
-						element.remove();
-					} else if (element.id === "dashboard_header_container") {
-						// Add our planner element where the original planner was (after #dashboard_header_container).
-						const plannerJson: HtmlElement = {
-							element: "div",
-							attributes: { id: "deadline-dynamo-planner" }
-						};
-
-						const planner: HTMLElement = this.utility.createHtmlFromJson(plannerJson);
-
-						element.after(planner);
-					} else if (
-						element.classList &&
-						element.classList.contains("PlannerHeader-styles__root")
-					) {
-						// Create our sidebar button.
-						this.createSidebarButton();
-					}
-				});
+			if (mutation.type !== "childList") {
+				continue;
 			}
+
+			mutation.addedNodes.forEach(node => {
+				// So that we can make sure it is an HTMLElement and has the methods/attributes we check.
+				if (!(node instanceof HTMLElement)) {
+					return;
+				}
+
+				if (!this.removedDefaultPlanner && node.id === "dashboard-planner") {
+					// Remove the canvas planner element.
+					node.remove();
+					this.removedDefaultPlanner = true;
+				} else if (!this.addedPlanner && node.id === "dashboard_header_container") {
+					// Add our planner element where the original planner was (after #dashboard_header_container).
+					const plannerJson: HtmlElement = {
+						element: "div",
+						attributes: { id: "deadline-dynamo-planner" }
+					};
+
+					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerJson);
+
+					node.after(planner);
+					this.addedPlanner = true;
+
+					// Spinner while the plan is loading.
+					this.createSpinner();
+				} else if (
+					// This checks for when the add assignment button is added.
+					// It is added as a child of the planner header.
+					!this.addedSidebarButton &&
+					node.parentElement?.id === "dashboard-planner-header" &&
+					node.getAttribute("data-testid") === "PlannerHeader"
+				) {
+					// Create our sidebar button.
+					this.createSidebarButton();
+					this.addedSidebarButton = true;
+				} else if (
+					!this.clickedTodoClose &&
+					node.querySelector(
+						"div[aria-label='Add To Do'] span.css-19r6qv1-closeButton button"
+					)
+				) {
+					// When we remove some element in the original planner the todo sidebar close button doesn't
+					// work the first time it's pressed. This fixes it by clicking it an extra time when it is
+					// clicked. Very hacky. But it should be effective.
+					const closeButton: HTMLButtonElement | null = node.querySelector(
+						"span.css-19r6qv1-closeButton button"
+					);
+
+					if (closeButton === null) {
+						this.utility.alerter("Error: Close button not found.");
+						return;
+					}
+
+					closeButton.addEventListener("click", closeButton.click);
+					this.clickedTodoClose = true;
+				}
+
+				if (this.addedPlanner && this.addedSidebarButton && !this.triggeredMain) {
+					// This will make the planner load.
+					if (this.main.courses === undefined) {
+						this.utility.alerter("Error: No courses found!");
+						return;
+					}
+
+					new Planner(this.main.courses, this.main.estimator, this.utility);
+
+					this.triggeredMain = true;
+				}
+
+				if (
+					this.removedDefaultPlanner &&
+					this.addedPlanner &&
+					this.addedSidebarButton &&
+					this.clickedTodoClose
+				) {
+					// We're done here.
+					this.observer.disconnect();
+				}
+			});
 		}
 	}
 
+	createSpinner(): void {
+		// Adds the spinner for the main planning UI.
+		// This gets the "hidden" class added to it when the planner is done loading.
+		const spinnerJson: HtmlElement = {
+			element: "div",
+			attributes: { class: "deadline-dynamo-spinner" },
+			innerHTML: `
+				<svg class="spinner" viewBox="0 0 50 50">
+ 					<circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+				</svg>`
+		};
+
+		const spinner: HTMLElement = this.utility.createHtmlFromJson(spinnerJson);
+
+		const planner: HTMLElement | null = document.querySelector("#deadline-dynamo-planner");
+
+		if (planner === null) {
+			this.utility.alerter("Error: Planner not found.");
+			return;
+		}
+
+		planner.append(spinner);
+	}
+
 	createSidebarButton(): void {
+		// Adds the sidebar button next to the "add assignment button" that is in the top header.
+		const buttonSibling: HTMLElement | null = document.querySelector(
+			"button[data-testid='add-to-do-button']"
+		);
+
+		if (buttonSibling === null) {
+			this.utility.alerter("Error: Button sibling not found.");
+			return;
+		}
+
+		// Get button's class so we can use it and match the UI.
+		const buttonClass: string = buttonSibling.classList[0];
+
 		const buttonJson: HtmlElement = {
 			element: "button",
 			attributes: {
 				cursor: "pointer",
 				type: "button",
 				tabindex: "0",
-				class: "css-ivugo1-view--inlineBlock-baseButton deadline-dynamo-sidebar-button"
+				class: `${buttonClass} deadline-dynamo-sidebar-button`
 			},
 			children: [
 				{
@@ -109,15 +205,6 @@ class PlannerPreparer {
 		};
 
 		const button: HTMLElement = this.utility.createHtmlFromJson(buttonJson);
-
-		const buttonSibling: HTMLElement | null = document.querySelector(
-			"button[data-testid='add-to-do-button']"
-		);
-
-		if (buttonSibling === null) {
-			this.utility.alerter("Error: Button sibling not found.");
-			return;
-		}
 
 		buttonSibling.after(button);
 	}
