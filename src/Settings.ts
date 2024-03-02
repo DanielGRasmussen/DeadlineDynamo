@@ -5,6 +5,7 @@ class Settings {
 	workHours!: WorkHours;
 	estimateMultiplier!: EstimateMultiplier;
 	planDistance!: number;
+	showEvents!: boolean;
 
 	constructor() {
 		// Load settings from local storage.
@@ -12,6 +13,8 @@ class Settings {
 			this.prioritizePoorGrades = settings.prioritizePoorGrades;
 			this.workHours = settings.workHours;
 			this.estimateMultiplier = settings.estimateMultiplier;
+			this.planDistance = settings.planDistance;
+			this.showEvents = settings.showEvents;
 			this.createSettingsPage();
 		});
 	}
@@ -264,7 +267,8 @@ class Settings {
 			prioritizePoorGrades: this.prioritizePoorGrades,
 			workHours: this.workHours,
 			estimateMultiplier: this.estimateMultiplier,
-			planDistance: this.planDistance
+			planDistance: this.planDistance,
+			showEvents: this.showEvents
 		});
 		await this.utility.saveStorage("settings", settings);
 

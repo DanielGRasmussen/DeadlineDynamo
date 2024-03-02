@@ -22,7 +22,7 @@ class PlannerPreparer {
 				continue;
 			}
 
-			mutation.addedNodes.forEach(node => {
+			mutation.addedNodes.forEach((node: Node) => {
 				// So that we can make sure it is an HTMLElement and has the methods/attributes we check.
 				if (!(node instanceof HTMLElement)) {
 					return;
@@ -36,7 +36,7 @@ class PlannerPreparer {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerJson: HtmlElement = {
 						element: "div",
-						attributes: { id: "deadline-dynamo-planner" }
+						attributes: { id: "deadline-dynamo-planner", class: "sidebar-hidden" }
 					};
 
 					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerJson);
@@ -80,14 +80,22 @@ class PlannerPreparer {
 
 				if (this.addedPlanner && this.addedSidebarButton && !this.triggeredMain) {
 					// This will make the planner load.
-					if (this.main.courses === undefined) {
-						this.utility.alerter("Error: No courses found!");
-						return;
+					for (let i = 0; i < 10; i++) {
+						// On the first load up then it has to send a couple of API requests and isn't ready yet.
+						// This is to wait for it.
+						this.utility.wait(500).then(() => {
+							if (this.main.doneLoading && this.main.courses && !this.triggeredMain) {
+								new Planner(this.main.courses, this.main.estimator, this.utility);
+								this.triggeredMain = true;
+							}
+						});
 					}
-
-					new Planner(this.main.courses, this.main.estimator, this.utility);
-
-					this.triggeredMain = true;
+					// I have to make it wait for the above check to finish before sending the error.
+					this.utility.wait(5000).then(() => {
+						if (!this.triggeredMain) {
+							this.utility.alerter("Error: Planner not loaded.");
+						}
+					});
 				}
 
 				if (

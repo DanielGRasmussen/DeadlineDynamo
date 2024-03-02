@@ -20,16 +20,25 @@ class Course {
 
 	makeAssignments(assignments: AssignmentJson[], localAssignments: LocalAssignmentJson[]): void {
 		this.assignments = []; // Clear it out before we start.
+
 		// Use the right format depending on if the assignments are from the API or local storage.
 		// TypeScript is not a big fan of the || tool when I have both formats as options for the same variable.
 		if (assignments.length !== 0) {
 			// This is API data.
+			// Filter out assignments that don't belong to this course.
+			assignments = assignments.filter(assignment => {
+				if (assignment.course_id !== this.id) {
+					return false;
+				}
+				return true;
+			});
+
 			// Sort assignments by due date.
 			assignments.sort((a, b) => {
-				if (a.due_at < b.due_at) {
+				if (a.plannable_date < b.plannable_date) {
 					return -1;
 				}
-				if (a.due_at > b.due_at) {
+				if (a.plannable_date > b.plannable_date) {
 					return 1;
 				}
 				return 0;
@@ -37,21 +46,20 @@ class Course {
 
 			this.assignments = assignments.map(assignment => {
 				return new Assignment(
-					assignment.id,
-					this.id,
-					assignment.name,
-					assignment.has_submitted_submissions,
-					new Date(assignment.due_at),
-					// If unlock_at is null, set to null, otherwise set to new Date(unlock_at)
-					assignment.unlock_at === null ? null : new Date(assignment.unlock_at),
-					assignment.description,
-					assignment.submission_types,
-					assignment.allowed_extensions,
-					assignment.points_possible,
-					`https://byui.instructure.com/courses/${this.id}/assignments/${assignment.id}`,
-					false, // lock should be false for API by default.
-					false, // planned should be false for API by default.
-					// No estimates yet.
+					assignment.plannable.id,
+					assignment.course_id,
+					assignment.plannable.title,
+					assignment.plannable_type,
+					assignment.submissions.submitted,
+					new Date(assignment.plannable_date),
+					assignment.plannable.start_at ? new Date(assignment.plannable.start_at) : null,
+					assignment.plannable.end_at ? new Date(assignment.plannable.end_at) : null,
+					assignment.plannable.points_possible,
+					// If it's not an event it will be undefined.
+					assignment.plannable.location_name || "",
+					`https://byui.instructure.com/courses/${assignment.course_id}/assignments/${assignment.plannable.id}`,
+					assignment.plannable_type === "calendar_event",
+					false,
 					null,
 					null,
 					null
@@ -62,22 +70,21 @@ class Course {
 			this.assignments = localAssignments.map(assignment => {
 				return new Assignment(
 					assignment.id,
-					this.id,
+					assignment.course_id,
 					assignment.name,
+					assignment.type,
 					assignment.submitted,
-					new Date(assignment.dueDate),
-					// If unlockAt is null, set to null, otherwise set to new Date(unlockAt)
-					assignment.unlockAt === null ? null : new Date(assignment.unlockAt),
-					assignment.description,
-					assignment.submissionTypes,
-					assignment.allowedExtensions,
-					assignment.pointsPossible,
+					new Date(assignment.due_date),
+					assignment.start_date ? new Date(assignment.start_date) : null,
+					assignment.end_date ? new Date(assignment.end_date) : null,
+					assignment.points_possible,
+					assignment.location_name,
 					assignment.link,
 					assignment.lock,
 					assignment.planned,
-					assignment.basicEstimate,
-					assignment.historyEstimate,
-					assignment.userEstimate
+					assignment.basic_estimate,
+					assignment.history_estimate,
+					assignment.user_estimate
 				);
 			});
 		}
@@ -85,10 +92,6 @@ class Course {
 
 	async saveCourse(): Promise<void> {
 		const key: string = `course-${this.id}`;
-		// Remove the assignment description to prevent using too much storage.
-		for (const assignment of this.assignments) {
-			assignment.description = null;
-		}
 		const data: string = JSON.stringify(this);
 
 		const courseIds: string | null = await this.utility.loadStorage("courseIds");

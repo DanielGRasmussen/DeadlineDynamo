@@ -1,5 +1,6 @@
 class Utility {
 	alerter(message: string): void {
+		throw new Error(message);
 		console.log(message);
 	}
 
@@ -46,7 +47,8 @@ class Utility {
 				sunday: 0
 			},
 			estimateMultiplier: {},
-			planDistance: 2
+			planDistance: 1,
+			showEvents: false
 		};
 
 		if (settingsJson === null) {
@@ -83,26 +85,33 @@ class Utility {
 			}
 			return plan;
 		} else {
-			return JSON.parse(plan);
+			const planObject: Plan = JSON.parse(plan);
+			// Convert all the dates back to Date objects.
+			for (const date in planObject) {
+				planObject[date].forEach(assignment => {
+					assignment.due_date = new Date(assignment.due_date);
+				});
+			}
+			return planObject;
 		}
 	}
 
 	getEstimate(assignment: Assignment, estimator: Estimator): string {
 		let estimate = "";
-		if (assignment.userEstimate !== undefined && assignment.userEstimate !== null) {
-			estimate = assignment.userEstimate.toString();
+		if (assignment.user_estimate !== undefined && assignment.user_estimate !== null) {
+			estimate = assignment.user_estimate.toString();
 		} else if (
-			assignment.historyEstimate !== undefined &&
-			assignment.historyEstimate !== null
+			assignment.history_estimate !== undefined &&
+			assignment.history_estimate !== null
 		) {
-			estimate = assignment.historyEstimate.toString();
+			estimate = assignment.history_estimate.toString();
 		} else {
 			estimator.estimateTime(assignment);
 
-			if (assignment.basicEstimate === undefined || assignment.basicEstimate === null) {
+			if (assignment.basic_estimate === undefined || assignment.basic_estimate === null) {
 				this.alerter("Error: No estimator failed to estimate.");
 			} else {
-				estimate = assignment.basicEstimate.toString();
+				estimate = assignment.basic_estimate.toString();
 			}
 		}
 		return estimate;
@@ -135,5 +144,25 @@ class Utility {
 
 		// Combine the date and time parts
 		return [formattedDate, formattedTime];
+	}
+
+	wait(ms: number): Promise<void> {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+	parseLinkHeader(linkHeader: string | null): { [rel: string]: string } {
+		if (!linkHeader) {
+			return {};
+		}
+
+		const links: { [rel: string]: string } = {};
+		const parts: string[] = linkHeader.split(",");
+
+		for (const part of parts) {
+			const [url, rel] = part.trim().split(";");
+			links[rel.split("=")[1].slice(1, -1)] = url.trim().slice(1, -1);
+		}
+
+		return links;
 	}
 }

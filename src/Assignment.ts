@@ -1,55 +1,54 @@
 class Assignment {
 	id: number;
-	courseId: number;
+	course_id: number;
 	name: string;
+	type: PlanableType;
 	submitted: boolean;
-	dueDate: Date;
-	unlockAt: Date | null;
-	description: string | null;
-	submissionTypes: string[];
-	allowedExtensions: string[];
-	pointsPossible: number;
+	due_date: Date;
+	start_date: Date | null;
+	end_date: Date | null;
+	points_possible: number | null;
+	location_name: string;
 	link: string;
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
-	basicEstimate: number | null;
-	historyEstimate: number | null;
-	userEstimate: number | null;
-	priorityValue?: number | null;
+	basic_estimate: number | null;
+	history_estimate: number | null;
+	user_estimate: number | null;
 
 	constructor(
 		id: number,
-		courseId: number,
+		course_id: number,
 		name: string,
+		type: PlanableType,
 		submitted: boolean,
-		dueDate: Date,
-		unlockAt: Date | null,
-		description: string,
-		submissionTypes: string[],
-		allowedExtensions: string[],
-		pointsPossible: number,
+		due_date: Date,
+		start_date: Date | null,
+		end_date: Date | null,
+		points_possible: number | null,
+		location_name: string,
 		link: string,
 		lock: boolean,
 		planned: boolean,
-		basicEstimate: number | null,
-		historyEstimate: number | null,
-		userEstimate: number | null
+		basic_estimate: number | null,
+		history_estimate: number | null,
+		user_estimate: number | null
 	) {
 		this.id = id;
-		this.courseId = courseId;
+		this.course_id = course_id;
 		this.name = name;
+		this.type = type;
 		this.submitted = submitted;
-		this.dueDate = dueDate;
-		this.unlockAt = unlockAt;
-		this.description = description;
-		this.submissionTypes = submissionTypes;
-		this.allowedExtensions = allowedExtensions;
-		this.pointsPossible = pointsPossible;
+		this.due_date = due_date;
+		this.start_date = start_date;
+		this.end_date = end_date;
+		this.points_possible = points_possible;
+		this.location_name = location_name;
 		this.link = link;
 		this.lock = lock;
 		this.planned = planned;
-		this.basicEstimate = basicEstimate;
-		this.historyEstimate = historyEstimate;
-		this.userEstimate = userEstimate;
+		this.basic_estimate = basic_estimate;
+		this.history_estimate = history_estimate;
+		this.user_estimate = user_estimate;
 	}
 }

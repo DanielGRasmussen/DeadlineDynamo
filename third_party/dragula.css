@@ -5,6 +5,7 @@
   opacity: 0.8;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
   filter: alpha(opacity=80);
+  cursor: grabbing !important;
 }
 .gu-hide {
   display: none !important;
@@ -19,4 +20,5 @@
   opacity: 0.2;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
   filter: alpha(opacity=20);
+  cursor: grabbing !important;
 }

@@ -1,18 +1,20 @@
 class Planner {
-	courses: Course[];
-	utility: Utility;
-	estimator: Estimator;
+	courses!: Course[];
+	utility!: Utility;
+	estimator!: Estimator;
 	settings!: SettingsJson;
 	plan!: Plan;
 
 	constructor(courses: Course[], estimator: Estimator, utility: Utility) {
+		this.main(courses, estimator, utility);
+	}
+
+	async main(courses: Course[], estimator: Estimator, utility: Utility): Promise<void> {
 		this.courses = courses;
 		this.utility = utility;
 		this.estimator = estimator;
 		// Settings are used for various things, so we have to get them in ASAP.
-		this.utility.loadSettings().then((settings: SettingsJson): void => {
-			this.settings = settings;
-		});
+		this.settings = await this.utility.loadSettings();
 		this.plan = this.utility.loadPlan();
 
 		// Check on if our sidebar pullout button is there. It should be.
@@ -77,6 +79,16 @@ class Planner {
 
 		// Dragula is now useful since the sidebar (where assignments are dragged to/from) is now created.
 		this.addDragula();
+
+		// Remove the "sidebar-hidden" class to make stuff draggable.
+		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+
+		if (planner === null) {
+			this.utility.alerter("Error: Planner not found.");
+			return;
+		}
+
+		planner.classList.remove("sidebar-hidden");
 	}
 
 	deleteSidebar(): void {
@@ -99,13 +111,23 @@ class Planner {
 			450,
 			sidebar
 		);
+
+		// Add the "sidebar-hidden" class to the planner to make stuff unmovable again.
+		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+
+		if (planner === null) {
+			this.utility.alerter("Error: Planner not found.");
+			return;
+		}
+
+		planner.classList.add("sidebar-hidden");
 	}
 
 	addAssignmentsToSidebar(): void {
 		for (const course of this.courses) {
 			const courseElement: HtmlElement = {
 				element: "div",
-				attributes: { class: `sidebar-course ${course.id} collapsed` },
+				attributes: { class: `sidebar-course cid-${course.id} collapsed` },
 				children: [
 					{
 						element: "h4",
@@ -167,6 +189,7 @@ class Planner {
 				if (!this.checkPlanAssignment(assignment)) {
 					continue;
 				}
+
 				anyAssignments = true;
 
 				const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);
@@ -185,39 +208,20 @@ class Planner {
 					this.saveUserEstimate(course, assignment, input.value);
 				});
 			}
-			if (!anyAssignments) {
-				const noAssignmentsElement: HtmlElement = {
-					element: "li",
-					attributes: { class: "no-assignments" },
-					textContent: "No assignments to plan."
-				};
-				const noAssignments: HTMLElement =
-					this.utility.createHtmlFromJson(noAssignmentsElement);
 
-				assignmentList.appendChild(noAssignments);
+			if (!anyAssignments) {
+				this.addNoAssignmentsMessage(assignmentList);
 			}
 		}
 	}
 
 	makeAssignmentElement(assignment: Assignment): HTMLElement {
-		let submissionType: string;
-		if (assignment.submissionTypes.includes("online_quiz")) {
-			submissionType = "quiz";
-		} else if (assignment.submissionTypes.includes("discussion_topic")) {
-			submissionType = "discussion";
-		} else {
-			submissionType = "assignment";
-		}
-
-		if (!assignment.dueDate.getDate) {
-			assignment.dueDate = new Date(assignment.dueDate);
-		}
-		const due_date: [string, string] = this.utility.formatDate(assignment.dueDate);
+		const due_date: [string, string] = this.utility.formatDate(assignment.due_date);
 
 		const assignmentElement: HtmlElement = {
 			element: "li",
 			attributes: {
-				class: `sidebar-course ${assignment.courseId} ${assignment.id} ${submissionType}`
+				class: `sidebar-course cid-${assignment.course_id} aid-${assignment.id} ${assignment.type}`
 			},
 			children: [
 				{
@@ -257,6 +261,11 @@ class Planner {
 					textContent: `Estimate: ${this.utility.getEstimate(assignment, this.estimator)}m`
 				},
 				{
+					element: "p",
+					attributes: { class: "location" },
+					textContent: assignment.location_name
+				},
+				{
 					element: "div",
 					attributes: { class: "due-date" },
 					children: [
@@ -269,6 +278,14 @@ class Planner {
 							element: "span",
 							attributes: { class: "time" },
 							textContent: due_date[1]
+						},
+						{
+							element: "span",
+							attributes: { class: "times" },
+							textContent:
+								assignment.start_date && assignment.end_date
+									? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}`
+									: ""
 						}
 					]
 				}
@@ -279,86 +296,109 @@ class Planner {
 	}
 
 	saveUserEstimate(course: Course, assignment: Assignment, estimate: string): void {
-		assignment.userEstimate = parseInt(estimate);
+		assignment.user_estimate = parseInt(estimate);
 		course.saveCourse();
 	}
 
 	checkPlanAssignment(assignment: Assignment): boolean {
 		// Returns true if the assignment should be planned.
 
-		// TODO: Figure out why assignments are being marked as submitted.
-		// Tested at 10:30 PM Friday and assignments the next day were marked as submitted.
-		// Checks if the assignment has any submissions.
-		// if (assignment.submitted) {
-		// 	// Filter out the assignment.
-		// 	return false;
-		// }
-
-		// Check if the assignment is already planned.
-		if (assignment.planned) {
-			// Filter out the assignment.
+		if (
+			// Submitted assignments don't need to be planned.
+			assignment.submitted ||
+			// Already planned assignments don't need to be planned.
+			assignment.planned ||
+			// Locked assignments are moved into the planner elsewhere.
+			assignment.lock ||
+			// Announcements aren't in the base planner.
+			assignment.type === "announcement"
+		) {
 			return false;
 		}
 
-		// Filter assignment to be within X weeks from this week's monday.
-		// Get most recent monday.
-		const today: Date = new Date();
-		let monday: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-
-		// Calculate x weeks from the Monday to determine where planning should end.
-		const endDate: Date = new Date(
-			monday.setDate(monday.getDate() + this.settings.planDistance * 7)
-		);
-		// Creating the new date sets the one used in it, so we need to reset monday to be monday.
-		monday = new Date(today);
-
-		// Check if assignment is before monday or after the end date.
-		return !(assignment.dueDate < monday || assignment.dueDate > endDate);
+		return true;
 	}
 
 	addDragula(): void {
 		const assignment_containers: NodeListOf<HTMLElement> = document.querySelectorAll(
-			".weekday-assignments, .course-assignments"
+			".weekday-assignments, .course-assignments, .sidebar-courses"
 		);
 		const containers: HTMLElement[] = Array.from(assignment_containers);
 
 		// @ts-expect-error - Dragula is defined in the dragula package.
 		const drake = dragula(containers, {
 			revertOnSpill: true,
-			invalid: (el: HTMLElement, handle: never) => el.classList.contains("no-assignments")
+			invalid: (el: HTMLElement, _: never) => {
+				const planner: HTMLElement | null =
+					document.getElementById("deadline-dynamo-planner");
+
+				return (
+					// Don't allow dragging if the assignment is already planned.
+					el.classList.contains("no-assignments") ||
+					// Don't drag the planning elements.
+					el.parentElement?.classList.contains("sidebar-courses") ||
+					// Don't allow dragging if the sidebar is hidden.
+					planner?.classList.contains("sidebar-hidden") ||
+					// Don't allow dragging if the assignment is locked.
+					el.classList.contains("locked")
+				);
+			}
 		});
 
-		// TODO: Modify settings.
 		drake.on(
 			"drop",
-			(el: HTMLElement, target: HTMLElement, source: never, sibling: never): void => {
+			(el: HTMLElement, target: HTMLElement, source: HTMLElement, _: never): void => {
+				// Gets course and assignment id to allow us to find the assignment.
+				// They have identifiers of "cid-#" and "aid-#" respectively.
+				const course_id: number = parseInt(el.classList[1].substring(4));
+				const assignment_id: number = parseInt(el.classList[2].substring(4));
+
+				// Find the course.
+				const course: Course | undefined = this.courses.find(
+					(course: Course): boolean => course.id === course_id
+				);
+
+				if (course === undefined) {
+					this.utility.alerter("Error: Course not found.");
+					return;
+				}
+
+				// Find the assignment.
+				const assignment: Assignment | undefined = course.assignments.find(
+					(assignment: Assignment): boolean => assignment.id === assignment_id
+				);
+
+				if (assignment === undefined) {
+					this.utility.alerter("Error: Assignment not found.");
+					return;
+				}
+
+				// Remove the assignment from the plan.
+				for (const day in this.plan) {
+					if (this.plan[day] !== undefined) {
+						this.plan[day] = this.plan[day].filter(
+							(assignment: Assignment): boolean => assignment.id !== assignment_id
+						);
+					}
+				}
+
 				if (target.classList.contains("weekday-assignments")) {
-					// Gets course and assignment id so we can find the assignment.
-					const course_id: number = parseInt(el.classList[1]);
-					const assignment_id: number = parseInt(el.classList[2]);
-
-					// Find the course.
-					const course: Course | undefined = this.courses.find(
-						(course: Course): boolean => course.id === course_id
-					);
-
-					if (course === undefined) {
-						this.utility.alerter("Error: Course not found.");
-						return;
+					// The assignment is being moved to the planner.
+					// Remove the "no assignments" message if it's in the planner.
+					const noAssignments: HTMLElement | null =
+						target.querySelector(".no-assignments");
+					if (noAssignments !== null) {
+						noAssignments.remove();
 					}
 
-					// Find the assignment.
-					const assignment: Assignment | undefined = course.assignments.find(
-						(assignment: Assignment): boolean => assignment.id === assignment_id
-					);
-
-					if (assignment === undefined) {
-						this.utility.alerter("Error: Assignment not found.");
-						return;
+					// Add the "no assignments" message to the sidebar if required.
+					// TODO: We have to check if it has no children that are set to display block as under some
+					//  circumstances they are set to display: none instead.
+					if (source.children.length === 0) {
+						this.addNoAssignmentsMessage(source);
 					}
 
 					// Add the assignment to the plan.
-					console.log(target.classList[1]);
 					const target_day: string = target.classList[1];
 					let target_day_plan: Assignment[] = this.plan[target_day];
 
@@ -368,12 +408,50 @@ class Planner {
 
 					target_day_plan.push(assignment);
 					this.plan[target_day] = target_day_plan;
-					this.utility.saveStorage("plan", JSON.stringify(this.plan));
 
 					// Update the assignment info
 					assignment.planned = true;
-					course.saveCourse();
+				} else {
+					// The assignment is being moved back to the sidebar.
+					// The two places it can be dropped to trigger this is the overall sidebar or an individual
+					// course's segment in the sidebar.
+
+					// Add the "no assignments" message in the planner if required.
+					if (source.children.length === 0) {
+						this.addNoAssignmentsMessage(source);
+					}
+
+					// Get course it is supposed to move to.
+					const target_course: HTMLElement | null = document.querySelector(
+						`div.sidebar-course.cid-${course_id} .course-assignments`
+					);
+
+					if (target_course === null) {
+						this.utility.alerter("Error: Target course not found.");
+						return;
+					}
+					const new_element: HTMLElement = el.cloneNode(true) as HTMLElement;
+					new_element?.classList.remove("gu-transit");
+
+					target_course?.firstChild?.before(new_element);
+
+					// Hide the original element.
+					el.style.display = "none";
+
+					// Remove the "no assignments" message if it's in the sidebar.
+					const noAssignments: HTMLElement | null =
+						target_course.querySelector(".no-assignments");
+
+					if (noAssignments !== null) {
+						noAssignments.remove();
+					}
+
+					// Update the assignment info
+					assignment.planned = false;
 				}
+
+				this.utility.saveStorage("plan", JSON.stringify(this.plan));
+				course.saveCourse();
 			}
 		);
 	}
@@ -392,7 +470,7 @@ class Planner {
 		const monday: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));
 
 		// Add the slots for each day of the week.
-		for (let i = 0; i < 7; i++) {
+		for (let i = 0; i < 7 * this.settings.planDistance; i++) {
 			const day: Date = new Date(monday);
 			day.setDate(day.getDate() + i);
 
@@ -417,6 +495,8 @@ class Planner {
 			const dayDiv: HTMLElement = this.utility.createHtmlFromJson(dayElement);
 
 			planner.appendChild(dayDiv);
+			// Add locked assignments for that day.
+			this.addLockedAssignments(day, dayDiv);
 
 			// Add the assignments planned for that day.
 			const currentPlan: Assignment[] | undefined = this.plan[day.toISOString().slice(0, 10)];
@@ -435,16 +515,9 @@ class Planner {
 
 					weekdayAssignments.appendChild(assignmentDiv);
 				});
-			} else {
+			}
+			if (dayDiv.children[1].children.length === 0) {
 				// The day has no assignments planned.
-				const noAssignmentsElement: HtmlElement = {
-					element: "li",
-					attributes: { class: "no-assignments" },
-					textContent: "No assignments planned."
-				};
-				const noAssignments: HTMLElement =
-					this.utility.createHtmlFromJson(noAssignmentsElement);
-
 				const weekdayAssignments: HTMLElement | null =
 					dayDiv.querySelector(".weekday-assignments");
 
@@ -453,7 +526,7 @@ class Planner {
 					return;
 				}
 
-				weekdayAssignments.appendChild(noAssignments);
+				this.addNoAssignmentsMessage(weekdayAssignments);
 			}
 		}
 
@@ -465,5 +538,56 @@ class Planner {
 		}
 
 		spinner.classList.add("hidden");
+	}
+
+	addLockedAssignments(day: Date, dayDiv: HTMLElement): void {
+		// Adds the locked assignments for the day.
+
+		const showEvents: boolean = this.settings.showEvents;
+		const lockedAssignments: Assignment[] = this.courses
+			.flatMap((course: Course): Assignment[] => course.assignments)
+			.filter((assignment: Assignment): boolean => {
+				if (
+					// It has to be locked
+					assignment.lock &&
+					// It can't be a calendar event if we're not showing them.
+					(showEvents || assignment.type !== "calendar_event") &&
+					// It can't be an announcement.
+					assignment.type !== "announcement" &&
+					// It has to be due on the day we're looking at.
+					this.utility.formatDate(assignment.due_date)[0] ===
+						this.utility.formatDate(day)[0]
+				) {
+					return true;
+				}
+				return false;
+			});
+
+		lockedAssignments.forEach((assignment: Assignment): void => {
+			const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);
+			assignmentDiv.classList.add("locked");
+
+			const weekdayAssignments: HTMLElement | null =
+				dayDiv.querySelector(".weekday-assignments");
+
+			if (weekdayAssignments === null) {
+				this.utility.alerter("Error: Weekday assignments not found.");
+				return;
+			}
+
+			weekdayAssignments.appendChild(assignmentDiv);
+		});
+	}
+
+	addNoAssignmentsMessage(target: HTMLElement): void {
+		// Adds a message telling the user there are no assignments.
+		const noAssignmentsElement: HtmlElement = {
+			element: "li",
+			attributes: { class: "no-assignments" }
+			// The content of this message is added with CSS.
+		};
+		const noAssignments: HTMLElement = this.utility.createHtmlFromJson(noAssignmentsElement);
+
+		target.appendChild(noAssignments);
 	}
 }

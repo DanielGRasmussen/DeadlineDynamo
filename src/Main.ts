@@ -3,17 +3,20 @@ class Main {
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
+	doneLoading: boolean = false;
 
 	constructor() {
-		this.Main();
+		this.main();
 	}
 
-	async Main(): Promise<void> {
+	async main(): Promise<void> {
 		const firstLoadup: boolean = await this.getCourses();
 
-		if (firstLoadup) {
+		if (!firstLoadup) {
+			await this.updateCourses();
 			await this.updateAssignments();
 		}
+		this.doneLoading = true;
 	}
 
 	async getCourses(): Promise<boolean> {
@@ -22,99 +25,113 @@ class Main {
 		// If it's not the first time, it gets everything from local storage.
 		const courseIds: string | null = await this.utility.loadStorage("courseIds");
 
-		if (courseIds !== null) {
-			// Load stuff from local storage.
-			const ids: string[] = JSON.parse(courseIds);
-			const courses: Course[] = [];
-
-			let courseData: string | null;
-			let courseJson: LocalCourseJson;
-			let course: Course;
-			for (const id of ids) {
-				courseData = await this.utility.loadStorage(id);
-
-				if (courseData === null) {
-					// If the course data is null, get everything from scratch.
-					// The main way this would occur would be if it is a new semester.
-					// It could also occur if the user drops a course though.
-					// TODO: Fix for if the user drops a course so it doesn't reset all their plans.
-					this.utility.alerter("Course data was null.");
-					await this.apiFetcher.makeCourses();
-					this.courses = this.apiFetcher.courses;
-					return false;
-				}
-
-				courseJson = JSON.parse(courseData);
-				course = new Course(
-					courseJson.id,
-					courseJson.name,
-					courseJson.code,
-					[], // Empty assignments so it knows to use the local format for assignments.
-					courseJson.assignments
-				);
-				courses.push(course);
-			}
-			this.courses = courses;
+		if (courseIds === null) {
+			// First time loading up so it'll return true.
+			await this.firstLoadup();
 			return true;
-		} else {
-			// First time loading up, therefore we need to get everything from scratch.
-			await this.apiFetcher.makeCourses();
-			this.courses = this.apiFetcher.courses;
+		}
+		// Load stuff from local storage.
+		// Course ids isn't null so this will be returning false.
+		const course_ids: string[] = JSON.parse(courseIds);
+		const courses: Course[] = [];
 
-			for (const course of this.courses) {
-				await course.saveCourse();
+		let courseData: string | null;
+		let courseJson: LocalCourseJson;
+		let course: Course;
+		for (const course_id of course_ids) {
+			courseData = await this.utility.loadStorage(course_id);
+
+			if (courseData === null) {
+				// Get all data from scratch if any course localstorage data is missing.
+				// This would happen either when a course is added/removed or when the user tampered with local storage.
+				await this.firstLoadup();
+				return true;
 			}
-			return false;
+			courseJson = JSON.parse(courseData);
+			course = new Course(
+				courseJson.id,
+				courseJson.name,
+				courseJson.code,
+				[], // Empty assignments so it knows to use the local format for assignments.
+				courseJson.assignments
+			);
+			courses.push(course);
+		}
+		this.courses = courses;
+		return false;
+	}
+
+	async firstLoadup() {
+		// First time loading up, therefore we need to get everything from scratch.
+		await this.apiFetcher.makeCourses();
+		this.courses = this.apiFetcher.courses;
+
+		for (const course of this.courses) {
+			await course.saveCourse();
 		}
 	}
 
-	async updateAssignments(): Promise<void> {
-		// Gets updated info for assignments
+	async updateCourses(): Promise<void> {
+		// Gets updated info for courses
 		if (this.courses === undefined) {
-			// If this happens, I have no clue how.
 			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
 
-		for (const course of this.courses) {
-			// Get API info for all assignments for each course.
-			const assignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments(course.id);
+		// Get API info for all courses.
+		const courses: CourseJson[] = await this.apiFetcher.fetchCourses();
 
-			let currentAssignment: Assignment | undefined;
-			let dueDate: string;
-			let unlockDate: string;
-			for (const assignment of assignments) {
-				// Match API info with local info to update the user on changes.
-				// Then update the local info.
-				currentAssignment = course.assignments.find(item => item.id === assignment.id);
-				if (currentAssignment === undefined) {
-					this.utility.alerter(`New assignment in ${course.name}: ${assignment.name}`);
-				} else {
-					// .toISOString() returns a string with .000 unlike the API.
-					dueDate = currentAssignment.dueDate.toISOString();
-					dueDate = dueDate.substring(0, dueDate.length - 5) + "Z";
-					if (dueDate !== assignment.due_at) {
-						this.utility.alerter(
-							`Due date changed for ${currentAssignment.name} in ${course.name}`
-						);
-					}
-					if (currentAssignment.unlockAt) {
-						unlockDate = currentAssignment.unlockAt.toISOString();
-						unlockDate = unlockDate.substring(0, unlockDate.length - 5) + "Z";
-						if (unlockDate !== assignment.unlock_at) {
-							this.utility.alerter(
-								`Unlock date changed for ${currentAssignment.name} in ${course.name}`
-							);
-						}
-					}
-				}
+		let currentCourse: Course | undefined;
+		for (const course of courses) {
+			// Match API info with local info to update the user on changes.
+			// Then update the local info.
+			currentCourse = this.courses.find(item => item.id === course.id);
+			if (currentCourse === undefined) {
+				this.utility.alerter(`New course: ${course.shortName}`);
+
+				// Get new course's assignments
+				let assignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments();
+				assignments = assignments.filter(assignment => assignment.course_id === course.id);
+
+				// Make the new course.
+				currentCourse = new Course(
+					course.id,
+					course.shortName,
+					course.courseCode,
+					assignments
+				);
+
+				// Save the new course's info.
+				this.courses.push(currentCourse);
+				currentCourse.saveCourse();
+				return;
 			}
-
-			// TODO: Fix so if there is a new assignment it'll be added to the local storage.
-			// Remaking the assignments array will not work because it will not have the local storage data like
-			// estimates.
-
-			// course.makeAssignments(assignments, []);
+			if (currentCourse.name !== course.shortName) {
+				// Alert, change, and save new data if it exists.
+				this.utility.alerter(
+					`A course's name changed from ${currentCourse.name} to ${course.shortName}.`
+				);
+				currentCourse.name = course.shortName;
+				currentCourse.saveCourse();
+			}
+			if (currentCourse.code !== course.courseCode) {
+				// Alert, change, and save new data if it exists.
+				this.utility.alerter(
+					`${currentCourse.name}'s code changed from ${currentCourse.code} to ${course.courseCode}.`
+				);
+				currentCourse.code = course.courseCode;
+				currentCourse.saveCourse();
+			}
 		}
+	}
+
+	async updateAssignments(): Promise<void> {
+		// Gets updated info for assignments.
+		if (this.courses === undefined) {
+			this.utility.alerter("Error: Courses not loaded!");
+			return;
+		}
+
+		// TODO: Get updated info for assignments.
 	}
 }

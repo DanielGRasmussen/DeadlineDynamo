@@ -25,11 +25,11 @@
 		{
 			"matches": ["https://byui.instructure.com/", "https://byui.instructure.com/?*"], "js": [
 			"dist/out-tsc/Utility.js",
-			"dist/out-tsc/ApiFetch.js",
+			"dist/out-tsc/ApiFetcher.js",
 			"dist/out-tsc/Estimator.js",
 			"dist/out-tsc/Assignment.js",
 			"dist/out-tsc/Course.js",
-			"dragula/dragula.min.js",
+			"third_party/dragula.min.js",
 			"dist/out-tsc/Planner.js",
 			"dist/out-tsc/Main.js",
 			"dist/out-tsc/PlannerPreparer.js"
@@ -37,7 +37,7 @@
 		"css": [
 			"dist/planner.css",
 
-			"dragula/dragula.min.css",
+			"third_party/dragula.min.css",
 			"dist/planner.css"
 		],
 			"run_at": "document_start"

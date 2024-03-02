@@ -18,6 +18,8 @@
 			grid-template-rows: 25px 65px;
 			border: 1px solid black;
 
+			transition: padding-right 0.45s ease-in-out;
+
 			// Remove duplicate borders
 			+ li {
 				border-top: 0;
@@ -37,16 +39,25 @@
 
 			a {
 				font-size: 1.2em;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				overflow: hidden;
 			}
 
 			.estimate-edit {
 				display: none;
 			}
 
-			.estimate-label {
+			.estimate-label,
+			.location {
 				grid-column: 2 / 3;
 				grid-row: 2 / 3;
 				margin: 0;
+			}
+
+			// The location is hidden unless it's a calendar event.
+			&:not(.calendar_event) .location {
+				display: none;
 			}
 
 			.due-date {
@@ -64,12 +75,26 @@
 			background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1920' width='1em' height='1em'%3E%3Cg%3E%3Cg fill-rule='evenodd'%3E%3Cpath d='m746.255 1466.764 80.484 80.712-248.748 248.634-80.484-80.598 248.748-248.748Zm-165.904-165.836 80.598 80.598-331.626 331.626-80.598-80.598 331.626-331.626Zm-165.847-165.721 80.598 80.598-414.504 414.504L0 1549.71l414.504-414.504ZM1119.32 264.6c356.478-356.478 725.268-178.296 729.03-176.472l17.1 8.436 8.436 17.1c1.824 3.648 180.006 372.438-176.586 729.03l-146.604 146.604-2.622 665.874-222.642 222.642-331.626-331.512-578.094-578.094-331.626-331.74 222.642-222.642 665.874-2.508Zm316.92 839.154-361.836 361.95 251.028 250.914 108.87-108.87 1.938-503.994Zm343.026-921.348c-69.084-25.992-321.366-95.304-579.348 162.792l-623.01 623.01 416.898 416.898 622.896-623.01c256.956-256.956 187.986-511.176 162.564-579.69Zm-921.12 343.368-503.994 1.824-108.87 108.87L496.31 887.61l361.836-361.836Z'%3E%3C/path%3E%3Cpath d='M1534.987 372.558c-51.072-1.368-131.67 12.768-213.294 94.392l-40.47 40.356 173.394 173.28 40.356-40.242c82.194-82.308 96.9-161.31 94.848-213.18l-2.166-52.554-52.668-2.052Z'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 		}
 
-		li.discussion::before {
+		li.discussion_topic::before {
 			background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1920' width='1em' height='1em'%3E%3Cg%3E%3Cpath d='M677.647 16v338.936h112.941V129.054h1016.47V919.53h-225.994v259.765L1321.412 919.53h-79.172V467.878H0v1016.47h338.71v418.9l417.996-418.9h485.534v-451.877h32.753l419.125 419.124v-419.124H1920V16H677.647ZM338.79 919.563h564.706v-112.94H338.79v112.94Zm0 225.883h338.936v-113.054H338.79v113.054Zm-225.85-564.74h1016.47v790.701H710.4L451.652 1631.06v-259.652h-338.71V580.706Z' fill-rule='evenodd'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
 		}
 
 		li.assignment::before {
 			background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1920' rotate='0' width='1em' height='1em'%3E%3Cg%3E%3Cpath d='M1468.214 0v564.698h-112.94V112.94H112.94v1694.092h1242.334v-225.879h112.94v338.819H0V0h1468.214Zm129.428 581.311c22.137-22.136 57.825-22.136 79.962 0l225.879 225.879c22.023 22.023 22.023 57.712 0 79.848l-677.638 677.637c-10.616 10.504-24.96 16.49-39.98 16.49h-225.88c-31.17 0-56.469-25.299-56.469-56.47v-225.88c0-15.02 5.986-29.364 16.49-39.867Zm-155.291 314.988-425.895 425.895v146.031h146.03l425.895-425.895-146.03-146.03Zm-764.714 346.047v112.94H338.82v-112.94h338.818Zm225.88-225.88v112.94H338.818v-112.94h564.697Zm734.106-315.44-115.424 115.425 146.03 146.03 115.425-115.423-146.031-146.031ZM1129.395 338.83v451.758H338.82V338.83h790.576Zm-112.94 112.94H451.759v225.878h564.698V451.77Z' fill-rule='evenodd'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+		}
+
+		li.calendar_event::before {
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' name='IconCalendarMonth' viewBox='0 0 1920 1920' rotate='0' width='1em' height='1em' aria-hidden='true' role='presentation' focusable='false' class='css-1uh2md0-inlineSVG-svgIcon' style='width: 1em; height: 1em;'%3E%3Cg role='presentation'%3E%3Cpath d='M1411.824 0c31.17 0 56.47 25.3 56.47 56.471v56.47h169.412c93.403 0 169.412 76.01 169.412 169.412V1920H113V282.353c0-93.402 76.009-169.412 169.412-169.412h169.41v-56.47c0-31.172 25.3-56.47 56.472-56.47s56.47 25.298 56.47 56.47v56.47h790.589v-56.47c0-31.172 25.299-56.47 56.47-56.47Zm282.352 564.705H225.942v1242.353h1468.234V564.705Zm-1016.47 677.648v338.824H338.882v-338.824h338.824Zm451.765 0v338.824H790.647v-338.824h338.824Zm451.764 0v338.824h-338.823v-338.824h338.823Zm-1016.47 112.941H451.824v112.941h112.941v-112.941Zm451.764 0H903.588v112.941h112.941v-112.941Zm451.765 0h-112.941v112.941h112.941v-112.941ZM677.706 790.588v338.824H338.882V790.588h338.824Zm451.765 0v338.824H790.647V790.588h338.824Zm451.764 0v338.824h-338.823V790.588h338.823ZM564.765 903.53H451.824v112.941h112.941V903.53Zm451.764 0H903.588v112.941h112.941V903.53Zm451.765 0h-112.941v112.941h112.941V903.53ZM451.823 225.882H282.412c-31.06 0-56.47 25.3-56.47 56.471v169.412h1468.234V282.353c0-31.172-25.411-56.47-56.47-56.47h-169.412v56.47c0 31.172-25.3 56.471-56.47 56.471-31.172 0-56.471-25.299-56.471-56.47v-56.472H564.765v56.471c0 31.172-25.3 56.471-56.471 56.471-31.171 0-56.471-25.299-56.471-56.47v-56.472Z' fill-rule='evenodd'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+		}
+
+		li.calendar_event {
+			grid-template-rows: 25px 45px;
+		}
+
+		li.calendar_event .estimate-label,
+		li.calendar_event .due-date .date,
+		li.calendar_event .due-date .time {
+			display: none;
 		}
 
 		// For if there are no assignments
@@ -78,7 +103,22 @@
 			text-align: center;
 			line-height: 50px;
 			font-size: 1.2em;
+
+			&:before {
+				content: "No planned assignments";
+			}
 		}
+	}
+}
+
+#deadline-dynamo-planner:not(.sidebar-hidden) {
+	li.sidebar-course {
+		// Make thinner so the due date is visible.
+		padding-right: 434px;
+	}
+
+	li:not(.locked) {
+		cursor: grab;
 	}
 }
 
@@ -113,6 +153,10 @@
 	box-sizing: border-box;
 	width: 30em;
 
+	// So the sidebar can have full height area to be dropped on by dragula.
+	display: flex;
+	flex-direction: column;
+
 	// Slide in animation
 	animation: slide-in 0.45s ease-in-out;
 
@@ -130,6 +174,9 @@
 		// Center the close svg
 		display: flex;
 		align-items: center;
+
+		// Don't shrink when the sidebar scroll is visible.
+		flex-shrink: 0;
 
 		svg {
 			margin: 0 auto;
@@ -169,6 +216,10 @@
 		display: none;
 	}
 
+	.sidebar-courses {
+		height: 100%;
+	}
+
 	.sidebar-course:not(.collapsed) {
 		.course-name::after {
 			rotate: -90deg;
@@ -184,6 +235,7 @@
 			li {
 				padding: 0 0 0.5rem;
 				align-items: center;
+				cursor: grab;
 
 				a {
 					text-overflow: ellipsis;
@@ -223,6 +275,10 @@
 			.no-assignments {
 				// Added padding to the link, we have no link so we need padding here.
 				padding-left: 50px;
+
+				&:before {
+					content: "No assignments to plan";
+				}
 			}
 
 			// Add the canvas line between each assignment.
