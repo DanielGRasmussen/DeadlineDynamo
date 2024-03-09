@@ -13,9 +13,15 @@ class Main {
 		const firstLoadup: boolean = await this.getCourses();
 
 		if (!firstLoadup) {
+			// This just sends 1 request for all courses.
 			await this.updateCourses();
+			// This just sends 1 request for all assignments.
 			await this.updateAssignments();
 		}
+
+		// This sends a request per course causing it to take too long for everything else.
+		this.addExtraData();
+
 		this.doneLoading = true;
 	}
 
@@ -78,50 +84,17 @@ class Main {
 			return;
 		}
 
-		// Get API info for all courses.
-		const courses: CourseJson[] = await this.apiFetcher.fetchCourses();
+		const newCourses: CourseJson[] = await this.apiFetcher.fetchCourses();
+		// Check if any courses have been added or removed.
+		const courseIds: number[] = this.courses.map((course: Course) => course.id);
+		const newCourseIds: number[] = newCourses.map((course: CourseJson) => course.id);
 
-		let currentCourse: Course | undefined;
-		for (const course of courses) {
-			// Match API info with local info to update the user on changes.
-			// Then update the local info.
-			currentCourse = this.courses.find(item => item.id === course.id);
-			if (currentCourse === undefined) {
-				this.utility.alerter(`New course: ${course.shortName}`);
-
-				// Get new course's assignments
-				let assignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments();
-				assignments = assignments.filter(assignment => assignment.course_id === course.id);
-
-				// Make the new course.
-				currentCourse = new Course(
-					course.id,
-					course.shortName,
-					course.courseCode,
-					assignments
-				);
-
-				// Save the new course's info.
-				this.courses.push(currentCourse);
-				currentCourse.saveCourse();
-				return;
-			}
-			if (currentCourse.name !== course.shortName) {
-				// Alert, change, and save new data if it exists.
-				this.utility.alerter(
-					`A course's name changed from ${currentCourse.name} to ${course.shortName}.`
-				);
-				currentCourse.name = course.shortName;
-				currentCourse.saveCourse();
-			}
-			if (currentCourse.code !== course.courseCode) {
-				// Alert, change, and save new data if it exists.
-				this.utility.alerter(
-					`${currentCourse.name}'s code changed from ${currentCourse.code} to ${course.courseCode}.`
-				);
-				currentCourse.code = course.courseCode;
-				currentCourse.saveCourse();
-			}
+		if (
+			!courseIds.every((id: number) => newCourseIds.includes(id)) ||
+			!newCourseIds.every((id: number) => courseIds.includes(id))
+		) {
+			await this.firstLoadup();
+			return;
 		}
 	}
 
@@ -132,6 +105,29 @@ class Main {
 			return;
 		}
 
-		// TODO: Get updated info for assignments.
+		const newAssignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments();
+
+		for (const course of this.courses) {
+			const newCourseAssignments: AssignmentJson[] = newAssignments.filter(
+				(assignment: AssignmentJson) => assignment.course_id === course.id
+			);
+			course.updateAssignments(newCourseAssignments);
+		}
+	}
+
+	async addExtraData(): Promise<void> {
+		// Adds extra data to the courses.
+		if (this.courses === undefined) {
+			this.utility.alerter("Error: Courses not loaded!");
+			return;
+		}
+
+		for (const course of this.courses) {
+			const extraData: AssignmentExtraJson[] = await this.apiFetcher.fetchExtraAssignmentData(
+				course.id
+			);
+
+			course.addExtraData(extraData);
+		}
 	}
 }

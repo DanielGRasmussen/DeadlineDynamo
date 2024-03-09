@@ -68,9 +68,15 @@ class Utility {
 	}
 
 	async saveStorage(key: string, data: string): Promise<void> {
-		const info: { [p: string]: string } = {};
-		info[key] = data;
-		await chrome.storage.sync.set(info);
+		try {
+			const info: { [p: string]: string } = {};
+			info[key] = data;
+			await chrome.storage.sync.set(info);
+		} catch (error) {
+			// This likely happened because of too much data trying to be saved.
+			console.log(key);
+			console.log(data);
+		}
 	}
 
 	async clearStorage(): Promise<void> {

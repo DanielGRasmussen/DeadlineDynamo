@@ -14,6 +14,9 @@ class Assignment {
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;
+	// Data added by addExtraData in Course
+	description: string = "";
+	submission_types: string[] = [];
 
 	constructor(
 		id: number,

@@ -88,10 +88,86 @@ class Course {
 		}
 	}
 
+	updateAssignments(assignments: AssignmentJson[]): void {
+		// Uses the old information from assignments and the new information from the API to update the assignments.
+		// Takes a filtered assignments for just this course with API information.
+		for (const assignment of assignments) {
+			const oldAssignment: Assignment | undefined = this.assignments.find(
+				assign => assign.id === assignment.plannable.id
+			);
+			if (oldAssignment !== undefined) {
+				oldAssignment.name = assignment.plannable.title;
+				oldAssignment.type = assignment.plannable_type;
+				oldAssignment.submitted = assignment.submissions.submitted;
+				oldAssignment.due_date = new Date(assignment.plannable_date);
+				oldAssignment.start_date = assignment.plannable.start_at
+					? new Date(assignment.plannable.start_at)
+					: null;
+				oldAssignment.end_date = assignment.plannable.end_at
+					? new Date(assignment.plannable.end_at)
+					: null;
+				oldAssignment.points_possible = assignment.plannable.points_possible;
+				oldAssignment.location_name = assignment.plannable.location_name || "";
+				oldAssignment.lock =
+					oldAssignment.lock || assignment.plannable_type === "calendar_event";
+			} else {
+				// Adds a new assignment
+				this.assignments.push(
+					new Assignment(
+						assignment.plannable.id,
+						assignment.course_id,
+						assignment.plannable.title,
+						assignment.plannable_type,
+						assignment.submissions.submitted,
+						new Date(assignment.plannable_date),
+						assignment.plannable.start_at
+							? new Date(assignment.plannable.start_at)
+							: null,
+						assignment.plannable.end_at ? new Date(assignment.plannable.end_at) : null,
+						assignment.plannable.points_possible,
+						assignment.plannable.location_name || "",
+						assignment.plannable_type === "calendar_event",
+						false,
+						null,
+						null,
+						null
+					)
+				);
+			}
+		}
+	}
+
+	addExtraData(extraData: AssignmentExtraJson[]): void {
+		// Adds extra data to the assignments.
+		// Takes a filtered assignments for just this course with API information.
+		for (const assignment of this.assignments) {
+			const newAssignment: AssignmentExtraJson | undefined = extraData.find(
+				assign =>
+					assign.id === assignment.id ||
+					assign.quiz_id === assignment.id ||
+					assign.discussion_topic?.id === assignment.id
+			);
+
+			if (newAssignment !== undefined) {
+				assignment.description = newAssignment.description;
+				assignment.submission_types = newAssignment.submission_types;
+			}
+		}
+	}
+
 	async saveCourse(): Promise<void> {
 		const key: string = `course-${this.id}`;
-		const data: string = JSON.stringify(this);
+		const data: LocalCourseJson = JSON.parse(JSON.stringify(this));
+		// Remove the unneeded items from data.
+		delete data.utility;
+		for (const assignment of data.assignments) {
+			delete assignment.description;
+			delete assignment.submission_types;
+		}
 
+		const dataString: string = JSON.stringify(data);
+
+		// Get course ids, ensure this course id is in that list, and save the course.
 		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
 		// Ensure we can access this course id again.
 		if (courseIds === undefined) {
@@ -104,6 +180,6 @@ class Course {
 			}
 		}
 
-		await this.utility.saveStorage(key, data);
+		await this.utility.saveStorage(key, dataString);
 	}
 }

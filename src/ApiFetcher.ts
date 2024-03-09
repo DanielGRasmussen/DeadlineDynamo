@@ -48,6 +48,26 @@ class ApiFetcher {
 		return allData;
 	}
 
+	async fetchExtraAssignmentData(courseId: number): Promise<AssignmentExtraJson[]> {
+		const assignmentUrl = `/api/v1/courses/${courseId}/assignments?per_page=50`;
+
+		let length: number = 50;
+		let allData: AssignmentExtraJson[] = [];
+
+		// Get all assignments but stop if there are less than 50.
+		for (let page = 1; length === 50; page++) {
+			const url = `${assignmentUrl}&page=${page}`;
+			const response = await fetch(url);
+			const data: AssignmentExtraJson[] = await response.json();
+
+			length = data.length;
+
+			allData = allData.concat(data);
+		}
+
+		return allData;
+	}
+
 	async makeCourses(): Promise<void> {
 		// Makes all courses from the API.
 		const courses: CourseJson[] = await this.fetchCourses();
