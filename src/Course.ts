@@ -57,7 +57,6 @@ class Course {
 					assignment.plannable.points_possible,
 					// If it's not an event it will be undefined.
 					assignment.plannable.location_name || "",
-					`https://byui.instructure.com/courses/${assignment.course_id}/assignments/${assignment.plannable.id}`,
 					assignment.plannable_type === "calendar_event",
 					false,
 					null,
@@ -79,7 +78,6 @@ class Course {
 					assignment.end_date ? new Date(assignment.end_date) : null,
 					assignment.points_possible,
 					assignment.location_name,
-					assignment.link,
 					assignment.lock,
 					assignment.planned,
 					assignment.basic_estimate,
@@ -94,9 +92,9 @@ class Course {
 		const key: string = `course-${this.id}`;
 		const data: string = JSON.stringify(this);
 
-		const courseIds: string | null = await this.utility.loadStorage("courseIds");
+		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
 		// Ensure we can access this course id again.
-		if (courseIds === null) {
+		if (courseIds === undefined) {
 			await this.utility.saveStorage("courseIds", JSON.stringify([key]));
 		} else {
 			const courses: string[] = JSON.parse(courseIds);

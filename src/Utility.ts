@@ -1,6 +1,5 @@
 class Utility {
 	alerter(message: string): void {
-		throw new Error(message);
 		console.log(message);
 	}
 
@@ -28,12 +27,13 @@ class Utility {
 		return element;
 	}
 
-	async loadStorage(key: string): Promise<string | null> {
-		return await localStorage.getItem(key);
+	async loadStorage(key: string): Promise<string | undefined> {
+		const info: { [p: string]: any } = await chrome.storage.sync.get(key);
+		return info[key];
 	}
 
 	async loadSettings(): Promise<SettingsJson> {
-		const settingsJson: string | null = await this.loadStorage("settings");
+		const settingsJson: string | undefined = await this.loadStorage("settings");
 		// Default settings. To be overridden if settings are found in local storage.
 		let settings: SettingsJson = {
 			prioritizePoorGrades: false,
@@ -51,10 +51,10 @@ class Utility {
 			showEvents: false
 		};
 
-		if (settingsJson === null) {
+		if (settingsJson === undefined) {
 			// Default estimateMultiplier
-			const courseIds: string | null = await this.loadStorage("courseIds");
-			if (courseIds !== null) {
+			const courseIds: string | undefined = await this.loadStorage("courseIds");
+			if (courseIds !== undefined) {
 				// Set default estimate multipliers.
 				const ids: string[] = JSON.parse(courseIds);
 				for (const id of ids) {
@@ -68,12 +68,18 @@ class Utility {
 	}
 
 	async saveStorage(key: string, data: string): Promise<void> {
-		localStorage.setItem(key, data);
+		const info: { [p: string]: string } = {};
+		info[key] = data;
+		await chrome.storage.sync.set(info);
 	}
 
-	loadPlan(): Plan {
-		const plan: string | null = localStorage.getItem("plan");
-		if (plan === null) {
+	async clearStorage(): Promise<void> {
+		await chrome.storage.sync.clear();
+	}
+
+	async loadPlan(): Promise<Plan> {
+		const plan: string | undefined = await this.loadStorage("plan");
+		if (plan === undefined) {
 			// Create an empty plan for this week.
 			const today: Date = new Date();
 			const monday: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));

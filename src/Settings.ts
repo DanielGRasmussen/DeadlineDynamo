@@ -99,8 +99,8 @@ class Settings {
 
 		for (const courseId in this.estimateMultiplier) {
 			// Get course name
-			const courseInfo: string | null = await this.utility.loadStorage(courseId);
-			if (courseInfo === null) {
+			const courseInfo: string | undefined = await this.utility.loadStorage(courseId);
+			if (courseInfo === undefined) {
 				this.utility.alerter("Error: Couldn't find course info.");
 				return;
 			}
@@ -170,6 +170,24 @@ class Settings {
 		const prioritizePoorGrades: HTMLElement =
 			this.utility.createHtmlFromJson(prioritizePoorGradesJson);
 		target.appendChild(prioritizePoorGrades);
+
+		// Clear storage button
+		const clearStorageJson: HtmlElement = {
+			element: "button",
+			attributes: {
+				id: "clearStorage",
+				class: "btn btn-danger"
+			},
+			textContent: "Clear Storage"
+		};
+		const clearStorage: HTMLElement = this.utility.createHtmlFromJson(clearStorageJson);
+		clearStorage.addEventListener("click", (): void => {
+			if (confirm("Are you sure you want to clear all data?")) {
+				this.utility.clearStorage();
+				this.utility.alerter("Storage cleared!");
+			}
+		});
+		target.appendChild(clearStorage);
 
 		// Set state to match the saved state.
 		(document.getElementById("prioritizePoorGrades") as HTMLInputElement).checked =

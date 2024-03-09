@@ -53,8 +53,6 @@ class ApiFetcher {
 		const courses: CourseJson[] = await this.fetchCourses();
 		const assignments: AssignmentJson[] = await this.fetchAssignments();
 
-		console.log(assignments);
-
 		for (const course of courses) {
 			const newCourse: Course = new Course(
 				course.id,

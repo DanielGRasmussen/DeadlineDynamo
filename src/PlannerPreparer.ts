@@ -3,7 +3,7 @@ class PlannerPreparer {
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
 	removedDefaultPlanner: boolean = false;
 	addedPlanner: boolean = false;
-	addedSidebarButton: boolean = false;
+	addedHeaderButtons: boolean = false;
 	triggeredMain: boolean = false;
 	clickedTodoClose: boolean = false;
 	main: Main = new Main();
@@ -18,6 +18,7 @@ class PlannerPreparer {
 		// make our own changes.
 		// This is to make sure that the changes don't appear for a split second before we remove them.
 		for (const mutation of mutationsList) {
+			// We only need to check for added nodes.
 			if (mutation.type !== "childList") {
 				continue;
 			}
@@ -49,13 +50,13 @@ class PlannerPreparer {
 				} else if (
 					// This checks for when the add assignment button is added.
 					// It is added as a child of the planner header.
-					!this.addedSidebarButton &&
+					!this.addedHeaderButtons &&
 					node.parentElement?.id === "dashboard-planner-header" &&
 					node.getAttribute("data-testid") === "PlannerHeader"
 				) {
 					// Create our sidebar button.
-					this.createSidebarButton();
-					this.addedSidebarButton = true;
+					this.createHeaderButtons();
+					this.addedHeaderButtons = true;
 				} else if (
 					!this.clickedTodoClose &&
 					node.querySelector(
@@ -78,7 +79,7 @@ class PlannerPreparer {
 					this.clickedTodoClose = true;
 				}
 
-				if (this.addedPlanner && this.addedSidebarButton && !this.triggeredMain) {
+				if (this.addedPlanner && this.addedHeaderButtons && !this.triggeredMain) {
 					// This will make the planner load.
 					for (let i = 0; i < 10; i++) {
 						// On the first load up then it has to send a couple of API requests and isn't ready yet.
@@ -101,7 +102,7 @@ class PlannerPreparer {
 				if (
 					this.removedDefaultPlanner &&
 					this.addedPlanner &&
-					this.addedSidebarButton &&
+					this.addedHeaderButtons &&
 					this.clickedTodoClose
 				) {
 					// We're done here.
@@ -135,8 +136,9 @@ class PlannerPreparer {
 		planner.append(spinner);
 	}
 
-	createSidebarButton(): void {
-		// Adds the sidebar button next to the "add assignment button" that is in the top header.
+	createHeaderButtons(): void {
+		// Adds the sidebar button and the announcement button around the"add assignment button" that is in the top
+		// header.
 		const buttonSibling: HTMLElement | null = document.querySelector(
 			"button[data-testid='add-to-do-button']"
 		);
@@ -149,7 +151,7 @@ class PlannerPreparer {
 		// Get button's class so we can use it and match the UI.
 		const buttonClass: string = buttonSibling.classList[0];
 
-		const buttonJson: HtmlElement = {
+		const sidebarButtonJson: HtmlElement = {
 			element: "button",
 			attributes: {
 				cursor: "pointer",
@@ -212,9 +214,84 @@ class PlannerPreparer {
 			]
 		};
 
-		const button: HTMLElement = this.utility.createHtmlFromJson(buttonJson);
+		const sidebarButton: HTMLElement = this.utility.createHtmlFromJson(sidebarButtonJson);
 
-		buttonSibling.after(button);
+		buttonSibling.after(sidebarButton);
+
+		const announcementButtonJson: HtmlElement = {
+			element: "div",
+			attributes: {
+				class: "announcement-button"
+			},
+			children: [
+				{
+					element: "span",
+					attributes: {
+						cursor: "pointer",
+						tabindex: "0",
+						class: `${buttonClass} announcement-button`
+					},
+					children: [
+						{
+							element: "span",
+							attributes: { class: "css-1eaecfq-baseButton__content" },
+							children: [
+								{
+									element: "span",
+									attributes: { class: "css-qi8ml9-baseButton__childrenLayout" },
+									children: [
+										{
+											element: "span",
+											attributes: {
+												class: "css-5udsuu-baseButton__iconOnly"
+											},
+											children: [
+												{
+													element: "span",
+													attributes: {
+														class: "css-quqv7u-baseButton__iconSVG"
+													},
+													innerHTML:
+														`<svg viewBox="0 0 1920 1920" width="1em" height="1em">` +
+														`<g role="presentation">` +
+														`<path d="M1587.162 31.278c11.52-23.491 37.27-35.689 63.473-29.816 25.525 6.099 43.483 28.8 43.483 55.002V570.46C1822.87 596.662 1920 710.733 1920 847.053c0 136.32-97.13 250.503-225.882 276.705v513.883c0 26.202-17.958 49.016-43.483 55.002a57.279 57.279 0 0 1-12.988 1.468c-21.12 0-40.772-11.745-50.485-31.171C1379.238 1247.203 964.18 1242.347 960 1242.347H564.706v564.706h87.755c-11.859-90.127-17.506-247.003 63.473-350.683 52.405-67.087 129.657-101.082 229.948-101.082v112.941c-64.49 0-110.57 18.861-140.837 57.487-68.781 87.868-45.064 263.83-30.269 324.254 4.18 16.828.34 34.673-10.277 48.34-10.73 13.665-27.219 21.684-44.499 21.684H508.235c-31.171 0-56.47-25.186-56.47-56.47v-621.177h-56.47c-155.747 0-282.354-126.607-282.354-282.353v-56.47h-56.47C25.299 903.523 0 878.336 0 847.052c0-31.172 25.299-56.471 56.47-56.471h56.471v-56.47c0-155.634 126.607-282.354 282.353-282.354h564.593c16.941-.112 420.48-7.002 627.275-420.48Zm-5.986 218.429c-194.71 242.371-452.216 298.164-564.705 311.04v572.724c112.489 12.876 369.995 68.556 564.705 311.04ZM903.53 564.7H395.294c-93.402 0-169.412 76.01-169.412 169.411v225.883c0 93.402 76.01 169.412 169.412 169.412H903.53V564.7Zm790.589 123.444v317.93c65.618-23.379 112.94-85.497 112.94-159.021 0-73.525-47.322-135.53-112.94-158.909Z" fill-rule="evenodd">` +
+														`</g> ` +
+														`</svg>`
+												},
+												{
+													element: "span",
+													attributes: {
+														class: "css-1sr5vj2-screenReaderContent"
+													},
+													innerHTML: "Add To Do"
+												}
+											]
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					element: "div",
+					attributes: {
+						class: "announcement-container"
+					},
+					children: [
+						{
+							element: "h4",
+							textContent: "Announcements"
+						}
+					]
+				}
+			]
+		};
+
+		const announcementButton: HTMLElement =
+			this.utility.createHtmlFromJson(announcementButtonJson);
+
+		buttonSibling.before(announcementButton);
 	}
 }
 

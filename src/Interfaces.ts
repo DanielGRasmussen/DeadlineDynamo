@@ -84,7 +84,6 @@ interface LocalAssignmentJson {
 	end_date: Date | null;
 	points_possible: number;
 	location_name: string;
-	link: string;
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
 	basic_estimate: number | null;
@@ -120,5 +119,3 @@ interface Plan {
 	// Date = "YYYY-MM-DD"
 	[date: string]: Assignment[];
 }
-
-{}{}{}

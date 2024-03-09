@@ -9,7 +9,6 @@ class Assignment {
 	end_date: Date | null;
 	points_possible: number | null;
 	location_name: string;
-	link: string;
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
 	basic_estimate: number | null;
@@ -27,7 +26,6 @@ class Assignment {
 		end_date: Date | null,
 		points_possible: number | null,
 		location_name: string,
-		link: string,
 		lock: boolean,
 		planned: boolean,
 		basic_estimate: number | null,
@@ -44,7 +42,6 @@ class Assignment {
 		this.end_date = end_date;
 		this.points_possible = points_possible;
 		this.location_name = location_name;
-		this.link = link;
 		this.lock = lock;
 		this.planned = planned;
 		this.basic_estimate = basic_estimate;

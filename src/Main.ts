@@ -23,9 +23,9 @@ class Main {
 		// Gets all courses.
 		// If it's the first time loading up, it gets everything from scratch.
 		// If it's not the first time, it gets everything from local storage.
-		const courseIds: string | null = await this.utility.loadStorage("courseIds");
+		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
 
-		if (courseIds === null) {
+		if (courseIds === undefined) {
 			// First time loading up so it'll return true.
 			await this.firstLoadup();
 			return true;
@@ -35,13 +35,13 @@ class Main {
 		const course_ids: string[] = JSON.parse(courseIds);
 		const courses: Course[] = [];
 
-		let courseData: string | null;
+		let courseData: string | undefined;
 		let courseJson: LocalCourseJson;
 		let course: Course;
 		for (const course_id of course_ids) {
 			courseData = await this.utility.loadStorage(course_id);
 
-			if (courseData === null) {
+			if (courseData === undefined) {
 				// Get all data from scratch if any course localstorage data is missing.
 				// This would happen either when a course is added/removed or when the user tampered with local storage.
 				await this.firstLoadup();

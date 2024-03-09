@@ -15,7 +15,7 @@ class Planner {
 		this.estimator = estimator;
 		// Settings are used for various things, so we have to get them in ASAP.
 		this.settings = await this.utility.loadSettings();
-		this.plan = this.utility.loadPlan();
+		this.plan = await this.utility.loadPlan();
 
 		// Check on if our sidebar pullout button is there. It should be.
 		const sidebar_button: Element | null = document.querySelector(
@@ -30,6 +30,19 @@ class Planner {
 		// Add the event listener to create the sidebar when the button is clicked.
 		sidebar_button.addEventListener("click", this.createSidebar.bind(this));
 
+		// Check if our announcement button is there. It should be.
+		const announcement_container: Element | null = document.querySelector(
+			".announcement-button .announcement-container"
+		);
+
+		if (announcement_container === null) {
+			this.utility.alerter("Error: Announcement button not found.");
+			return;
+		}
+
+		// Populate the list of announcements.
+		this.createAnnouncements(announcement_container);
+
 		// Add the weekday slots.
 		this.addWeekdaySlots();
 	}
@@ -41,10 +54,40 @@ class Planner {
 			children: [
 				{
 					element: "div",
-					attributes: { class: "sidebar-close" },
-					innerHTML: `
-					<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
-					`
+					attributes: { class: "sidebar-header" },
+					children: [
+						{
+							element: "div",
+							attributes: { class: "sidebar-close" },
+							innerHTML: `
+								<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
+							`
+						},
+						{
+							element: "div",
+							attributes: { class: "show-toggle" },
+							children: [
+								{
+									element: "label",
+									attributes: { for: "sidebar-show-complete" },
+									textContent: "Show completed: "
+								},
+								{
+									element: "input",
+									attributes: {
+										type: "checkbox",
+										class: "sidebar-show-complete",
+										id: "sidebar-show-complete"
+									}
+								}
+							]
+						},
+						{
+							element: "button",
+							attributes: { class: "plan btn btn-primary" },
+							textContent: "Auto-plan"
+						}
+					]
 				},
 				{
 					element: "div",
@@ -218,15 +261,30 @@ class Planner {
 	makeAssignmentElement(assignment: Assignment): HTMLElement {
 		const due_date: [string, string] = this.utility.formatDate(assignment.due_date);
 
+		let link_type: string;
+		switch (assignment.type) {
+			case "quiz":
+				link_type = "quizzes";
+				break;
+			case "discussion_topic":
+				link_type = "discussion_topics";
+				break;
+			default:
+				link_type = "assignments";
+		}
+
+		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
+
 		const assignmentElement: HtmlElement = {
 			element: "li",
 			attributes: {
-				class: `sidebar-course cid-${assignment.course_id} aid-${assignment.id} ${assignment.type}`
+				// Add the "completed" class if the assignment is completed.
+				class: `sidebar-course cid-${assignment.course_id} aid-${assignment.id} ${assignment.type} ${assignment.submitted ? "completed" : ""}`
 			},
 			children: [
 				{
 					element: "a",
-					attributes: { href: assignment.link, target: "_blank" },
+					attributes: { href: link, target: "_blank" },
 					textContent: assignment.name
 				},
 				{
@@ -304,8 +362,6 @@ class Planner {
 		// Returns true if the assignment should be planned.
 
 		if (
-			// Submitted assignments don't need to be planned.
-			assignment.submitted ||
 			// Already planned assignments don't need to be planned.
 			assignment.planned ||
 			// Locked assignments are moved into the planner elsewhere.
@@ -436,7 +492,7 @@ class Planner {
 					target_course?.firstChild?.before(new_element);
 
 					// Hide the original element.
-					el.style.display = "none";
+					el.classList.add("hidden");
 
 					// Remove the "no assignments" message if it's in the sidebar.
 					const noAssignments: HTMLElement | null =
@@ -454,6 +510,64 @@ class Planner {
 				course.saveCourse();
 			}
 		);
+	}
+
+	createAnnouncements(announcement_container: Element): void {
+		// Adds the announcements to the container
+		// Get list of announcements
+		const announcements: Assignment[] = this.courses
+			.flatMap((course: Course): Assignment[] => course.assignments)
+			.filter((assignment: Assignment): boolean => assignment.type === "announcement");
+
+		// Sort the announcements by date.
+		const sortedAnnouncements: Assignment[] = announcements.sort(
+			(a: Assignment, b: Assignment): number => {
+				if (a.due_date < b.due_date) {
+					return 1;
+				}
+				if (a.due_date > b.due_date) {
+					return -1;
+				}
+				return 0;
+			}
+		);
+
+		// Add the announcements to the container
+		for (const announcement of sortedAnnouncements) {
+			// Get course name
+			const course: Course | undefined = this.courses.find((course: Course): boolean => {
+				return course.id === announcement.course_id;
+			});
+
+			if (course === undefined) {
+				this.utility.alerter("Error: Course not found.");
+				return;
+			}
+
+			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
+			const announcementJson: HtmlElement = {
+				element: "div",
+				attributes: { class: "announcement" },
+				children: [
+					{
+						element: "a",
+						attributes: {
+							href: link,
+							target: "_blank",
+							title: announcement.name
+						},
+						textContent: announcement.name
+					},
+					{
+						element: "p",
+						attributes: { class: "course" },
+						textContent: course.name
+					}
+				]
+			};
+			const announcementDiv: HTMLElement = this.utility.createHtmlFromJson(announcementJson);
+			announcement_container.appendChild(announcementDiv);
+		}
 	}
 
 	addWeekdaySlots(): void {

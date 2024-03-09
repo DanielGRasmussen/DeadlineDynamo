@@ -3,6 +3,14 @@
 	"name": "DeadlineDynamo",
 	"version": "1.0",
 	"description": "A Chrome extension to plan Canvas assignments efficiently.",
+	"action": {
+		"default_icon": {
+			"16": "src/images/icon - 16px.png",
+			"32": "src/images/icon - 32px.png",
+			"48": "src/images/icon - 48px.png",
+			"128": "src/images/icon - 128px.png"
+		}
+	},
 	"permissions": [ "storage", "activeTab" ],
 	"content_scripts": [
 		{

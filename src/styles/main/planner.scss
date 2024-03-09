@@ -122,6 +122,82 @@
 	}
 }
 
+// Announcement button
+.announcement-button {
+	display: inline-block;
+	position: relative;
+}
+
+.announcement-container {
+	display: none;
+	width: 300px;
+	min-height: 93px;
+	background: white;
+	border-radius: 0.25rem;
+	padding: 12px;
+	overflow-x: hidden;
+	// The box shadow that canvas uses.
+	box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625rem 0.125rem, rgba(0, 0, 0, 0.1) 0 0.0625rem 0.1875rem;
+
+	position: absolute;
+	top: 45px;
+	right: -120px;
+
+	h4 {
+		color: rgb(82, 82, 82);
+		font-size: 16px;
+		font-weight: 700;
+	}
+
+	// Title/link for announcement
+	a {
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+
+	// Announcement course
+	p {
+		font-size: 0.9em;
+		margin-top: 0;
+	}
+
+	.announcement + .announcement:before {
+		content: "";
+		display: block;
+		background: linear-gradient(90deg, transparent 7%, #b7b7b7 25%, #b7b7b7 75%, transparent 93%);
+		height: 1px;
+		margin-bottom: 3px;
+		width: 100%;
+	}
+
+	// If the element doesn't have any announcements it will add a "No announcements" message.
+	&:not(:has(.announcement)):after {
+		content: "No announcements";
+		display: block;
+		text-align: center;
+		margin-top: 24px;
+	}
+}
+
+.announcement-container:before {
+	// The up arrow from the container.
+	content: "";
+	position: absolute;
+	border-style: solid;
+	border-width: 0 calc(0.5625rem) calc(0.5625rem);
+	border-color: transparent white white;
+	bottom: 100%;
+	margin-inline: calc(-0.5625rem) 0;
+	border-inline-color: transparent;
+	inset-inline-start: 50%;
+}
+
+.announcement-button:focus-within .announcement-container,
+.announcement-container:hover {
+	display: block;
+}
+
 // Loading spinner
 .spinner {
 	animation: rotate 2s linear infinite;
@@ -159,6 +235,34 @@
 
 	// Slide in animation
 	animation: slide-in 0.45s ease-in-out;
+
+	// Header
+	.sidebar-header {
+		display: flex;
+		align-items: center;
+		padding: 0.5rem 0.9rem;
+		border-bottom: 1px solid #e8e8e8;
+		width: 100%;
+		height: 2.375rem;
+
+		.show-toggle {
+			margin-left: auto;
+			margin-top: 6px;
+
+			label {
+				padding: 1em 0;
+				cursor: pointer;
+			}
+
+			input {
+				margin: 0 3px;
+			}
+		}
+
+		.plan {
+			margin: 0 1.3rem;
+		}
+	}
 
 	.sidebar-close {
 		box-sizing: border-box;
@@ -283,7 +387,9 @@
 
 			// Add the canvas line between each assignment.
 			// This selector gets the non-first li and adds a line before it.
-			li + li::before {
+			// So this does not trigger with hidden assignments (items dropped that are then hidden and remade.)
+			// TODO: Fix that this triggers with hidden completed assignments.
+			li:not(.hidden) + li::before {
 				content: "";
 				display: block;
 				background: linear-gradient(90deg, transparent 7%, #b7b7b7 25%, #b7b7b7 75%, transparent 93%);
@@ -293,6 +399,11 @@
 			}
 		}
 	}
+}
+
+// Hide the completed assignments when the toggle is off.
+.deadline-dynamo-sidebar:has(.sidebar-show-complete:not(:checked)) .sidebar-course li.completed {
+	display: none;
 }
 
 // Planner animations
