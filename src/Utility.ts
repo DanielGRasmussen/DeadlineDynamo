@@ -100,10 +100,11 @@ class Utility {
 			const planObject: Plan = JSON.parse(plan);
 			// Convert all the dates back to Date objects.
 			for (const date in planObject) {
-				planObject[date].forEach(assignment => {
-					assignment.due_date = new Date(assignment.due_date);
+				planObject[date].forEach(planItem => {
+					planItem.due_date = new Date(planItem.due_date);
 				});
 			}
+
 			return planObject;
 		}
 	}

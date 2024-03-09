@@ -433,7 +433,7 @@ class Planner {
 				for (const day in this.plan) {
 					if (this.plan[day] !== undefined) {
 						this.plan[day] = this.plan[day].filter(
-							(assignment: Assignment): boolean => assignment.id !== assignment_id
+							(planItem: PlanItem): boolean => planItem.id !== assignment.id
 						);
 					}
 				}
@@ -456,13 +456,18 @@ class Planner {
 
 					// Add the assignment to the plan.
 					const target_day: string = target.classList[1];
-					let target_day_plan: Assignment[] = this.plan[target_day];
+					let target_day_plan: PlanItem[] = this.plan[target_day];
 
 					if (target_day_plan === undefined) {
 						target_day_plan = [];
 					}
 
-					target_day_plan.push(assignment);
+					const planItem: PlanItem = {
+						id: assignment.id,
+						due_date: assignment.due_date
+					};
+
+					target_day_plan.push(planItem);
 					this.plan[target_day] = target_day_plan;
 
 					// Update the assignment info
@@ -613,10 +618,19 @@ class Planner {
 			this.addLockedAssignments(day, dayDiv);
 
 			// Add the assignments planned for that day.
-			const currentPlan: Assignment[] | undefined = this.plan[day.toISOString().slice(0, 10)];
+			const currentPlan: PlanItem[] | undefined = this.plan[day.toISOString().slice(0, 10)];
 
 			if (currentPlan !== undefined) {
-				currentPlan.forEach((assignment: Assignment): void => {
+				currentPlan.forEach((planItem: PlanItem): void => {
+					const assignment: Assignment | undefined = this.courses
+						.flatMap((course: Course): Assignment[] => course.assignments)
+						.find((assignment: Assignment): boolean => assignment.id === planItem.id);
+
+					if (assignment === undefined) {
+						this.utility.alerter("Error: Assignment not found.");
+						return;
+					}
+
 					const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);
 
 					const weekdayAssignments: HTMLElement | null =

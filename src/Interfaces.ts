@@ -223,6 +223,10 @@ interface EstimateMultiplier {
 }
 
 interface Plan {
-	// Date = "YYYY-MM-DD"
-	[date: string]: Assignment[];
+	[date: string]: PlanItem[];
+}
+
+interface PlanItem {
+	id: number;
+	due_date: Date;
 }
