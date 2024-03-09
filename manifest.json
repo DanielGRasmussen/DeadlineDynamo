@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "DeadlineDynamo",
-	"version": "1.0",
+	"version": "0.5",
 	"description": "A Chrome extension to plan Canvas assignments efficiently.",
 	"action": {
 		"default_icon": {
@@ -43,10 +43,11 @@
 			"dist/out-tsc/PlannerPreparer.js"
 		],
 		"css": [
-			"dist/planner.css",
+			"dist/announcements.css",
+			"dist/main-planner.css",
+			"dist/sidebar.css",
 
-			"third_party/dragula.min.css",
-			"dist/planner.css"
+			"third_party/dragula.min.css"
 		],
 			"run_at": "document_start"
 		}

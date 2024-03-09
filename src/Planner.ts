@@ -123,7 +123,7 @@ class Planner {
 		// Dragula is now useful since the sidebar (where assignments are dragged to/from) is now created.
 		this.addDragula();
 
-		// Remove the "sidebar-hidden" class to make stuff draggable.
+		// Add the "sidebar-open" class so stuff is dragable.
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
 		if (planner === null) {
@@ -131,7 +131,7 @@ class Planner {
 			return;
 		}
 
-		planner.classList.remove("sidebar-hidden");
+		planner.classList.add("sidebar-open");
 	}
 
 	deleteSidebar(): void {
@@ -155,7 +155,7 @@ class Planner {
 			sidebar
 		);
 
-		// Add the "sidebar-hidden" class to the planner to make stuff unmovable again.
+		// Remove the "sidebar-open" class so stuff isn't dragable.
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
 		if (planner === null) {
@@ -163,7 +163,7 @@ class Planner {
 			return;
 		}
 
-		planner.classList.add("sidebar-hidden");
+		planner.classList.remove("sidebar-open");
 	}
 
 	addAssignmentsToSidebar(): void {
@@ -225,15 +225,11 @@ class Planner {
 				return;
 			}
 
-			// If there are no assignments, add a message saying so.
-			let anyAssignments: boolean = false;
 			for (const assignment of course.assignments) {
 				// Make sure it is valid to be planned.
 				if (!this.checkPlanAssignment(assignment)) {
 					continue;
 				}
-
-				anyAssignments = true;
 
 				const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);
 
@@ -250,10 +246,6 @@ class Planner {
 				input.addEventListener("change", (): void => {
 					this.saveUserEstimate(course, assignment, input.value);
 				});
-			}
-
-			if (!anyAssignments) {
-				this.addNoAssignmentsMessage(assignmentList);
 			}
 		}
 	}
@@ -279,7 +271,7 @@ class Planner {
 			element: "li",
 			attributes: {
 				// Add the "completed" class if the assignment is completed.
-				class: `sidebar-course cid-${assignment.course_id} aid-${assignment.id} ${assignment.type} ${assignment.submitted ? "completed" : ""}`
+				class: `assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.submitted ? "completed" : ""}`
 			},
 			children: [
 				{
@@ -361,18 +353,16 @@ class Planner {
 	checkPlanAssignment(assignment: Assignment): boolean {
 		// Returns true if the assignment should be planned.
 
-		if (
+		return !(
 			// Already planned assignments don't need to be planned.
-			assignment.planned ||
-			// Locked assignments are moved into the planner elsewhere.
-			assignment.lock ||
-			// Announcements aren't in the base planner.
-			assignment.type === "announcement"
-		) {
-			return false;
-		}
-
-		return true;
+			(
+				assignment.planned ||
+				// Locked assignments are moved into the planner elsewhere.
+				assignment.lock ||
+				// Announcements aren't in the base planner.
+				assignment.type === "announcement"
+			)
+		);
 	}
 
 	addDragula(): void {
@@ -389,12 +379,10 @@ class Planner {
 					document.getElementById("deadline-dynamo-planner");
 
 				return (
-					// Don't allow dragging if the assignment is already planned.
-					el.classList.contains("no-assignments") ||
 					// Don't drag the planning elements.
 					el.parentElement?.classList.contains("sidebar-courses") ||
-					// Don't allow dragging if the sidebar is hidden.
-					planner?.classList.contains("sidebar-hidden") ||
+					// Don't allow dragging if the sidebar isn't shown.
+					!planner?.classList.contains("sidebar-open") ||
 					// Don't allow dragging if the assignment is locked.
 					el.classList.contains("locked")
 				);
@@ -440,19 +428,6 @@ class Planner {
 
 				if (target.classList.contains("weekday-assignments")) {
 					// The assignment is being moved to the planner.
-					// Remove the "no assignments" message if it's in the planner.
-					const noAssignments: HTMLElement | null =
-						target.querySelector(".no-assignments");
-					if (noAssignments !== null) {
-						noAssignments.remove();
-					}
-
-					// Add the "no assignments" message to the sidebar if required.
-					// TODO: We have to check if it has no children that are set to display block as under some
-					//  circumstances they are set to display: none instead.
-					if (source.children.length === 0) {
-						this.addNoAssignmentsMessage(source);
-					}
 
 					// Add the assignment to the plan.
 					const target_day: string = target.classList[1];
@@ -477,11 +452,6 @@ class Planner {
 					// The two places it can be dropped to trigger this is the overall sidebar or an individual
 					// course's segment in the sidebar.
 
-					// Add the "no assignments" message in the planner if required.
-					if (source.children.length === 0) {
-						this.addNoAssignmentsMessage(source);
-					}
-
 					// Get course it is supposed to move to.
 					const target_course: HTMLElement | null = document.querySelector(
 						`div.sidebar-course.cid-${course_id} .course-assignments`
@@ -498,14 +468,6 @@ class Planner {
 
 					// Hide the original element.
 					el.classList.add("hidden");
-
-					// Remove the "no assignments" message if it's in the sidebar.
-					const noAssignments: HTMLElement | null =
-						target_course.querySelector(".no-assignments");
-
-					if (noAssignments !== null) {
-						noAssignments.remove();
-					}
 
 					// Update the assignment info
 					assignment.planned = false;
@@ -644,18 +606,6 @@ class Planner {
 					weekdayAssignments.appendChild(assignmentDiv);
 				});
 			}
-			if (dayDiv.children[1].children.length === 0) {
-				// The day has no assignments planned.
-				const weekdayAssignments: HTMLElement | null =
-					dayDiv.querySelector(".weekday-assignments");
-
-				if (weekdayAssignments === null) {
-					this.utility.alerter("Error: Weekday assignments not found.");
-					return;
-				}
-
-				this.addNoAssignmentsMessage(weekdayAssignments);
-			}
 		}
 
 		// Hide the spinner now that the planner is done loading.
@@ -675,7 +625,7 @@ class Planner {
 		const lockedAssignments: Assignment[] = this.courses
 			.flatMap((course: Course): Assignment[] => course.assignments)
 			.filter((assignment: Assignment): boolean => {
-				if (
+				return (
 					// It has to be locked
 					assignment.lock &&
 					// It can't be a calendar event if we're not showing them.
@@ -685,10 +635,7 @@ class Planner {
 					// It has to be due on the day we're looking at.
 					this.utility.formatDate(assignment.due_date)[0] ===
 						this.utility.formatDate(day)[0]
-				) {
-					return true;
-				}
-				return false;
+				);
 			});
 
 		lockedAssignments.forEach((assignment: Assignment): void => {
@@ -705,17 +652,5 @@ class Planner {
 
 			weekdayAssignments.appendChild(assignmentDiv);
 		});
-	}
-
-	addNoAssignmentsMessage(target: HTMLElement): void {
-		// Adds a message telling the user there are no assignments.
-		const noAssignmentsElement: HtmlElement = {
-			element: "li",
-			attributes: { class: "no-assignments" }
-			// The content of this message is added with CSS.
-		};
-		const noAssignments: HTMLElement = this.utility.createHtmlFromJson(noAssignmentsElement);
-
-		target.appendChild(noAssignments);
 	}
 }

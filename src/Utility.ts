@@ -28,7 +28,7 @@ class Utility {
 	}
 
 	async loadStorage(key: string): Promise<string | undefined> {
-		const info: { [p: string]: any } = await chrome.storage.sync.get(key);
+		const info: { [p: string]: string } = await chrome.storage.sync.get(key);
 		return info[key];
 	}
 
@@ -48,7 +48,7 @@ class Utility {
 			},
 			estimateMultiplier: {},
 			planDistance: 1,
-			showEvents: false
+			showEvents: true
 		};
 
 		if (settingsJson === undefined) {

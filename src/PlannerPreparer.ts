@@ -37,7 +37,7 @@ class PlannerPreparer {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerJson: HtmlElement = {
 						element: "div",
-						attributes: { id: "deadline-dynamo-planner", class: "sidebar-hidden" }
+						attributes: { id: "deadline-dynamo-planner" }
 					};
 
 					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerJson);
