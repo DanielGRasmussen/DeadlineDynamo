@@ -109,6 +109,15 @@ class Utility {
 		}
 	}
 
+	scrollToTop(element: HTMLElement | Element, offset: number): void {
+		// Get the top of the element.
+		const elementRect: DOMRect = element.getBoundingClientRect();
+
+		const desiredY: number = elementRect.top + window.scrollY - offset;
+
+		window.scrollTo({ top: desiredY, behavior: "smooth" });
+	}
+
 	getEstimate(assignment: Assignment, estimator: Estimator): string {
 		let estimate = "";
 		if (assignment.user_estimate !== undefined && assignment.user_estimate !== null) {

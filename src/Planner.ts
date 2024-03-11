@@ -51,12 +51,12 @@ class Planner {
 
 		const today: Element | null = document.getElementsByClassName(date)[0];
 
-		if (today === null) {
+		if (today === null || today.parentElement === null) {
 			this.utility.alerter("Error: Today not found.");
 			return;
 		}
 
-		today.parentElement?.scrollIntoView(true);
+		this.utility.scrollToTop(today.parentElement, 90);
 	}
 
 	createSidebar(): void {
