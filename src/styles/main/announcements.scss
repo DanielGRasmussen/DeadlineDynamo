@@ -25,17 +25,36 @@
 		font-weight: 700;
 	}
 
+	.announcement {
+		display: grid;
+		grid-template-columns: 1fr 150px;
+		grid-template-rows: auto auto auto;
+	}
+
 	// Title/link for announcement
 	a {
+		display: block;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;
+
+		grid-column: 1 / 3;
+		grid-row: 2 / 3;
 	}
 
-	// Announcement course
 	p {
 		font-size: 0.9em;
 		margin-top: 0;
+	}
+
+	.course {
+		grid-column: 1 / 2;
+		grid-row: 3 / 4;
+	}
+
+	.date {
+		grid-column: 2 / 3;
+		grid-row: 3 / 4;
 	}
 
 	.announcement + .announcement:before {
@@ -45,6 +64,9 @@
 		height: 1px;
 		margin-bottom: 3px;
 		width: 100%;
+
+		grid-column: 1 / 3;
+		grid-row: 1 / 2;
 	}
 
 	// If the element doesn't have any announcements it will add a "No announcements" message.

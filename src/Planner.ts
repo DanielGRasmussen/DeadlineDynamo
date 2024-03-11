@@ -45,6 +45,18 @@ class Planner {
 
 		// Add the weekday slots.
 		this.addWeekdaySlots();
+
+		// Scroll down to current day.
+		const date: string = new Date().toISOString().slice(0, 10);
+
+		const today: Element | null = document.getElementsByClassName(date)[0];
+
+		if (today === null) {
+			this.utility.alerter("Error: Today not found.");
+			return;
+		}
+
+		today.parentElement?.scrollIntoView(true);
 	}
 
 	createSidebar(): void {
@@ -511,6 +523,8 @@ class Planner {
 				return;
 			}
 
+			const announcementDate: string[] = this.utility.formatDate(announcement.due_date);
+
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
 			const announcementJson: HtmlElement = {
 				element: "div",
@@ -528,7 +542,12 @@ class Planner {
 					{
 						element: "p",
 						attributes: { class: "course" },
-						textContent: course.name
+						textContent: course.code
+					},
+					{
+						element: "p",
+						attributes: { class: "date" },
+						textContent: announcementDate[0] + " " + announcementDate[1]
 					}
 				]
 			};
