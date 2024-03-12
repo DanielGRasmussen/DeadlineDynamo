@@ -56,10 +56,22 @@ class Planner {
 			return;
 		}
 
-		this.utility.scrollToTop(today.parentElement, 90);
+		this.utility.scrollToTop(today.parentElement, 70);
 	}
 
 	createSidebar(): void {
+		// Check if the sidebar is already open.
+		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+
+		if (planner === null) {
+			this.utility.alerter("Error: Planner not found.");
+			return;
+		}
+
+		if (planner.classList.contains("sidebar-open")) {
+			return;
+		}
+
 		const sidebarJson: HtmlElement = {
 			element: "span",
 			attributes: { class: "deadline-dynamo-sidebar" },
@@ -136,13 +148,6 @@ class Planner {
 		this.addDragula();
 
 		// Add the "sidebar-open" class so stuff is dragable.
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
-
-		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
-			return;
-		}
-
 		planner.classList.add("sidebar-open");
 	}
 
