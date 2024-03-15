@@ -87,8 +87,7 @@ class Utility {
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
 			// Create an empty plan for this week.
-			const today: Date = new Date();
-			const monday: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+			const monday: Date = this.getMonday(new Date());
 			const plan: Plan = {};
 			for (let i = 0; i < 5; i++) {
 				const day: Date = new Date(monday);
@@ -118,25 +117,40 @@ class Utility {
 		window.scrollTo({ top: desiredY, behavior: "smooth" });
 	}
 
-	getEstimate(assignment: Assignment, estimator: Estimator): string {
-		let estimate = "";
-		if (assignment.user_estimate !== undefined && assignment.user_estimate !== null) {
-			estimate = assignment.user_estimate.toString();
-		} else if (
-			assignment.history_estimate !== undefined &&
-			assignment.history_estimate !== null
-		) {
-			estimate = assignment.history_estimate.toString();
+	getEstimate(course: Course, assignment: Assignment, estimator: Estimator): string {
+		if (assignment.user_estimate !== null) {
+			// If there is a user estimate, use that.
+			console.log("User estimate found.");
+			return assignment.user_estimate.toString();
+		} else if (assignment.history_estimate !== null) {
+			// If there is a history estimate, use that.
+			console.log("History estimate found.");
+			return assignment.history_estimate.toString();
 		} else {
-			estimator.estimateTime(assignment);
+			// Otherwise try to make a history based estimate.
+			estimator.historyEstimate(course, assignment);
 
-			if (assignment.basic_estimate === undefined || assignment.basic_estimate === null) {
-				this.alerter("Error: No estimator failed to estimate.");
-			} else {
-				estimate = assignment.basic_estimate.toString();
+			if (assignment.history_estimate !== null) {
+				console.log("History estimate made.");
+				return assignment.history_estimate;
 			}
 		}
-		return estimate;
+		// If a history based estimate can't be made, use the basic estimate.
+		estimator.estimateTime(assignment);
+
+		if (assignment.basic_estimate === null) {
+			this.alerter("Error: No estimator failed to estimate.");
+			return "";
+		} else {
+			console.log("Basic estimate used.");
+			return assignment.basic_estimate.toString();
+		}
+	}
+
+	getMonday(date: Date, offset: number = 0): Date {
+		const monday: Date = new Date(date);
+		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
+		return monday;
 	}
 
 	formatDate(date: Date): [string, string] {

@@ -7,6 +7,7 @@ class PlannerPreparer {
 	triggeredMain: boolean = false;
 	clickedTodoClose: boolean = false;
 	main: Main = new Main();
+	planner: Planner | undefined;
 
 	constructor() {
 		this.observer.observe(document, { childList: true, subtree: true });
@@ -62,7 +63,11 @@ class PlannerPreparer {
 					node.tagName === "SPAN" &&
 					node.querySelector("ul.css-vftc6n-view--block-list")
 				) {
+					// This is added and removed frequently so it has to be checked for every time it is added.
 					this.addMiniNavButton(node);
+				} else if (node.parentElement?.id === "dashboard_header_container") {
+					// Gets the main header element.
+					this.addShowMoreButton(node);
 				} else if (
 					!this.clickedTodoClose &&
 					node.querySelector(
@@ -92,7 +97,11 @@ class PlannerPreparer {
 						// This is to wait for it.
 						this.utility.wait(500).then(() => {
 							if (this.main.doneLoading && this.main.courses && !this.triggeredMain) {
-								new Planner(this.main.courses, this.main.estimator, this.utility);
+								this.planner = new Planner(
+									this.main.courses,
+									this.main.estimator,
+									this.utility
+								);
 								this.triggeredMain = true;
 							}
 						});
@@ -360,6 +369,25 @@ class PlannerPreparer {
 		const navButton: HTMLElement = this.utility.createHtmlFromJson(navButtonJson);
 
 		navList.children[2].after(navButton);
+	}
+
+	addShowMoreButton(parent: Element): void {
+		const showMoreButtonJson: HtmlElement = {
+			element: "span",
+			attributes: { class: "show-old-assignments" },
+			textContent: "Show More"
+		};
+
+		const showMoreButton: HTMLElement = this.utility.createHtmlFromJson(showMoreButtonJson);
+
+		parent.append(showMoreButton);
+
+		let offset: number = -1;
+
+		showMoreButton.addEventListener("click", () => {
+			this.planner?.addWeekdaySlots(true, offset);
+			offset -= 1;
+		});
 	}
 }
 

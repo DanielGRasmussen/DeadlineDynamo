@@ -11,7 +11,7 @@
 			"128": "src/images/icon - 128px.png"
 		}
 	},
-	"permissions": [ "storage", "activeTab" ],
+	"permissions": [ "storage" ],
 	"content_scripts": [
 		{
 			"matches": ["https://byui.instructure.com/*"], "js": [

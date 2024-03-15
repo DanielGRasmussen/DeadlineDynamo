@@ -139,7 +139,41 @@ class Estimator {
 		return 1;
 	}
 
-	historyEstimateTime(): number {
-		return 0;
+	historyEstimate(course: Course, assignment: Assignment): void {
+		// Finds similar assignments in the past and averages their times.
+		// If there are no similar assignments, it does nothing.
+
+		// Find similar assignments.
+		// Remove any appendages (Week 1, W01, and W1)
+		let name: string = assignment.name.toLowerCase();
+		// Remove Week ##
+		name = name.replace(/week\s?\d+/g, "");
+		// Remove W ##
+		name = name.replace(/w\s?\d+/g, "");
+		// Remove W##
+		name = name.replace(/w\d+/g, "");
+
+		// Find similar assignments.
+		const similarAssignments: Assignment[] = course.assignments.filter(
+			(assignment: Assignment) =>
+				assignment.name.toLowerCase().includes(name) && assignment.id !== assignment.id
+		);
+
+		// If there are no similar assignments, return.
+		if (similarAssignments.length === 0) {
+			return;
+		}
+
+		// Get the average time of the similar assignments.
+		let total: number = 0;
+		let count: number = 0;
+		for (const similar_assignment of similarAssignments) {
+			if (similar_assignment.time_taken !== null) {
+				total += similar_assignment.time_taken;
+				count++;
+			}
+		}
+
+		assignment.history_estimate = total / count;
 	}
 }

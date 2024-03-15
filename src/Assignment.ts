@@ -14,6 +14,7 @@ class Assignment {
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;
+	time_taken: number | null; // Time taken to complete the assignment
 	// Data added by addExtraData in Course
 	description: string = "";
 	submission_types: string[] = [];
@@ -33,7 +34,8 @@ class Assignment {
 		planned: boolean,
 		basic_estimate: number | null,
 		history_estimate: number | null,
-		user_estimate: number | null
+		user_estimate: number | null,
+		time_taken: number | null
 	) {
 		this.id = id;
 		this.course_id = course_id;
@@ -50,5 +52,6 @@ class Assignment {
 		this.basic_estimate = basic_estimate;
 		this.history_estimate = history_estimate;
 		this.user_estimate = user_estimate;
+		this.time_taken = time_taken;
 	}
 }

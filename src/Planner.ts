@@ -183,7 +183,7 @@ class Planner {
 		planner.classList.remove("sidebar-open");
 	}
 
-	addAssignmentsToSidebar(): void {
+	addAssignmentsToSidebar(previous: boolean = false, offset: number = 0): void {
 		for (const course of this.courses) {
 			const courseElement: HtmlElement = {
 				element: "div",
@@ -248,26 +248,42 @@ class Planner {
 					continue;
 				}
 
-				const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);
+				const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment, course);
 
 				assignmentList.appendChild(assignmentDiv);
 
 				// Add event listener to save the user's estimate.
-				const input: HTMLInputElement | null = assignmentDiv.querySelector(
-					`input.assignment-${assignment.id}`
+				const estimateInput: HTMLInputElement | null = assignmentDiv.querySelector(
+					`.estimate-input.assignment-${assignment.id}`
 				);
-				if (input === null) {
+
+				if (estimateInput === null) {
 					this.utility.alerter("Error: Input not found.");
 					return;
 				}
-				input.addEventListener("change", (): void => {
-					this.saveUserEstimate(course, assignment, input.value);
+
+				estimateInput.addEventListener("change", (): void => {
+					this.saveValue(course, assignment, estimateInput.value, true);
+				});
+
+				// Add event listener to save the time taken.
+				const timeTakenInput: HTMLInputElement | null = assignmentDiv.querySelector(
+					`.time-taken-input.assignment-${assignment.id}`
+				);
+
+				if (timeTakenInput === null) {
+					this.utility.alerter("Error: Input not found.");
+					return;
+				}
+
+				timeTakenInput.addEventListener("change", (): void => {
+					this.saveValue(course, assignment, timeTakenInput.value, false);
 				});
 			}
 		}
 	}
 
-	makeAssignmentElement(assignment: Assignment): HTMLElement {
+	makeAssignmentElement(assignment: Assignment, course?: Course): HTMLElement {
 		const due_date: [string, string] = this.utility.formatDate(assignment.due_date);
 
 		let link_type: string;
@@ -283,6 +299,19 @@ class Planner {
 		}
 
 		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
+
+		if (!course) {
+			course = this.courses.find(
+				(course: Course): boolean => course.id === assignment.course_id
+			);
+
+			if (course === undefined) {
+				this.utility.alerter("Error: Course not found.");
+				return document.createElement("div");
+			}
+		}
+
+		const estimate: string = this.utility.getEstimate(course, assignment, this.estimator);
 
 		const assignmentElement: HtmlElement = {
 			element: "li",
@@ -310,7 +339,7 @@ class Planner {
 							attributes: {
 								class: `estimate-input assignment-${assignment.id}`,
 								type: "number",
-								value: this.utility.getEstimate(assignment, this.estimator),
+								value: estimate,
 								min: "0",
 								max: "1440"
 							}
@@ -325,7 +354,37 @@ class Planner {
 				{
 					element: "p",
 					attributes: { class: "estimate-label" },
-					textContent: `Estimate: ${this.utility.getEstimate(assignment, this.estimator)}m`
+					textContent: `Estimate: ${estimate}m`
+				},
+				{
+					element: "div",
+					attributes: { class: "time-taken" },
+					children: [
+						{
+							element: "span",
+							textContent: "Time taken: ",
+							attributes: {
+								title: "How long it took you to complete the assignment. It is used for history based estimations."
+							}
+						},
+						{
+							element: "input",
+							attributes: {
+								class: `time-taken-input assignment-${assignment.id}`,
+								type: "number",
+								value:
+									assignment.time_taken === null
+										? ""
+										: assignment.time_taken.toString(),
+								min: "0",
+								max: "1440"
+							}
+						},
+						{
+							element: "span",
+							textContent: " minutes"
+						}
+					]
 				},
 				{
 					element: "p",
@@ -362,8 +421,12 @@ class Planner {
 		return this.utility.createHtmlFromJson(assignmentElement);
 	}
 
-	saveUserEstimate(course: Course, assignment: Assignment, estimate: string): void {
-		assignment.user_estimate = parseInt(estimate);
+	saveValue(course: Course, assignment: Assignment, value: string, is_estimate: boolean): void {
+		if (is_estimate) {
+			assignment.user_estimate = parseInt(value);
+		} else {
+			assignment.time_taken = parseInt(value);
+		}
 		course.saveCourse();
 	}
 
@@ -561,7 +624,7 @@ class Planner {
 		}
 	}
 
-	addWeekdaySlots(): void {
+	addWeekdaySlots(previous: boolean = false, offset: number = 0): void {
 		// Adds the empty weekday slots to the main UI of the planner.
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
@@ -570,9 +633,10 @@ class Planner {
 			return;
 		}
 
+		const sibling: ChildNode | null = planner.firstChild;
+
 		// Get the first day of the week.
-		const today: Date = new Date();
-		const monday: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+		const monday: Date = this.utility.getMonday(new Date(), offset);
 
 		// Add the slots for each day of the week.
 		for (let i = 0; i < 7 * this.settings.planDistance; i++) {
@@ -599,7 +663,11 @@ class Planner {
 
 			const dayDiv: HTMLElement = this.utility.createHtmlFromJson(dayElement);
 
-			planner.appendChild(dayDiv);
+			if (!previous) {
+				planner.appendChild(dayDiv);
+			} else {
+				sibling?.before(dayDiv);
+			}
 			// Add locked assignments for that day.
 			this.addLockedAssignments(day, dayDiv);
 

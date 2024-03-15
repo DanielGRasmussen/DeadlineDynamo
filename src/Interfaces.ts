@@ -193,6 +193,7 @@ interface LocalAssignmentJson {
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;
+	time_taken: number | null; // Time taken to complete the assignment
 	// Data added by addExtraData in Course
 	description?: string;
 	submission_types?: string[];

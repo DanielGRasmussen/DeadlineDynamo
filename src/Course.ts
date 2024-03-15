@@ -27,10 +27,7 @@ class Course {
 			// This is API data.
 			// Filter out assignments that don't belong to this course.
 			assignments = assignments.filter(assignment => {
-				if (assignment.course_id !== this.id) {
-					return false;
-				}
-				return true;
+				return assignment.course_id === this.id;
 			});
 
 			// Sort assignments by due date.
@@ -61,6 +58,7 @@ class Course {
 					false,
 					null,
 					null,
+					null,
 					null
 				);
 			});
@@ -82,7 +80,8 @@ class Course {
 					assignment.planned,
 					assignment.basic_estimate,
 					assignment.history_estimate,
-					assignment.user_estimate
+					assignment.user_estimate,
+					assignment.time_taken
 				);
 			});
 		}
@@ -128,6 +127,7 @@ class Course {
 						assignment.plannable.location_name || "",
 						assignment.plannable_type === "calendar_event",
 						false,
+						null,
 						null,
 						null,
 						null
