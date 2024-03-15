@@ -18,6 +18,8 @@ class Assignment {
 	// Data added by addExtraData in Course
 	description: string = "";
 	submission_types: string[] = [];
+	// Added by the auto planner.
+	priority: number = 0;
 
 	constructor(
 		id: number,

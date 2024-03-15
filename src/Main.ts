@@ -2,7 +2,7 @@ class Main {
 	courses?: Course[];
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
-	estimator: Estimator = new Estimator();
+	estimator: Estimator = new Estimator(this.courses);
 	doneLoading: boolean = false;
 
 	constructor() {

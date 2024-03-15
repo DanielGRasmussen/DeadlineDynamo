@@ -142,6 +142,19 @@ class Planner {
 
 		closeButton.addEventListener("click", this.deleteSidebar.bind(this));
 
+		// Set up the plan button.
+		const planButton: HTMLElement | null = document.querySelector(".plan");
+
+		if (planButton === null) {
+			this.utility.alerter("Error: Plan button not found.");
+			return;
+		}
+
+		planButton.addEventListener("click", (): void => {
+			this.plan = this.utility.createPlan(this.plan, this.courses, this.estimator, this.settings);
+			this.utility.saveStorage("plan", JSON.stringify(this.plan));
+		});
+
 		this.addAssignmentsToSidebar();
 
 		// Dragula is now useful since the sidebar (where assignments are dragged to/from) is now created.

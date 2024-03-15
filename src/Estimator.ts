@@ -1,10 +1,12 @@
 class Estimator {
 	assignment!: Assignment;
 	courseId!: number;
+	courses?: Course[];
 	utility: Utility = new Utility();
 	settings!: SettingsJson;
 
-	constructor() {
+	constructor(courses?: Course[]) {
+		this.courses = courses;
 		this.utility.loadSettings().then((settings: SettingsJson): void => {
 			this.settings = settings;
 		});
@@ -153,6 +155,16 @@ class Estimator {
 		// Remove W##
 		name = name.replace(/w\d+/g, "");
 
+		// If course is not found, try to find it.
+		if (course === undefined) {
+			// Get all courses.
+			if (this.courses) {
+				course = this.courses.find((course: Course) => course.id === assignment.course_id)!;
+			} else {
+				return;
+			}
+		}
+
 		// Find similar assignments.
 		const similarAssignments: Assignment[] = course.assignments.filter(
 			(assignment: Assignment) =>
@@ -175,5 +187,63 @@ class Estimator {
 		}
 
 		assignment.history_estimate = total / count;
+	}
+
+	getPriority(course: Course, assignment: Assignment): number {
+		// Get the priority of the assignment.
+		// If the assignment has already been submitted, it should have the lowest priority.
+		if (assignment.submitted) {
+			return 0;
+		}
+		let priority: number = 0;
+
+		// Check for keywords.
+		priority = this.getKeywordPriority(assignment);
+
+		// We should prioritize assignments that are due soon.
+		const dueDate: Date = new Date(assignment.due_date);
+		const daysUntilDue: number = this.utility.daysUntil(dueDate);
+
+		// Modify the priority based on the days until due.
+		if (daysUntilDue <= 1) {
+			priority += 5;
+		} else if (daysUntilDue <= 3) {
+			priority += 3;
+		}
+
+		return priority;
+	}
+
+	getKeywordPriority(assignment: Assignment): number {
+		// Get the keyword priority for the assignment.
+		const keywordSets: [RegExp, number][] = [
+			// Practice items generally should be completed early.
+			[/\bpractice\b/, 7],
+			// Studying is high priority and should take place before finals.
+			[/\bstudy\b/, 7],
+			// Exams are very important but should be done after studying.
+			[/\bexam\b/, 6],
+			// Finals are also very important but should be done after studying.
+			[/\bfinal\b/, 6],
+			// Self evaluations should be moderate priority.
+			[/\bself-evaluation\b/, 5],
+			// Homework is slightly below moderate priority.
+			[/\bhomework\b/, 4],
+			// Quizzes are slightly below moderate priority.
+			[/\bquiz\b/, 4],
+			// Discussions are generally low priority.
+			[/\bdiscussion\b/, 3]
+		];
+
+		for (const keywordSet of keywordSets) {
+			const keywordMatch: RegExpMatchArray | null = assignment.name
+				.toLowerCase()
+				.match(keywordSet[0]);
+			if (keywordMatch !== null) {
+				// Get the first matching keyword set.
+				return keywordSet[1];
+			}
+		}
+		return 0;
 	}
 }

@@ -147,10 +147,88 @@ class Utility {
 		}
 	}
 
+	createPlan(plan: Plan, courses: Course[], estimator: Estimator, settings: SettingsJson): Plan {
+		// Create a list of all assignments sorted by priority.
+		const allAssignments: Assignment[] = [];
+
+		for (const course of courses) {
+			for (const assignment of course.assignments) {
+				// Filter out assignments that shouldn't be automatically planned.
+				if (
+					!assignment.planned &&
+					!assignment.lock &&
+					!assignment.submitted &&
+					assignment.type !== "announcement"
+				) {
+					assignment.priority = estimator.getPriority(course, assignment);
+					allAssignments.push(assignment);
+				}
+			}
+		}
+
+		allAssignments.sort((a, b) => b.priority - a.priority);
+
+		// Plan the assignments.
+		for (const day of Object.keys(plan)) {
+			const date: Date = new Date(day);
+			const workHours: number =
+				settings.workHours[date.toLocaleString("en-US", { weekday: "long" }).toLowerCase()];
+
+			// Plan the assignments for this day.
+			let timeRemaining: number = workHours * 60;
+			for (const assignment of allAssignments) {
+				// Skip the assignment if it is planned.
+				if (assignment.planned) {
+					continue;
+				}
+
+				const estimate: number = parseInt(
+					this.getEstimate(courses[assignment.course_id], assignment, estimator)
+				);
+
+				// If the assignment can be planned without running over the limit, plan it.
+				if (timeRemaining - estimate >= 0) {
+					const plannedAssignment: PlanItem = {
+						id: assignment.id,
+						due_date: assignment.due_date
+					};
+					plan[day].push(plannedAssignment);
+					assignment.planned = true;
+					timeRemaining -= estimate;
+				}
+			}
+		}
+
+		// Save the courses.
+		for (const course of courses) {
+			course.saveCourse();
+		}
+
+		// If there are leftover assignments let the user know.
+		const leftoverAssignments: Assignment[] = allAssignments.filter(
+			assignment => !assignment.planned && !assignment.lock && !assignment.submitted
+		);
+
+		if (leftoverAssignments.length > 0) {
+			this.alerter(
+				`There are ${leftoverAssignments.length} assignments that could not be planned.`
+			);
+		}
+
+		return plan;
+	}
+
 	getMonday(date: Date, offset: number = 0): Date {
 		const monday: Date = new Date(date);
 		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
 		return monday;
+	}
+
+	daysUntil(date: Date): number {
+		// Gets days between the monday and the date.
+		const monday: Date = this.getMonday(new Date());
+		const difference: number = date.getTime() - monday.getTime();
+		return Math.ceil(difference / (1000 * 60 * 60 * 24));
 	}
 
 	formatDate(date: Date): [string, string] {
