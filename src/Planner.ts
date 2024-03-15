@@ -323,7 +323,12 @@ class Planner {
 			}
 		}
 
-		const estimate: string = this.utility.getEstimate(course, assignment, this.estimator);
+		const estimate: string = this.utility.getEstimate(
+			course,
+			assignment,
+			this.estimator,
+			this.settings
+		);
 
 		const assignmentElement: HtmlElement = {
 			element: "li",
@@ -334,7 +339,8 @@ class Planner {
 			children: [
 				{
 					element: "a",
-					attributes: { href: link, target: "_blank" },
+					attributes: { target: "_blank" },
+					href: link,
 					textContent: assignment.name
 				},
 				{
@@ -620,10 +626,10 @@ class Planner {
 					{
 						element: "a",
 						attributes: {
-							href: link,
 							target: "_blank",
 							title: announcement.name
 						},
+						href: link,
 						textContent: announcement.name
 					},
 					{

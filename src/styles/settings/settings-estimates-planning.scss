@@ -1,0 +1,23 @@
+.settings-container .settings {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+
+	.use-estimates {
+		grid-column: 1 / 3;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.work-hours,
+	.estimate-multiplier {
+		flex: 50%;
+	}
+
+	@media (max-width: 900px) {
+		display: block;
+
+		.use-estimates {
+			display: block;
+		}
+	}
+}

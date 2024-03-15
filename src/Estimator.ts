@@ -189,13 +189,13 @@ class Estimator {
 		assignment.history_estimate = total / count;
 	}
 
-	getPriority(course: Course, assignment: Assignment): number {
+	getPriority(assignment: Assignment): number {
 		// Get the priority of the assignment.
 		// If the assignment has already been submitted, it should have the lowest priority.
 		if (assignment.submitted) {
 			return 0;
 		}
-		let priority: number = 0;
+		let priority: number;
 
 		// Check for keywords.
 		priority = this.getKeywordPriority(assignment);

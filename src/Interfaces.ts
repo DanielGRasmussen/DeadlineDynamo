@@ -204,11 +204,13 @@ interface HtmlElement {
 	attributes?: { [key: string]: string };
 	textContent?: string;
 	innerHTML?: string;
+	href?: string;
 	children?: HtmlElement[];
 }
 
 interface SettingsJson {
-	prioritizePoorGrades: boolean;
+	useBasicEstimate: boolean;
+	useHistoryEstimate: boolean;
 	workHours: WorkHours;
 	estimateMultiplier: EstimateMultiplier;
 	planDistance: number;

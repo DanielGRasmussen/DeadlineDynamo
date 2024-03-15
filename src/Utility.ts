@@ -11,7 +11,7 @@ class Utility {
 	}
 
 	createHtmlFromJson(data: HtmlElement): HTMLElement {
-		this.log("Creating an HTML element.");
+		// this.log("Creating an HTML element.");
 		const element: HTMLElement = document.createElement(data.element);
 
 		for (const key in data.attributes) {
@@ -24,6 +24,10 @@ class Utility {
 
 		if (data.innerHTML) {
 			element.innerHTML = data.innerHTML;
+		}
+
+		if (data.href) {
+			(element as HTMLAnchorElement).href = data.href;
 		}
 
 		if (data.children) {
@@ -46,7 +50,8 @@ class Utility {
 		const settingsJson: string | undefined = await this.loadStorage("settings");
 		// Default settings. To be overridden if settings are found in local storage.
 		let settings: SettingsJson = {
-			prioritizePoorGrades: false,
+			useBasicEstimate: true,
+			useHistoryEstimate: true,
 			workHours: {
 				monday: 6,
 				tuesday: 6,
@@ -63,6 +68,8 @@ class Utility {
 
 		if (settingsJson === undefined) {
 			// Default estimateMultiplier
+			this.log("No settings found. Using default settings.");
+
 			const courseIds: string | undefined = await this.loadStorage("courseIds");
 			if (courseIds !== undefined) {
 				// Set default estimate multipliers.
@@ -72,8 +79,11 @@ class Utility {
 				}
 			}
 		} else {
+			this.log("Settings found.");
 			settings = JSON.parse(settingsJson);
 		}
+
+		this.log(JSON.stringify(settings));
 		return settings;
 	}
 
@@ -140,23 +150,28 @@ class Utility {
 		window.scrollTo({ top: desiredY, behavior: "smooth" });
 	}
 
-	getEstimate(course: Course, assignment: Assignment, estimator: Estimator): string {
+	getEstimate(
+		course: Course,
+		assignment: Assignment,
+		estimator: Estimator,
+		settings: Settings | SettingsJson
+	): string {
 		this.log("Getting estimate.");
 		if (assignment.user_estimate !== null) {
 			// If there is a user estimate, use that.
 			this.log("User estimate found.");
 			return assignment.user_estimate.toString();
-		} else if (assignment.history_estimate !== null) {
+		} else if (settings.useHistoryEstimate && assignment.history_estimate !== null) {
 			// If there is a history estimate, use that.
 			this.log("History estimate found.");
 			return assignment.history_estimate.toString();
-		} else {
+		} else if (settings.useHistoryEstimate) {
 			// Otherwise try to make a history based estimate.
 			estimator.historyEstimate(course, assignment);
 
 			if (assignment.history_estimate !== null) {
 				this.log("History estimate made.");
-				return assignment.history_estimate;
+				return assignment.history_estimate.toString();
 			}
 		}
 		// If a history based estimate can't be made, use the basic estimate.
@@ -164,6 +179,9 @@ class Utility {
 
 		if (assignment.basic_estimate === null) {
 			this.alerter("Error: No estimator failed to estimate.");
+			return "";
+		} else if (!settings.useBasicEstimate) {
+			this.log("Basic estimate not used.");
 			return "";
 		} else {
 			this.log("Basic estimate used.");
@@ -185,7 +203,7 @@ class Utility {
 					!assignment.submitted &&
 					assignment.type !== "announcement"
 				) {
-					assignment.priority = estimator.getPriority(course, assignment);
+					assignment.priority = estimator.getPriority(assignment);
 					allAssignments.push(assignment);
 				}
 			}
@@ -208,7 +226,7 @@ class Utility {
 				}
 
 				const estimate: number = parseInt(
-					this.getEstimate(courses[assignment.course_id], assignment, estimator)
+					this.getEstimate(courses[assignment.course_id], assignment, estimator, settings)
 				);
 
 				// If the assignment can be planned without running over the limit, plan it.

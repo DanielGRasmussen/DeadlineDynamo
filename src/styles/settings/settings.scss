@@ -7,33 +7,39 @@ label + input[type = "number"] {
 	display: block;
 }
 
-#content > div {
-	max-width: 800px;
-	margin: 0 auto;
+// Hamburger button.
+i.icon-hamburger::before {
+	font-size: 24px !important;
 }
 
-.settings-container {
-	display: flex;
-	flex-direction: row;
+// To make enough room for the nav.
+#left-side {
+	width: 200px;
+}
 
-	.work-hours,
-	.estimate-multiplier {
-		flex: 50%;
+.settings-wrapper .settings-container {
+	h1 {
+		width: 100%;
+		flex-shrink: 0;
 	}
-}
 
-.button-container {
-	display: flex;
-	justify-content: flex-end;
+	input {
+		margin: 0 0 2px 4px;
+	}
 
-	.cancel_button {
-		margin-right: 20px;
+	.button-container {
+		display: flex;
+		justify-content: flex-end;
+
+		#saveButton {
+			width: 150px;
+			margin-left: 20px;
+		}
 	}
 }
 
 @media (width <= 600px) {
-	.settings-container,
-	.prioritize-poor-grades {
+	.settings-container {
 		flex-direction: column;
 		padding-left: 25px;
 	}
