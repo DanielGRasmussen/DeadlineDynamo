@@ -108,11 +108,21 @@ class Utility {
 		}
 	}
 
-	scrollToTop(element: HTMLElement | Element, offset: number): void {
-		// Get the top of the element.
-		const elementRect: DOMRect = element.getBoundingClientRect();
+	scrollToToday(): void {
+		this.log("Scrolling to today.");
+		const date: string = new Date().toISOString().slice(0, 10);
 
-		const desiredY: number = elementRect.top + window.scrollY - offset;
+		const today: Element | null = document.getElementsByClassName(date)[0];
+
+		if (today === null || today.parentElement === null) {
+			this.alerter("Error: Today not found.");
+			return;
+		}
+
+		// Get the top of the element.
+		const elementRect: DOMRect = today.getBoundingClientRect();
+
+		const desiredY: number = elementRect.top + window.scrollY - 70;
 
 		window.scrollTo({ top: desiredY, behavior: "smooth" });
 	}

@@ -47,16 +47,7 @@ class Planner {
 		this.addWeekdaySlots();
 
 		// Scroll down to current day.
-		const date: string = new Date().toISOString().slice(0, 10);
-
-		const today: Element | null = document.getElementsByClassName(date)[0];
-
-		if (today === null || today.parentElement === null) {
-			this.utility.alerter("Error: Today not found.");
-			return;
-		}
-
-		this.utility.scrollToTop(today.parentElement, 70);
+		this.utility.scrollToToday();
 	}
 
 	createSidebar(): void {

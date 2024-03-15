@@ -1,3 +1,15 @@
+// Hide the original planner.
+#dashboard-planner {
+	// It uses inline styles so we have to use !important.
+	display: none !important;
+}
+
+// Hide the planner scroll button.
+#dashboard-planner-header-aux {
+	// It uses inline styles so we have to use !important.
+	display: none !important;
+}
+
 #deadline-dynamo-planner {
 	// 229px is the height of the header.
 	min-height: calc(100vh - 229px);
@@ -6,6 +18,12 @@
 	// The header height changes at this width.
 	@media screen and (width <= 991px) {
 		min-height: calc(100vh - 253px);
+	}
+
+	.weekday-name {
+		// Make the weekday names bold.
+		font-weight: bold;
+		font-size: 1.4em;
 	}
 
 	.weekday-assignments {
@@ -178,9 +196,10 @@
 	padding: 3px 10px;
 
 	cursor: pointer;
+	color: white;
 
 	background: rgb(0, 118, 182);
-	border-radius: 0 0 15px 15px;
+	border-radius: 0 0 4px 4px;
 }
 
 // If the sidebar is open make the assignments thinner so the due date is visible.

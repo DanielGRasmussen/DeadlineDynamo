@@ -30,10 +30,16 @@ class PlannerPreparer {
 					return;
 				}
 
-				if (!this.removedDefaultPlanner && node.id === "dashboard-planner") {
-					// Remove the canvas planner element.
-					node.remove();
-					this.removedDefaultPlanner = true;
+				if (!this.scrollToTodayButton && node.querySelector("#planner-today-btn")) {
+					const planner_button: HTMLElement | null =
+						node.querySelector("#planner-today-btn");
+
+					planner_button?.addEventListener("click", () => {
+						this.utility.scrollToToday();
+					});
+
+					this.utility.log("Added scroll to today button.");
+					this.scrollToTodayButton = true;
 				} else if (!this.addedPlanner && node.id === "dashboard_header_container") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerJson: HtmlElement = {
@@ -68,26 +74,6 @@ class PlannerPreparer {
 				} else if (node.parentElement?.id === "dashboard_header_container") {
 					// Gets the main header element.
 					this.addShowMoreButton(node);
-				} else if (
-					!this.clickedTodoClose &&
-					node.querySelector(
-						"div[aria-label='Add To Do'] span.css-19r6qv1-closeButton button"
-					)
-				) {
-					// When we remove some element in the original planner the todo sidebar close button doesn't
-					// work the first time it's pressed. This fixes it by clicking it an extra time when it is
-					// clicked. Very hacky. But it should be effective.
-					const closeButton: HTMLButtonElement | null = node.querySelector(
-						"span.css-19r6qv1-closeButton button"
-					);
-
-					if (closeButton === null) {
-						this.utility.alerter("Error: Close button not found.");
-						return;
-					}
-
-					closeButton.addEventListener("click", closeButton.click);
-					this.clickedTodoClose = true;
 				}
 
 				if (this.addedPlanner && this.addedHeaderButtons && !this.triggeredMain) {
