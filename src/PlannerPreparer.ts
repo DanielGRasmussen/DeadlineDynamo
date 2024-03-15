@@ -1,11 +1,10 @@
 class PlannerPreparer {
 	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	removedDefaultPlanner: boolean = false;
+	scrollToTodayButton: boolean = false;
 	addedPlanner: boolean = false;
 	addedHeaderButtons: boolean = false;
 	triggeredMain: boolean = false;
-	clickedTodoClose: boolean = false;
 	main: Main = new Main();
 	planner: Planner | undefined;
 
@@ -52,6 +51,8 @@ class PlannerPreparer {
 					node.after(planner);
 					this.addedPlanner = true;
 
+					this.utility.log("Added planner.");
+
 					// Spinner while the plan is loading.
 					this.createSpinner();
 				} else if (
@@ -62,6 +63,7 @@ class PlannerPreparer {
 					node.getAttribute("data-testid") === "PlannerHeader"
 				) {
 					// Create our sidebar button.
+					this.utility.log("Adding header buttons.");
 					this.createHeaderButtons();
 					this.addedHeaderButtons = true;
 				} else if (
@@ -69,7 +71,8 @@ class PlannerPreparer {
 					node.tagName === "SPAN" &&
 					node.querySelector("ul.css-vftc6n-view--block-list")
 				) {
-					// This is added and removed frequently so it has to be checked for every time it is added.
+					// This is added and removed repeatedly, so it has to be checked for every time it is added.
+					this.utility.log("Adding mini nav button.");
 					this.addMiniNavButton(node);
 				} else if (node.parentElement?.id === "dashboard_header_container") {
 					// Gets the main header element.
@@ -78,6 +81,7 @@ class PlannerPreparer {
 
 				if (this.addedPlanner && this.addedHeaderButtons && !this.triggeredMain) {
 					// This will make the planner load.
+					this.utility.log("Triggering main.");
 					for (let i = 0; i < 10; i++) {
 						// On the first load up then it has to send a couple of API requests and isn't ready yet.
 						// This is to wait for it.
@@ -105,7 +109,8 @@ class PlannerPreparer {
 
 	createSpinner(): void {
 		// Adds the spinner for the main planning UI.
-		// This gets the "hidden" class added to it when the planner is done loading.
+		this.utility.log("Adding spinner.");
+		// This gets hidden by css when the planner is loaded.
 		const spinnerJson: HtmlElement = {
 			element: "div",
 			attributes: { class: "deadline-dynamo-spinner" },
@@ -139,7 +144,7 @@ class PlannerPreparer {
 			return;
 		}
 
-		// Get button's class so we can use it and match the UI.
+		// Get button's class, so we can use it and match the UI.
 		const buttonClass: string = buttonSibling.classList[0];
 
 		const sidebarButtonJson: HtmlElement = {

@@ -6,11 +6,13 @@ class ApiFetcher {
 
 	async fetchCourses(): Promise<CourseJson[]> {
 		// Gets all courses from the API.
+		this.utility.log("Fetching courses from API.");
 		const response: Response = await fetch(this.courseApi);
 		return await response.json();
 	}
 
 	async fetchAssignments(): Promise<AssignmentJson[]> {
+		this.utility.log("Fetching assignments from API.");
 		// Gets all assignments for a course.
 		let allData: AssignmentJson[] = [];
 
@@ -49,6 +51,7 @@ class ApiFetcher {
 	}
 
 	async fetchExtraAssignmentData(courseId: number): Promise<AssignmentExtraJson[]> {
+		this.utility.log("Fetching extra assignment data from API.");
 		const assignmentUrl = `/api/v1/courses/${courseId}/assignments?per_page=50`;
 
 		let length: number = 50;
@@ -70,6 +73,7 @@ class ApiFetcher {
 
 	async makeCourses(): Promise<void> {
 		// Makes all courses from the API.
+		this.utility.log("Making courses from API.");
 		const courses: CourseJson[] = await this.fetchCourses();
 		const assignments: AssignmentJson[] = await this.fetchAssignments();
 

@@ -12,6 +12,7 @@ class Course {
 		assignments: AssignmentJson[],
 		localAssignments: LocalAssignmentJson[] = []
 	) {
+		this.utility.log("Making course: " + name);
 		this.id = id;
 		this.name = name;
 		this.code = code;

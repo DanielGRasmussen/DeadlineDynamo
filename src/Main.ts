@@ -22,6 +22,7 @@ class Main {
 		// This sends a request per course causing it to take too long for everything else.
 		this.addExtraData();
 
+		this.utility.log("Done loading.");
 		this.doneLoading = true;
 	}
 
@@ -29,6 +30,7 @@ class Main {
 		// Gets all courses.
 		// If it's the first time loading up, it gets everything from scratch.
 		// If it's not the first time, it gets everything from local storage.
+		this.utility.log("Getting courses.");
 		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
 
 		if (courseIds === undefined) {
@@ -69,6 +71,7 @@ class Main {
 
 	async firstLoadup() {
 		// First time loading up, therefore we need to get everything from scratch.
+		this.utility.log("First time loading up.");
 		await this.apiFetcher.makeCourses();
 		this.courses = this.apiFetcher.courses;
 
@@ -83,6 +86,8 @@ class Main {
 			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
+
+		this.utility.log("Updating courses.");
 
 		const newCourses: CourseJson[] = await this.apiFetcher.fetchCourses();
 		// Check if any courses have been added or removed.
@@ -105,6 +110,8 @@ class Main {
 			return;
 		}
 
+		this.utility.log("Updating assignments.");
+
 		const newAssignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments();
 
 		for (const course of this.courses) {
@@ -121,6 +128,8 @@ class Main {
 			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
+
+		this.utility.log("Adding extra data.");
 
 		for (const course of this.courses) {
 			const extraData: AssignmentExtraJson[] = await this.apiFetcher.fetchExtraAssignmentData(

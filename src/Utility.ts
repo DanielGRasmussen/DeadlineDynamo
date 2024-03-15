@@ -3,7 +3,15 @@ class Utility {
 		console.log(message);
 	}
 
+	log(message: string): void {
+		const logging: boolean = false;
+		if (logging) {
+			console.log(message);
+		}
+	}
+
 	createHtmlFromJson(data: HtmlElement): HTMLElement {
+		this.log("Creating an HTML element.");
 		const element: HTMLElement = document.createElement(data.element);
 
 		for (const key in data.attributes) {
@@ -28,11 +36,13 @@ class Utility {
 	}
 
 	async loadStorage(key: string): Promise<string | undefined> {
+		this.log(`Loading ${key} from local storage.`);
 		const info: { [p: string]: string } = await chrome.storage.sync.get(key);
 		return info[key];
 	}
 
 	async loadSettings(): Promise<SettingsJson> {
+		this.log("Loading settings from local storage.");
 		const settingsJson: string | undefined = await this.loadStorage("settings");
 		// Default settings. To be overridden if settings are found in local storage.
 		let settings: SettingsJson = {
@@ -68,6 +78,7 @@ class Utility {
 	}
 
 	async saveStorage(key: string, data: string): Promise<void> {
+		this.log(`Saving ${key} to local storage.`);
 		try {
 			const info: { [p: string]: string } = {};
 			info[key] = data;
@@ -80,10 +91,12 @@ class Utility {
 	}
 
 	async clearStorage(): Promise<void> {
+		this.log("Clearing local storage.");
 		await chrome.storage.sync.clear();
 	}
 
 	async loadPlan(): Promise<Plan> {
+		this.log("Loading plan from local storage.");
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
 			// Create an empty plan for this week.
@@ -128,20 +141,21 @@ class Utility {
 	}
 
 	getEstimate(course: Course, assignment: Assignment, estimator: Estimator): string {
+		this.log("Getting estimate.");
 		if (assignment.user_estimate !== null) {
 			// If there is a user estimate, use that.
-			console.log("User estimate found.");
+			this.log("User estimate found.");
 			return assignment.user_estimate.toString();
 		} else if (assignment.history_estimate !== null) {
 			// If there is a history estimate, use that.
-			console.log("History estimate found.");
+			this.log("History estimate found.");
 			return assignment.history_estimate.toString();
 		} else {
 			// Otherwise try to make a history based estimate.
 			estimator.historyEstimate(course, assignment);
 
 			if (assignment.history_estimate !== null) {
-				console.log("History estimate made.");
+				this.log("History estimate made.");
 				return assignment.history_estimate;
 			}
 		}
@@ -152,13 +166,14 @@ class Utility {
 			this.alerter("Error: No estimator failed to estimate.");
 			return "";
 		} else {
-			console.log("Basic estimate used.");
+			this.log("Basic estimate used.");
 			return assignment.basic_estimate.toString();
 		}
 	}
 
 	createPlan(plan: Plan, courses: Course[], estimator: Estimator, settings: SettingsJson): Plan {
 		// Create a list of all assignments sorted by priority.
+		this.log("Creating plan.");
 		const allAssignments: Assignment[] = [];
 
 		for (const course of courses) {
@@ -271,6 +286,7 @@ class Utility {
 	}
 
 	wait(ms: number): Promise<void> {
+		this.log(`Waiting for ${ms}ms.`);
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
@@ -278,6 +294,7 @@ class Utility {
 		if (!linkHeader) {
 			return {};
 		}
+		this.log("Parsing link header.");
 
 		const links: { [rel: string]: string } = {};
 		const parts: string[] = linkHeader.split(",");

@@ -52,6 +52,7 @@ class Planner {
 
 	createSidebar(): void {
 		// Check if the sidebar is already open.
+		this.utility.log("Creating sidebar.");
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
 		if (planner === null) {
@@ -162,6 +163,7 @@ class Planner {
 
 	deleteSidebar(): void {
 		// Deletes the sidebar for when the X button is pressed.
+		this.utility.log("Deleting sidebar.");
 		const sidebar: HTMLElement | null = document.querySelector(".deadline-dynamo-sidebar");
 
 		if (sidebar === null) {
@@ -193,6 +195,7 @@ class Planner {
 	}
 
 	addAssignmentsToSidebar(previous: boolean = false, offset: number = 0): void {
+		this.utility.log("Adding assignments to sidebar.");
 		for (const course of this.courses) {
 			const courseElement: HtmlElement = {
 				element: "div",
@@ -460,6 +463,8 @@ class Planner {
 		);
 		const containers: HTMLElement[] = Array.from(assignment_containers);
 
+		this.utility.log("Adding dragula.");
+
 		// @ts-expect-error - Dragula is defined in the dragula package.
 		const drake = dragula(containers, {
 			revertOnSpill: true,
@@ -574,6 +579,7 @@ class Planner {
 
 	createAnnouncements(announcement_container: Element): void {
 		// Adds the announcements to the container
+		this.utility.log("Creating announcements.");
 		// Get list of announcements
 		const announcements: Assignment[] = this.courses
 			.flatMap((course: Course): Assignment[] => course.assignments)
@@ -639,6 +645,7 @@ class Planner {
 
 	addWeekdaySlots(previous: boolean = false, offset: number = 0): void {
 		// Adds the empty weekday slots to the main UI of the planner.
+		this.utility.log("Adding weekday slots.");
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
 		if (planner === null) {
@@ -725,7 +732,7 @@ class Planner {
 
 	addLockedAssignments(day: Date, dayDiv: HTMLElement): void {
 		// Adds the locked assignments for the day.
-
+		this.utility.log("Adding locked assignments.");
 		const showEvents: boolean = this.settings.showEvents;
 		const lockedAssignments: Assignment[] = this.courses
 			.flatMap((course: Course): Assignment[] => course.assignments)
