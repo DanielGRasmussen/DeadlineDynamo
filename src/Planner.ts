@@ -151,7 +151,12 @@ class Planner {
 		}
 
 		planButton.addEventListener("click", (): void => {
-			this.plan = this.utility.createPlan(this.plan, this.courses, this.estimator, this.settings);
+			this.plan = this.utility.createPlan(
+				this.plan,
+				this.courses,
+				this.estimator,
+				this.settings
+			);
 			this.utility.saveStorage("plan", JSON.stringify(this.plan));
 		});
 
@@ -160,7 +165,7 @@ class Planner {
 		// Dragula is now useful since the sidebar (where assignments are dragged to/from) is now created.
 		this.addDragula();
 
-		// Add the "sidebar-open" class so stuff is dragable.
+		// Add the "sidebar-open" class so stuff is draggable.
 		planner.classList.add("sidebar-open");
 	}
 
@@ -185,7 +190,7 @@ class Planner {
 			sidebar
 		);
 
-		// Remove the "sidebar-open" class so stuff isn't dragable.
+		// Remove the "sidebar-open" class so stuff isn't draggable.
 		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
 
 		if (planner === null) {
@@ -482,94 +487,98 @@ class Planner {
 			}
 		});
 
-		drake.on(
-			"drop",
-			(el: HTMLElement, target: HTMLElement, source: HTMLElement, _: never): void => {
-				// Gets course and assignment id to allow us to find the assignment.
-				// They have identifiers of "cid-#" and "aid-#" respectively.
-				const course_id: number = parseInt(el.classList[1].substring(4));
-				const assignment_id: number = parseInt(el.classList[2].substring(4));
+		drake.on("drop", (el: HTMLElement, target: HTMLElement, source: never, _: never): void => {
+			// Gets course and assignment id to allow us to find the assignment.
+			// They have identifiers of "cid-#" and "aid-#" respectively.
+			const course_id: number = parseInt(el.classList[1].substring(4));
+			const assignment_id: number = parseInt(el.classList[2].substring(4));
 
-				// Find the course.
-				const course: Course | undefined = this.courses.find(
-					(course: Course): boolean => course.id === course_id
-				);
+			// Find the course.
+			const course: Course | undefined = this.courses.find(
+				(course: Course): boolean => course.id === course_id
+			);
 
-				if (course === undefined) {
-					this.utility.alerter("Error: Course not found.");
-					return;
-				}
-
-				// Find the assignment.
-				const assignment: Assignment | undefined = course.assignments.find(
-					(assignment: Assignment): boolean => assignment.id === assignment_id
-				);
-
-				if (assignment === undefined) {
-					this.utility.alerter("Error: Assignment not found.");
-					return;
-				}
-
-				// Remove the assignment from the plan.
-				for (const day in this.plan) {
-					if (this.plan[day] !== undefined) {
-						this.plan[day] = this.plan[day].filter(
-							(planItem: PlanItem): boolean => planItem.id !== assignment.id
-						);
-					}
-				}
-
-				if (target.classList.contains("weekday-assignments")) {
-					// The assignment is being moved to the planner.
-
-					// Add the assignment to the plan.
-					const target_day: string = target.classList[1];
-					let target_day_plan: PlanItem[] = this.plan[target_day];
-
-					if (target_day_plan === undefined) {
-						target_day_plan = [];
-					}
-
-					const planItem: PlanItem = {
-						id: assignment.id,
-						due_date: assignment.due_date
-					};
-
-					target_day_plan.push(planItem);
-					this.plan[target_day] = target_day_plan;
-
-					// Update the assignment info
-					assignment.planned = true;
-				} else {
-					// The assignment is being moved back to the sidebar.
-					// The two places it can be dropped to trigger this is the overall sidebar or an individual
-					// course's segment in the sidebar.
-
-					// Get course it is supposed to move to.
-					const target_course: HTMLElement | null = document.querySelector(
-						`div.sidebar-course.cid-${course_id} .course-assignments`
-					);
-
-					if (target_course === null) {
-						this.utility.alerter("Error: Target course not found.");
-						return;
-					}
-					const new_element: HTMLElement = el.cloneNode(true) as HTMLElement;
-					new_element?.classList.remove("gu-transit");
-
-					target_course?.firstChild?.before(new_element);
-
-					// Hide the original element.
-					el.classList.add("hidden");
-
-					// Update the assignment info
-					assignment.planned = false;
-				}
-
-				this.utility.saveStorage("plan", JSON.stringify(this.plan));
-				course.saveCourse();
+			if (course === undefined) {
+				this.utility.alerter("Error: Course not found.");
+				return;
 			}
-		);
+
+			// Find the assignment.
+			const assignment: Assignment | undefined = course.assignments.find(
+				(assignment: Assignment): boolean => assignment.id === assignment_id
+			);
+
+			if (assignment === undefined) {
+				this.utility.alerter("Error: Assignment not found.");
+				return;
+			}
+
+			// Remove the assignment from the plan.
+			for (const day in this.plan) {
+				if (this.plan[day] !== undefined) {
+					this.plan[day] = this.plan[day].filter(
+						(planItem: PlanItem): boolean => planItem.id !== assignment.id
+					);
+				}
+			}
+
+			if (target.classList.contains("weekday-assignments")) {
+				// The assignment is being moved to the planner.
+
+				// Add the assignment to the plan.
+				const target_day: string = target.classList[1];
+				let target_day_plan: PlanItem[] = this.plan[target_day];
+
+				if (target_day_plan === undefined) {
+					target_day_plan = [];
+				}
+
+				const planItem: PlanItem = {
+					id: assignment.id,
+					due_date: assignment.due_date
+				};
+
+				target_day_plan.push(planItem);
+				this.plan[target_day] = target_day_plan;
+
+				// If the is being planned for after it's due date send an alert.
+				if (new Date(target_day) > new Date(assignment.due_date)) {
+					this.utility.alerter(
+						`Warning: ${assignment.name} is being planned for after it's due date.`
+					);
+				}
+
+				// Update the assignment info
+				assignment.planned = true;
+			} else {
+				// The assignment is being moved back to the sidebar.
+				// The two places it can be dropped to trigger this is the overall sidebar or an individual
+				// course's segment in the sidebar.
+
+				// Get course it is supposed to move to.
+				const target_course: HTMLElement | null = document.querySelector(
+					`div.sidebar-course.cid-${course_id} .course-assignments`
+				);
+
+				if (target_course === null) {
+					this.utility.alerter("Error: Target course not found.");
+					return;
+				}
+				const new_element: HTMLElement = el.cloneNode(true) as HTMLElement;
+				new_element?.classList.remove("gu-transit");
+
+				target_course?.firstChild?.before(new_element);
+
+				// Hide the original element.
+				el.classList.add("hidden");
+
+				// Update the assignment info
+				assignment.planned = false;
+			}
+
+			this.utility.saveStorage("plan", JSON.stringify(this.plan));
+			course.saveCourse();
+		});
 	}
 
 	createAnnouncements(announcement_container: Element): void {
