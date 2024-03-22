@@ -9,15 +9,6 @@ class Planner {
 
 	constructor(main: Main, conditions: boolean[]) {
 		this.start(main, conditions);
-
-		this.test();
-	}
-
-	async test() {
-		for (let i = 0; i < 20; i++) {
-			await this.utility.wait(500);
-			console.log(JSON.stringify(this));
-		}
 	}
 
 	async start(main: Main, conditions: boolean[]): Promise<void> {

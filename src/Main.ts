@@ -9,15 +9,6 @@ class Main {
 		this.loadConditions = loadConditions;
 
 		this.main();
-
-		this.test();
-	}
-
-	async test() {
-		for (let i = 0; i < 20; i++) {
-			await this.utility.wait(500);
-			console.log(JSON.stringify(this));
-		}
 	}
 
 	async main(): Promise<void> {
