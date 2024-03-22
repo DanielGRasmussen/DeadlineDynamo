@@ -1,53 +1,95 @@
 class Planner {
-	courses!: Course[];
+	main!: Main;
+	courses: Course[] | undefined;
 	utility!: Utility;
 	estimator!: Estimator;
 	settings!: SettingsJson;
 	plan!: Plan;
+	conditions!: boolean[];
 
-	constructor(courses: Course[], estimator: Estimator, utility: Utility) {
-		this.main(courses, estimator, utility);
+	constructor(main: Main, conditions: boolean[]) {
+		this.start(main, conditions);
+
+		this.test();
 	}
 
-	async main(courses: Course[], estimator: Estimator, utility: Utility): Promise<void> {
-		this.courses = courses;
-		this.utility = utility;
-		this.estimator = estimator;
+	async test() {
+		for (let i = 0; i < 20; i++) {
+			await this.utility.wait(500);
+			console.log(JSON.stringify(this));
+		}
+	}
+
+	async start(main: Main, conditions: boolean[]): Promise<void> {
+		this.main = main;
+		this.utility = main.utility;
+		this.estimator = main.estimator;
+		this.conditions = conditions;
 		// Settings are used for various things, so we have to get them in ASAP.
 		this.settings = await this.utility.loadSettings();
 		this.plan = await this.utility.loadPlan();
 
-		// Check on if our sidebar pullout button is there. It should be.
-		const sidebar_button: Element | null = document.querySelector(
-			".deadline-dynamo-sidebar-button"
-		);
+		let triggeredHeader: boolean = false;
+		let triggeredAnnouncements: boolean = false;
+		let triggeredMain: boolean = false;
 
-		if (sidebar_button === null) {
-			this.utility.alerter("Error: Sidebar button not found.");
-			return;
+		for (let i = 0; i < 20; i++) {
+			await this.utility.wait(500);
+
+			if (this.main.courses.length !== 0) {
+				this.courses = this.main.courses;
+			}
+
+			if (!triggeredHeader && this.conditions[0]) {
+				this.utility.log("Creating sidebar button.");
+				// Check on if our sidebar pullout button is there. It should be.
+				const sidebar_button: Element | null = document.querySelector(
+					".deadline-dynamo-sidebar-button"
+				);
+
+				if (sidebar_button === null) {
+					this.utility.alerter("Error: Sidebar button not found.");
+					return;
+				}
+
+				// Add the event listener to create the sidebar when the button is clicked.
+				sidebar_button.addEventListener("click", this.createSidebar.bind(this));
+
+				triggeredHeader = true;
+			}
+			if (
+				!triggeredAnnouncements &&
+				this.conditions[0] &&
+				this.conditions[1] &&
+				this.courses?.length !== 0
+			) {
+				this.utility.log("Creating announcements.");
+				// Check if our announcement button is there. It should be.
+				const announcement_container: Element | null = document.querySelector(
+					".announcement-button .announcement-container"
+				);
+
+				if (announcement_container === null) {
+					this.utility.alerter("Error: Announcement button not found.");
+					return;
+				}
+
+				// Populate the list of announcements.
+				this.createAnnouncements(announcement_container);
+
+				triggeredAnnouncements = true;
+			}
+			if (this.conditions[1] && this.courses?.length !== 0 && !triggeredMain) {
+				this.utility.log("Creating planner.");
+				// Add the weekday slots.
+				this.addWeekdaySlots();
+
+				// Scroll down to current day.
+				this.utility.scrollToToday();
+
+				triggeredMain = true;
+			}
 		}
-
-		// Add the event listener to create the sidebar when the button is clicked.
-		sidebar_button.addEventListener("click", this.createSidebar.bind(this));
-
-		// Check if our announcement button is there. It should be.
-		const announcement_container: Element | null = document.querySelector(
-			".announcement-button .announcement-container"
-		);
-
-		if (announcement_container === null) {
-			this.utility.alerter("Error: Announcement button not found.");
-			return;
-		}
-
-		// Populate the list of announcements.
-		this.createAnnouncements(announcement_container);
-
-		// Add the weekday slots.
-		this.addWeekdaySlots();
-
-		// Scroll down to current day.
-		this.utility.scrollToToday();
 	}
 
 	createSidebar(): void {
@@ -145,7 +187,7 @@ class Planner {
 		planButton.addEventListener("click", (): void => {
 			this.plan = this.utility.createPlan(
 				this.plan,
-				this.courses,
+				this.courses!,
 				this.estimator,
 				this.settings
 			);
@@ -196,6 +238,10 @@ class Planner {
 
 	addAssignmentsToSidebar(previous: boolean = false, offset: number = 0): void {
 		this.utility.log("Adding assignments to sidebar.");
+		if (!this.courses) {
+			this.utility.alerter("Error: Courses not found.");
+			return;
+		}
 		for (const course of this.courses) {
 			const courseElement: HtmlElement = {
 				element: "div",
@@ -313,7 +359,7 @@ class Planner {
 		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
 
 		if (!course) {
-			course = this.courses.find(
+			course = this.courses!.find(
 				(course: Course): boolean => course.id === assignment.course_id
 			);
 
@@ -496,7 +542,7 @@ class Planner {
 			const assignment_id: number = parseInt(el.classList[2].substring(4));
 
 			// Find the course.
-			const course: Course | undefined = this.courses.find(
+			const course: Course | undefined = this.courses!.find(
 				(course: Course): boolean => course.id === course_id
 			);
 
@@ -587,9 +633,9 @@ class Planner {
 		// Adds the announcements to the container
 		this.utility.log("Creating announcements.");
 		// Get list of announcements
-		const announcements: Assignment[] = this.courses
-			.flatMap((course: Course): Assignment[] => course.assignments)
-			.filter((assignment: Assignment): boolean => assignment.type === "announcement");
+		const announcements: Assignment[] = this.courses!.flatMap(
+			(course: Course): Assignment[] => course.assignments
+		).filter((assignment: Assignment): boolean => assignment.type === "announcement");
 
 		// Sort the announcements by date.
 		const sortedAnnouncements: Assignment[] = announcements.sort(
@@ -607,7 +653,7 @@ class Planner {
 		// Add the announcements to the container
 		for (const announcement of sortedAnnouncements) {
 			// Get course name
-			const course: Course | undefined = this.courses.find((course: Course): boolean => {
+			const course: Course | undefined = this.courses!.find((course: Course): boolean => {
 				return course.id === announcement.course_id;
 			});
 
@@ -702,9 +748,9 @@ class Planner {
 
 			if (currentPlan !== undefined) {
 				currentPlan.forEach((planItem: PlanItem): void => {
-					const assignment: Assignment | undefined = this.courses
-						.flatMap((course: Course): Assignment[] => course.assignments)
-						.find((assignment: Assignment): boolean => assignment.id === planItem.id);
+					const assignment: Assignment | undefined = this.courses!.flatMap(
+						(course: Course): Assignment[] => course.assignments
+					).find((assignment: Assignment): boolean => assignment.id === planItem.id);
 
 					if (assignment === undefined) {
 						this.utility.alerter("Error: Assignment not found.");
@@ -740,21 +786,20 @@ class Planner {
 		// Adds the locked assignments for the day.
 		this.utility.log("Adding locked assignments.");
 		const showEvents: boolean = this.settings.showEvents;
-		const lockedAssignments: Assignment[] = this.courses
-			.flatMap((course: Course): Assignment[] => course.assignments)
-			.filter((assignment: Assignment): boolean => {
-				return (
-					// It has to be locked
-					assignment.lock &&
-					// It can't be a calendar event if we're not showing them.
-					(showEvents || assignment.type !== "calendar_event") &&
-					// It can't be an announcement.
-					assignment.type !== "announcement" &&
-					// It has to be due on the day we're looking at.
-					this.utility.formatDate(assignment.due_date)[0] ===
-						this.utility.formatDate(day)[0]
-				);
-			});
+		const lockedAssignments: Assignment[] = this.courses!.flatMap(
+			(course: Course): Assignment[] => course.assignments
+		).filter((assignment: Assignment): boolean => {
+			return (
+				// It has to be locked
+				assignment.lock &&
+				// It can't be a calendar event if we're not showing them.
+				(showEvents || assignment.type !== "calendar_event") &&
+				// It can't be an announcement.
+				assignment.type !== "announcement" &&
+				// It has to be due on the day we're looking at.
+				this.utility.formatDate(assignment.due_date)[0] === this.utility.formatDate(day)[0]
+			);
+		});
 
 		lockedAssignments.forEach((assignment: Assignment): void => {
 			const assignmentDiv: HTMLElement = this.makeAssignmentElement(assignment);

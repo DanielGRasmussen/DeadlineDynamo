@@ -3,10 +3,10 @@ class PlannerPreparer {
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
 	scrollToTodayButton: boolean = false;
 	addedPlanner: boolean = false;
-	addedHeaderButtons: boolean = false;
 	addedShowMore: boolean = false;
 	triggeredMain: boolean = false;
-	main: Main = new Main();
+	loadConditions: boolean[] = [false, false];
+	main: Main = new Main(this.loadConditions);
 	planner: Planner | undefined;
 
 	constructor() {
@@ -40,7 +40,7 @@ class PlannerPreparer {
 
 					this.utility.log("Added scroll to today button.");
 					this.scrollToTodayButton = true;
-				} else if (!this.addedPlanner && node.id === "dashboard_header_container") {
+				} else if (!this.addedPlanner && node.id === "dashboard") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerJson: HtmlElement = {
 						element: "div",
@@ -49,7 +49,16 @@ class PlannerPreparer {
 
 					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerJson);
 
-					node.after(planner);
+					const originalPlanner: Element | null = node.querySelector(
+						"#dashboard_header_container"
+					);
+
+					if (!originalPlanner) {
+						this.utility.alerter("Error: No header container.");
+						return;
+					}
+
+					originalPlanner.after(planner);
 					this.addedPlanner = true;
 
 					this.utility.log("Added planner.");
@@ -57,18 +66,18 @@ class PlannerPreparer {
 					// Spinner while the plan is loading.
 					this.createSpinner();
 				} else if (
-					// This checks for when the add assignment button is added.
-					// It is added as a child of the planner header.
-					!this.addedHeaderButtons &&
-					(node.getAttribute("data-testid") === "PlannerHeader" ||
-						node.querySelector("button[data-testid='add-to-do-button']") ||
-						node.parentElement?.id === "#dashboard-planner-header")
+					// This checks for when a style element is added to the header.
+					// I am not sure what the deal is, but I can not find any point where items with the attributes
+					// of the buttons are added. This is shortly thereafter in the process though so it should work
+					// for now.
+					!this.loadConditions[0] &&
+					node?.parentElement?.id === "dashboard-planner-header" &&
+					node.tagName === "STYLE"
 				) {
-					// TODO: Fix these conditions not always triggering.
 					// Create our sidebar button.
 					this.utility.log("Adding header buttons.");
 					this.createHeaderButtons();
-					this.addedHeaderButtons = true;
+					this.loadConditions[0] = true;
 				} else if (
 					!this.addedShowMore &&
 					node.parentElement?.id === "dashboard_header_container"
@@ -77,40 +86,23 @@ class PlannerPreparer {
 					this.addShowMoreButton(node);
 				}
 
-				if (this.addedPlanner && this.addedHeaderButtons && !this.triggeredMain) {
+				if (this.addedPlanner && !this.triggeredMain) {
 					// This will make the planner load.
 					this.utility.log("Triggering main.");
-					for (let i = 0; i < 10; i++) {
-						// On the first load up then it has to send a couple of API requests and isn't ready yet.
-						// This is to wait for it.
-						this.utility.wait(500).then(() => {
-							if (this.main.doneLoading && this.main.courses && !this.triggeredMain) {
-								this.utility.log("Main triggered.");
-								this.planner = new Planner(
-									this.main.courses,
-									this.main.estimator,
-									this.utility
-								);
-								this.triggeredMain = true;
-							}
-						});
-					}
-					// I have to make it wait for the above check to finish before sending the error.
-					this.utility.wait(7000).then(() => {
-						if (!this.triggeredMain) {
-							this.utility.alerter("Error: Planner not loaded.");
-						}
-					});
+					this.planner = new Planner(this.main, this.loadConditions);
+
+					this.triggeredMain = true;
 				}
 
 				if (
-					!this.scrollToTodayButton &&
-					!this.addedPlanner &&
-					!this.addedHeaderButtons &&
-					!this.addedShowMore &&
-					!this.triggeredMain
+					this.scrollToTodayButton &&
+					this.addedPlanner &&
+					this.loadConditions[0] &&
+					this.addedShowMore &&
+					this.triggeredMain
 				) {
 					// We've done everything.
+					this.utility.log("Disconnecting PlannerPreparer's observer");
 					this.observer.disconnect();
 				}
 			});

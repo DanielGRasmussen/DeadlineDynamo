@@ -1,12 +1,23 @@
 class Main {
-	courses?: Course[];
+	courses: Course[] = [];
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator(this.courses);
-	doneLoading: boolean = false;
+	loadConditions: boolean[];
 
-	constructor() {
+	constructor(loadConditions: boolean[]) {
+		this.loadConditions = loadConditions;
+
 		this.main();
+
+		this.test();
+	}
+
+	async test() {
+		for (let i = 0; i < 20; i++) {
+			await this.utility.wait(500);
+			console.log(JSON.stringify(this));
+		}
 	}
 
 	async main(): Promise<void> {
@@ -23,7 +34,7 @@ class Main {
 		this.addExtraData();
 
 		this.utility.log("Done loading.");
-		this.doneLoading = true;
+		this.loadConditions[1] = true;
 	}
 
 	async getCourses(): Promise<boolean> {
@@ -82,8 +93,8 @@ class Main {
 
 	async updateCourses(): Promise<void> {
 		// Gets updated info for courses
-		if (this.courses === undefined) {
-			this.utility.alerter("Error: Courses not loaded!");
+		if (this.courses.length === 0) {
+			this.utility.alerter("Error: No courses loaded!");
 			return;
 		}
 
@@ -105,7 +116,7 @@ class Main {
 
 	async updateAssignments(): Promise<void> {
 		// Gets updated info for assignments.
-		if (this.courses === undefined) {
+		if (this.courses.length === 0) {
 			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
@@ -124,7 +135,7 @@ class Main {
 
 	async addExtraData(): Promise<void> {
 		// Adds extra data to the courses.
-		if (this.courses === undefined) {
+		if (this.courses.length === 0) {
 			this.utility.alerter("Error: Courses not loaded!");
 			return;
 		}
