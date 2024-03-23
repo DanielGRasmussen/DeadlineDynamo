@@ -1,6 +1,52 @@
 class Utility {
-	alerter(message: string): void {
-		console.log(message);
+	async alerter(message: string): Promise<void> {
+		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
+		if (!alertContainer) {
+			alertContainer = this.createHtmlFromJson({
+				element: "div",
+				attributes: { class: "alert-container" }
+			});
+
+			document.querySelector("html")?.appendChild(alertContainer);
+		}
+
+		console.log(alertContainer);
+
+		const alert: HTMLElement = this.createHtmlFromJson({
+			element: "div",
+			attributes: {
+				class: "message-alert"
+			},
+			children: [
+				{
+					element: "p",
+					textContent: message
+				},
+				{
+					element: "span",
+					attributes: {
+						class: "close-alert"
+					},
+					innerHTML:
+						'<svg viewBox="0 0 1920 1920" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon"><g><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>'
+				}
+			]
+		});
+
+		alert
+			.querySelector(".close-alert")
+			?.addEventListener("click", this.removeAlert.bind(this, alert));
+
+		alertContainer.appendChild(alert);
+
+		await this.wait(10000);
+		await this.removeAlert(alert);
+	}
+
+	async removeAlert(alert: HTMLElement): Promise<void> {
+		alert.classList.add("fade-out");
+		await this.wait(500);
+		alert.remove();
 	}
 
 	log(message: string): void {
