@@ -37,17 +37,13 @@ abstract class SettingsPage {
 			return;
 		}
 
-		const locationJson: HtmlElement = {
-			element: "li",
-			children: [
-				{
-					element: "span",
-					attributes: { class: "ellipsible" },
-					textContent: this.getName()
-				}
-			]
-		};
-		const location: HTMLElement = this.utility.createHtmlFromJson(locationJson);
+		const locationData: string = `
+			<li>
+				<span class="ellipsible">${this.getName()}</span>
+			</li>
+		`;
+
+		const location: HTMLElement = this.utility.createHtmlFromJson(locationData);
 
 		header.appendChild(location);
 	}
@@ -56,31 +52,14 @@ abstract class SettingsPage {
 
 	getButtons(): HTMLElement {
 		// Buttons
-		const buttonsJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "button-container"
-			},
-			children: [
-				{
-					element: "button",
-					attributes: {
-						id: "cancelButton",
-						class: "btn cancel_button"
-					},
-					textContent: "Cancel"
-				},
-				{
-					element: "button",
-					attributes: {
-						id: "saveButton",
-						class: "btn btn-primary"
-					},
-					textContent: "Update Settings"
-				}
-			]
-		};
-		const buttons: HTMLElement = this.utility.createHtmlFromJson(buttonsJson);
+		const buttonsData: string = `
+			<div class="button-container">
+				<button id="cancelButton" class="btn cancel_button">Cancel</button>
+				<button id="saveButton" class="btn btn-primary">Update Settings</button>
+			</div>
+		`;
+
+		const buttons: HTMLElement = this.utility.createHtmlFromJson(buttonsData);
 
 		// Add event listeners to the buttons
 		const cancelButton: Node = buttons.firstChild as Node;

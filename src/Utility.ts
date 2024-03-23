@@ -1,37 +1,29 @@
 class Utility {
+	domParser: DOMParser = new DOMParser();
+
+	log(message: string): void {
+		const logging: boolean = false;
+		if (logging) {
+			console.log(message);
+		}
+	}
+
 	async alerter(message: string): Promise<void> {
 		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
 		if (!alertContainer) {
-			alertContainer = this.createHtmlFromJson({
-				element: "div",
-				attributes: { class: "alert-container" }
-			});
+			alertContainer = this.createHtmlFromJson(`<div class="alert-container"></div>`);
 
 			document.querySelector("html")?.appendChild(alertContainer);
 		}
 
-		console.log(alertContainer);
-
-		const alert: HTMLElement = this.createHtmlFromJson({
-			element: "div",
-			attributes: {
-				class: "message-alert"
-			},
-			children: [
-				{
-					element: "p",
-					textContent: message
-				},
-				{
-					element: "span",
-					attributes: {
-						class: "close-alert"
-					},
-					innerHTML:
-						'<svg viewBox="0 0 1920 1920" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon"><g><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>'
-				}
-			]
-		});
+		const alert: HTMLElement = this.createHtmlFromJson(`
+			<div class="message-alert">
+				<p>${message}</p>
+				<span class="close-alert">
+					<svg viewBox="0 0 1920 1920" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon"><g><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
+				</span>
+			</div>
+		`);
 
 		alert
 			.querySelector(".close-alert")
@@ -49,40 +41,9 @@ class Utility {
 		alert.remove();
 	}
 
-	log(message: string): void {
-		const logging: boolean = false;
-		if (logging) {
-			console.log(message);
-		}
-	}
-
-	createHtmlFromJson(data: HtmlElement): HTMLElement {
-		// this.log("Creating an HTML element.");
-		const element: HTMLElement = document.createElement(data.element);
-
-		for (const key in data.attributes) {
-			element.setAttribute(key, data.attributes[key]);
-		}
-
-		if (data.textContent) {
-			element.textContent = data.textContent;
-		}
-
-		if (data.innerHTML) {
-			element.innerHTML = data.innerHTML;
-		}
-
-		if (data.href) {
-			(element as HTMLAnchorElement).href = data.href;
-		}
-
-		if (data.children) {
-			for (const childData of data.children) {
-				const child = this.createHtmlFromJson(childData);
-				element.appendChild(child);
-			}
-		}
-		return element;
+	createHtmlFromJson(data: string): HTMLElement {
+		const element = this.domParser.parseFromString(data, "text/html");
+		return element.body.firstChild as HTMLElement;
 	}
 
 	async loadStorage(key: string): Promise<string | undefined> {

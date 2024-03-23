@@ -61,6 +61,7 @@
 				"dist/main/announcements.css",
 				"dist/main/main-planner.css",
 				"dist/main/sidebar.css",
+				"dist/main/toggle-view.css",
 				"dist/alert.css",
 
 				"third_party/dragula.min.css"

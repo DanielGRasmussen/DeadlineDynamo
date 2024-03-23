@@ -97,55 +97,23 @@ class Planner {
 			return;
 		}
 
-		const sidebarJson: HtmlElement = {
-			element: "span",
-			attributes: { class: "deadline-dynamo-sidebar" },
-			children: [
-				{
-					element: "div",
-					attributes: { class: "sidebar-header" },
-					children: [
-						{
-							element: "div",
-							attributes: { class: "sidebar-close" },
-							innerHTML: `
-								<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
-							`
-						},
-						{
-							element: "div",
-							attributes: { class: "show-toggle" },
-							children: [
-								{
-									element: "label",
-									attributes: { for: "sidebar-show-complete" },
-									textContent: "Show completed: "
-								},
-								{
-									element: "input",
-									attributes: {
-										type: "checkbox",
-										class: "sidebar-show-complete",
-										id: "sidebar-show-complete"
-									}
-								}
-							]
-						},
-						{
-							element: "button",
-							attributes: { class: "plan btn btn-primary" },
-							textContent: "Auto-plan"
-						}
-					]
-				},
-				{
-					element: "div",
-					attributes: { class: "sidebar-courses" }
-				}
-			]
-		};
+		const sidebarHTML: string = `
+			<span class="deadline-dynamo-sidebar">
+				<div class="sidebar-header">
+					<div class="sidebar-close">
+						<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
+					</div>
+					<div class="show-toggle">
+						<label for="sidebar-show-complete">Show completed: </label>
+						<input type="checkbox" class="sidebar-show-complete" id="sidebar-show-complete">
+					</div>
+					<button class="plan btn btn-primary">Auto-plan</button>
+				</div>
+				<div class="sidebar-courses"></div>
+			</span>
+		`;
 
-		const sidebar: HTMLElement = this.utility.createHtmlFromJson(sidebarJson);
+		const sidebar: HTMLElement = this.utility.createHtmlFromJson(sidebarHTML);
 
 		// This is the element that the default pullout sidebars are placed by, so we will do the same.
 		const sidebarSibling: HTMLElement | null = document.getElementById("nav-tray-portal");
@@ -234,21 +202,13 @@ class Planner {
 			return;
 		}
 		for (const course of this.courses) {
-			const courseElement: HtmlElement = {
-				element: "div",
-				attributes: { class: `sidebar-course cid-${course.id} collapsed` },
-				children: [
-					{
-						element: "h4",
-						attributes: { class: "course-name" },
-						textContent: course.name
-					},
-					{
-						element: "ul",
-						attributes: { class: "course-assignments" }
-					}
-				]
-			};
+			const courseElement: string = `
+				<div class="sidebar-course cid-${course.id} collapsed">
+					<h4 class="course-name">${course.name}</h4>
+					<ul class="course-assignments">
+					</ul>
+				</div>
+			`;
 
 			const courseDiv: HTMLElement = this.utility.createHtmlFromJson(courseElement);
 
@@ -367,111 +327,30 @@ class Planner {
 			this.settings
 		);
 
-		const assignmentElement: HtmlElement = {
-			element: "li",
-			attributes: {
-				// Add the "completed" class if the assignment is completed.
-				class: `assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.submitted ? "completed" : ""}`
-			},
-			children: [
-				{
-					element: "a",
-					attributes: { target: "_blank" },
-					href: link,
-					textContent: assignment.name
-				},
-				{
-					element: "p",
-					attributes: { class: "estimate-edit" },
-					children: [
-						{
-							element: "span",
-							attributes: { class: "estimate-label" },
-							textContent: "Estimate: "
-						},
-						{
-							element: "input",
-							attributes: {
-								class: `estimate-input assignment-${assignment.id}`,
-								type: "number",
-								value: estimate,
-								min: "0",
-								max: "1440"
-							}
-						},
-						{
-							element: "span",
-							attributes: { class: "estimate-time" },
-							textContent: " minutes"
-						}
-					]
-				},
-				{
-					element: "p",
-					attributes: { class: "estimate-label" },
-					textContent: `Estimate: ${estimate}m`
-				},
-				{
-					element: "div",
-					attributes: { class: "time-taken" },
-					children: [
-						{
-							element: "span",
-							textContent: "Time taken: ",
-							attributes: {
-								title: "How long it took you to complete the assignment. It is used for history based estimations."
-							}
-						},
-						{
-							element: "input",
-							attributes: {
-								class: `time-taken-input assignment-${assignment.id}`,
-								type: "number",
-								value:
-									assignment.time_taken === null
-										? ""
-										: assignment.time_taken.toString(),
-								min: "0",
-								max: "1440"
-							}
-						},
-						{
-							element: "span",
-							textContent: " minutes"
-						}
-					]
-				},
-				{
-					element: "p",
-					attributes: { class: "location" },
-					textContent: assignment.location_name
-				},
-				{
-					element: "div",
-					attributes: { class: "due-date" },
-					children: [
-						{
-							element: "span",
-							attributes: { class: "date" },
-							textContent: due_date[0]
-						},
-						{
-							element: "span",
-							attributes: { class: "time" },
-							textContent: due_date[1]
-						},
-						{
-							element: "span",
-							attributes: { class: "times" },
-							textContent:
-								assignment.start_date && assignment.end_date
-									? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}`
-									: ""
-						}
-					]
-				}
-			]
-		};
+		const assignmentElement: string = `
+			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
+				<a target="_blank" href="${link}">${assignment.name}</a>
+				<p class="estimate-edit">
+					<span class="estimate-label">Estimate: </span>
+					<input class="estimate-input assignment-${assignment.id}" type="number" value="${estimate}" min="0" max="1440">
+					<span class="estimate-time"> minutes</span>
+				</p>
+				<p class="estimate-label">Estimate: ${estimate}m</p>
+				<div class="time-taken">
+					<span title="How long it took you to complete the assignment. It is used for history based estimations.">Time taken: </span>
+					<input class="time-taken-input assignment-${assignment.id}" type="number" value="${assignment.time_taken === null ? "" : assignment.time_taken.toString()}" min="0" max="1440">
+					<span> minutes</span>
+				</div>
+				<p class="location">${assignment.location_name}</p>
+				<div class="due-date">
+					<span class="date">${due_date[0]}</span>
+					<span class="time">${due_date[1]}</span>
+					<span class="times">
+						${assignment.start_date && assignment.end_date ? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}` : ""}
+					</span>
+				</div>
+			</li>
+		`;
 
 		return this.utility.createHtmlFromJson(assignmentElement);
 	}
@@ -656,32 +535,16 @@ class Planner {
 			const announcementDate: string[] = this.utility.formatDate(announcement.due_date);
 
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
-			const announcementJson: HtmlElement = {
-				element: "div",
-				attributes: { class: "announcement" },
-				children: [
-					{
-						element: "a",
-						attributes: {
-							target: "_blank",
-							title: announcement.name
-						},
-						href: link,
-						textContent: announcement.name
-					},
-					{
-						element: "p",
-						attributes: { class: "course" },
-						textContent: course.code
-					},
-					{
-						element: "p",
-						attributes: { class: "date" },
-						textContent: announcementDate[0] + " " + announcementDate[1]
-					}
-				]
-			};
-			const announcementDiv: HTMLElement = this.utility.createHtmlFromJson(announcementJson);
+
+			const announcementData: string = `
+				<div class="announcement">
+					<a target="_blank" title="${announcement.name}" href="${link}">${announcement.name}</a>
+					<p class="course">${course.code}</p>
+					<p class="date">${announcementDate[0]} ${announcementDate[1]}</p>
+				</div>
+			`;
+
+			const announcementDiv: HTMLElement = this.utility.createHtmlFromJson(announcementData);
 			announcement_container.appendChild(announcementDiv);
 		}
 	}
@@ -706,23 +569,12 @@ class Planner {
 			const day: Date = new Date(monday);
 			day.setDate(day.getDate() + i);
 
-			const dayElement: HtmlElement = {
-				element: "div",
-				attributes: { class: "weekday" },
-				children: [
-					{
-						element: "h3",
-						attributes: { class: "weekday-name" },
-						textContent: this.utility.formatDate(day)[0]
-					},
-					{
-						element: "ul",
-						attributes: {
-							class: `weekday-assignments ${day.toISOString().slice(0, 10)}`
-						}
-					}
-				]
-			};
+			const dayElement: string = `
+				<div class="weekday">
+					<h3 class="weekday-name">${this.utility.formatDate(day)[0]}</h3>
+					<ul class="weekday-assignments ${day.toISOString().slice(0, 10)}"></ul>
+				</div>
+			`;
 
 			const dayDiv: HTMLElement = this.utility.createHtmlFromJson(dayElement);
 

@@ -11,6 +11,7 @@ class Assignment {
 	location_name: string;
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
+	shown: boolean; // Whether it will be shown.
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;
@@ -34,6 +35,7 @@ class Assignment {
 		location_name: string,
 		lock: boolean,
 		planned: boolean,
+		shown: boolean,
 		basic_estimate: number | null,
 		history_estimate: number | null,
 		user_estimate: number | null,
@@ -51,6 +53,7 @@ class Assignment {
 		this.location_name = location_name;
 		this.lock = lock;
 		this.planned = planned;
+		this.shown = shown;
 		this.basic_estimate = basic_estimate;
 		this.history_estimate = history_estimate;
 		this.user_estimate = user_estimate;

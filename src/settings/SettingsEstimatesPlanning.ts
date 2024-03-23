@@ -13,84 +13,31 @@ class SettingsEstimatesPlanning extends SettingsPage {
 		}
 
 		// Container for the list of items
-		const containerJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "settings-container"
-			},
-			children: [
-				{
-					element: "h1",
-					textContent: "Estimation & Planning Settings"
-				},
-				{
-					element: "div",
-					attributes: {
-						class: "settings"
-					}
-				}
-			]
-		};
-		const container: HTMLElement = this.utility.createHtmlFromJson(containerJson);
+		const containerData: string = `
+			<div class="settings-container">
+				<h1>Estimation & Planning Settings</h1>
+				<div class="settings"></div>
+			</div>
+		`;
+
+		const container: HTMLElement = this.utility.createHtmlFromJson(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Use estimates
-		const useEstimatesJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "use-estimates"
-			},
-			children: [
-				{
-					element: "div",
-					attributes: {
-						class: "useBasicEstimateContainer"
-					},
-					children: [
-						{
-							element: "label",
-							attributes: {
-								for: "useBasicEstimate"
-							},
-							textContent: "Use basic estimate: "
-						},
-						{
-							element: "input",
-							attributes: {
-								type: "checkbox",
-								id: "useBasicEstimate",
-								class: "useBasicEstimate"
-							}
-						}
-					]
-				},
-				{
-					element: "div",
-					attributes: {
-						class: "useHistoryEstimateContainer"
-					},
-					children: [
-						{
-							element: "label",
-							attributes: {
-								for: "useHistoryEstimate"
-							},
-							textContent: "Use history estimate: "
-						},
-						{
-							element: "input",
-							attributes: {
-								type: "checkbox",
-								id: "useHistoryEstimate",
-								class: "useHistoryEstimate"
-							}
-						}
-					]
-				}
-			]
-		};
+		const useEstimatesData: string = `
+			<div class="use-estimates">
+				<div class="useBasicEstimateContainer">
+					<label for="useBasicEstimate">Use basic estimate: </label>
+					<input type="checkbox" id="useBasicEstimate" class="useBasicEstimate">
+				</div>
+				<div class="useHistoryEstimateContainer">
+					<label for="useHistoryEstimate">Use history estimate: </label>
+					<input type="checkbox" id="useHistoryEstimate" class="useHistoryEstimate">
+				</div>
+			</div>
+		`;
 
-		const useEstimates: HTMLElement = this.utility.createHtmlFromJson(useEstimatesJson);
+		const useEstimates: HTMLElement = this.utility.createHtmlFromJson(useEstimatesData);
 
 		settings.appendChild(useEstimates);
 
@@ -102,65 +49,37 @@ class SettingsEstimatesPlanning extends SettingsPage {
 		}
 
 		// Work hours section
-		const workHoursJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "work-hours"
-			},
-			children: [
-				{
-					element: "h2",
-					textContent: "Work Hours"
-				}
-			]
-		};
-		const workHours: HTMLElement = this.utility.createHtmlFromJson(workHoursJson);
+		const workHoursData: string = `
+			<div class="work-hours">
+				<h2>Work Hours</h2>
+			</div>
+		`;
+
+		const workHours: HTMLElement = this.utility.createHtmlFromJson(workHoursData);
 
 		for (const day in this.workHours) {
-			const workHoursDayJson: HtmlElement = {
-				element: "p",
-				children: [
-					{
-						element: "label",
-						attributes: {
-							for: day
-						},
-						textContent: day.charAt(0).toUpperCase() + day.slice(1)
-					},
-					{
-						element: "input",
-						attributes: {
-							type: "number",
-							id: day,
-							value: this.workHours[day].toString(),
-							max: "24",
-							min: "0"
-						}
-					}
-				]
-			};
+			const workHoursDayData: string = `
+				<p>
+					<label for="${day}">${day.charAt(0).toUpperCase() + day.slice(1)}</label>
+					<input type="number" id="${day}" value="${this.workHours[day]}" max="24" min="0">
+				</p>
+			`;
 
-			const workHoursDay: HTMLElement = this.utility.createHtmlFromJson(workHoursDayJson);
+			const workHoursDay: HTMLElement = this.utility.createHtmlFromJson(workHoursDayData);
 			workHours.appendChild(workHoursDay);
 		}
 
 		settings.appendChild(workHours);
 
 		// Estimate multiplier section
-		const estimateMultiplierJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "estimate-multiplier"
-			},
-			children: [
-				{
-					element: "h2",
-					textContent: "Estimate Multipliers"
-				}
-			]
-		};
+		const estimateMultiplierData: string = `
+			<div class="estimate-multiplier">
+				<h2>Estimate Multipliers</h2>
+			</div>
+		`;
+
 		const estimateMultiplier: HTMLElement =
-			this.utility.createHtmlFromJson(estimateMultiplierJson);
+			this.utility.createHtmlFromJson(estimateMultiplierData);
 
 		for (const courseId in this.estimateMultiplier) {
 			// Get course name
@@ -174,31 +93,15 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			const courseName: string = course.name;
 
 			// Make the course multiplier element
-			const estimateMultiplierCourseJson: HtmlElement = {
-				element: "p",
-				children: [
-					{
-						element: "label",
-						attributes: {
-							for: courseId
-						},
-						textContent: courseName
-					},
-					{
-						element: "input",
-						attributes: {
-							type: "number",
-							id: courseId,
-							value: this.estimateMultiplier[courseId].toString(),
-							max: "100",
-							min: "0"
-						}
-					}
-				]
-			};
+			const estimateMultiplierCourseData: string = `
+				<p>
+					<label for="${courseId}">${courseName}</label>
+					<input type="number" id="${courseId}" value="${this.estimateMultiplier[courseId]}" max="100" min="0">
+				</p>
+			`;
 
 			const estimateMultiplierCourse: HTMLElement = this.utility.createHtmlFromJson(
-				estimateMultiplierCourseJson
+				estimateMultiplierCourseData
 			);
 			estimateMultiplier.appendChild(estimateMultiplierCourse);
 		}

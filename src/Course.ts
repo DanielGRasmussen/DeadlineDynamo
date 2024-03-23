@@ -57,6 +57,11 @@ class Course {
 					assignment.plannable.location_name || "",
 					assignment.plannable_type === "calendar_event",
 					false,
+					// If it is an event, it will default to shown, otherwise it's the opposite of if it's been
+					// submitted.
+					assignment.plannable_type !== "calendar_event"
+						? !assignment.submissions.submitted
+						: true,
 					null,
 					null,
 					null,
@@ -79,6 +84,12 @@ class Course {
 					assignment.location_name,
 					assignment.lock,
 					assignment.planned,
+					// If it's undefined, use the same process as the API data.
+					assignment.shown !== undefined
+						? assignment.shown
+						: assignment.type !== "calendar_event"
+							? !assignment.submitted
+							: true,
 					assignment.basic_estimate,
 					assignment.history_estimate,
 					assignment.user_estimate,
@@ -96,6 +107,16 @@ class Course {
 				assign => assign.id === assignment.plannable.id
 			);
 			if (oldAssignment !== undefined) {
+				if (
+					// If the due date has changed and it's a planned or locked assignment let the user know.
+					oldAssignment.due_date.getTime() !==
+						new Date(assignment.plannable_date).getTime() &&
+					(oldAssignment.planned || oldAssignment.lock)
+				) {
+					this.utility.alerter(
+						`Due date changed for ${oldAssignment.name} in ${this.name}`
+					);
+				}
 				oldAssignment.name = assignment.plannable.title;
 				oldAssignment.type = assignment.plannable_type;
 				oldAssignment.submitted = assignment.submissions.submitted;
@@ -128,6 +149,11 @@ class Course {
 						assignment.plannable.location_name || "",
 						assignment.plannable_type === "calendar_event",
 						false,
+						// If it is an event, it will default to shown, otherwise it's the opposite of if it's been
+						// submitted.
+						assignment.plannable_type !== "calendar_event"
+							? !assignment.submissions.submitted
+							: true,
 						null,
 						null,
 						null,

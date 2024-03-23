@@ -190,6 +190,7 @@ interface LocalAssignmentJson {
 	location_name: string;
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
+	shown: boolean; // Whether it will be shown.
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;
@@ -197,15 +198,6 @@ interface LocalAssignmentJson {
 	// Data added by addExtraData in Course
 	description?: string;
 	submission_types?: string[];
-}
-
-interface HtmlElement {
-	element: string;
-	attributes?: { [key: string]: string };
-	textContent?: string;
-	innerHTML?: string;
-	href?: string;
-	children?: HtmlElement[];
 }
 
 interface SettingsJson {

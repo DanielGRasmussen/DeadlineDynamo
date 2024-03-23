@@ -13,52 +13,25 @@ class SettingsMain extends SettingsPage {
 		}
 
 		// Container for the list of items
-		const containerJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "settings-container"
-			},
-			children: [
-				{
-					element: "h1",
-					textContent: "Main Settings"
-				},
-				{
-					element: "div",
-					attributes: {
-						class: "settings"
-					}
-				}
-			]
-		};
-		const container: HTMLElement = this.utility.createHtmlFromJson(containerJson);
+		const containerData: string = `
+			<div class="settings-container">
+				<h1>Main Settings</h1>
+				<div class="settings"></div>
+			</div>
+		`;
+
+		const container: HTMLElement = this.utility.createHtmlFromJson(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Show events
-		const showEventsJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "show-events"
-			},
-			children: [
-				{
-					element: "label",
-					attributes: {
-						for: "showEvents"
-					},
-					textContent: "Show events: "
-				},
-				{
-					element: "input",
-					attributes: {
-						type: "checkbox",
-						id: "showEvents"
-					}
-				}
-			]
-		};
+		const showEventsData: string = `
+			<div class="show-events">
+				<label for="showEvents">Show events: </label>
+				<input type="checkbox" id="showEvents">
+			</div>
+		`;
 
-		const showEvents: HTMLElement = this.utility.createHtmlFromJson(showEventsJson);
+		const showEvents: HTMLElement = this.utility.createHtmlFromJson(showEventsData);
 
 		settings.appendChild(showEvents);
 
@@ -68,47 +41,23 @@ class SettingsMain extends SettingsPage {
 		}
 
 		// Planned weeks
-		const plannedWeeksJson: HtmlElement = {
-			element: "div",
-			attributes: {
-				class: "planned-weeks"
-			},
-			children: [
-				{
-					element: "label",
-					attributes: {
-						for: "plannedWeeks"
-					},
-					textContent: "Planned weeks: "
-				},
-				{
-					element: "input",
-					attributes: {
-						type: "number",
-						id: "plannedWeeks",
-						class: "planned-weeks",
-						min: "1",
-						max: "8",
-						value: this.planDistance.toString()
-					}
-				}
-			]
-		};
+		const plannedWeeksData: string = `
+			<div class="planned-weeks">
+				<label for="plannedWeeks">Planned weeks: </label>
+				<input type="number" id="plannedWeeks" class="planned-weeks" min="1" max="8" value="${this.planDistance}">
+			</div>
+		`;
 
-		const plannedWeeks: HTMLElement = this.utility.createHtmlFromJson(plannedWeeksJson);
+		const plannedWeeks: HTMLElement = this.utility.createHtmlFromJson(plannedWeeksData);
 
 		settings.appendChild(plannedWeeks);
 
 		// Clear storage button
-		const clearStorageJson: HtmlElement = {
-			element: "button",
-			attributes: {
-				id: "clearStorage",
-				class: "clear-storage btn btn-danger"
-			},
-			textContent: "Clear Storage"
-		};
-		const clearStorage: HTMLElement = this.utility.createHtmlFromJson(clearStorageJson);
+		const clearStorageData: string = `
+			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
+		`;
+
+		const clearStorage: HTMLElement = this.utility.createHtmlFromJson(clearStorageData);
 		clearStorage.addEventListener("click", (): void => {
 			if (
 				confirm(

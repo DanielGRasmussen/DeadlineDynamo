@@ -1,15 +1,3 @@
-// Hide the original planner.
-#dashboard-planner {
-	// It uses inline styles so we have to use !important.
-	display: none !important;
-}
-
-// Hide the planner scroll button.
-#dashboard-planner-header-aux {
-	// It uses inline styles so we have to use !important.
-	display: none !important;
-}
-
 #deadline-dynamo-planner {
 	// 229px is the height of the header.
 	min-height: calc(100vh - 229px);
@@ -147,8 +135,8 @@
 		}
 	}
 
-	// Styling for completed assignments.
-	.assignment.completed:not(.open) {
+	// Styling for collapsed/shown assignments.
+	.assignment.collapsed {
 		grid-template-rows: 50px;
 
 		a {
@@ -156,34 +144,46 @@
 			grid-column: 2 / 4;
 		}
 
-		.time-taken {
-			display: block;
-			grid-column: 2 / 3;
-			margin-top: -10px;
-			padding-bottom: 5px;
-
-			input {
-				max-width: 45px;
-				margin: 0;
-			}
-		}
-
-		&::before {
-			background-image: none;
-			content: "✔️";
-			line-height: 85px;
-			text-align: center;
-			grid-row: 1 / 3;
-
-			// Turning the emoji green.
-			color: transparent;
-			text-shadow: 0 0 #24a514;
-		}
-
 		.due-date,
-		.estimate-label {
+		.estimate-label,
+		.location {
 			display: none;
 		}
+
+		&.completed {
+			.time-taken {
+				display: block;
+				grid-column: 2 / 3;
+				margin-top: -10px;
+				padding-bottom: 5px;
+
+				input {
+					max-width: 45px;
+					margin: 0;
+				}
+			}
+
+			&::before {
+				line-height: 90px;
+			}
+		}
+	}
+
+	.assignment.completed::before,
+	.assignment.type-calendar_event.collapsed::before {
+		background-image: none;
+		content: "✔️";
+		line-height: 85px;
+		text-align: center;
+		grid-row: 1 / 3;
+
+		// Turning the emoji green.
+		color: transparent;
+		text-shadow: 0 0 #24a514;
+	}
+
+	.assignment.type-calendar_event.collapsed::before {
+		line-height: 50px;
 	}
 }
 
