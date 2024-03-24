@@ -83,6 +83,10 @@
 				display: block;
 			}
 
+			.visibility {
+				grid-row: 3 / 4;
+			}
+
 			.estimate-label,
 			.due-date .date,
 			.due-date .time,
@@ -141,7 +145,11 @@
 
 		a {
 			line-height: 50px;
-			grid-column: 2 / 4;
+			grid-column: 2 / 3;
+		}
+
+		&:not(.completed) .visibility {
+			grid-row: 1 / 2;
 		}
 
 		.due-date,
@@ -184,6 +192,36 @@
 
 	.assignment.type-calendar_event.collapsed::before {
 		line-height: 50px;
+	}
+
+	// Style the collapse/expand button.
+	.visibility {
+		height: 100%;
+		// Show the button/paragraphs in the bottom right.
+		text-align: right;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+
+		grid-column: 3 / 4;
+		grid-row: 2 / 3;
+		padding: 5px;
+		cursor: pointer;
+
+		margin-top: -7px;
+
+		p {
+			margin: 0;
+			color: var(--ic-link-color);
+		}
+	}
+
+	// Control visibility of the collapse/expand button.
+	.assignment.collapsed .collapse {
+		display: none;
+	}
+	.assignment:not(.collapsed) .expand {
+		display: none;
 	}
 }
 

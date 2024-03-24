@@ -2,6 +2,8 @@ class PlannerPreparer {
 	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
 	scrollToTodayButton: boolean = false;
+	bodyAdded: boolean = false;
+	viewSet: boolean = false;
 	addedPlanner: boolean = false;
 	addedShowMore: boolean = false;
 	removeNothingPlanned: boolean = false;
@@ -50,11 +52,27 @@ class PlannerPreparer {
 				}
 
 				// These are basic things for every view and should always happen.
-				if (node.tagName === "BODY") {
-					if (this.view === 3) {
-						node.classList.add("deadline-dynamo-view");
+				if ((this.bodyAdded || node.tagName === "BODY") && !this.viewSet) {
+					// If the body has been added then check if the view has been set. If so then set the view,
+					if (!this.bodyAdded) {
+						this.bodyAdded = true;
+						this.utility.log("Body added.");
+					}
+
+					if (this.view !== undefined) {
+						this.utility.log(`Setting view to ${this.view}.`);
+
+						const body = document.getElementsByTagName("body")[0];
+
+						if (this.view === 3) {
+							body.classList.add("deadline-dynamo-view");
+						} else {
+							body.classList.remove("deadline-dynamo-view");
+						}
+
+						this.viewSet = true;
 					} else {
-						node.classList.remove("deadline-dynamo-view");
+						this.utility.log("View not set.");
 					}
 				} else if (
 					node.querySelector("ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items") &&

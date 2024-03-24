@@ -327,7 +327,7 @@ class Planner {
 			this.settings
 		);
 
-		const assignmentElement: string = `
+		const assignmentData: string = `
 			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
 				<a target="_blank" href="${link}">${assignment.name}</a>
 				<p class="estimate-edit">
@@ -349,10 +349,27 @@ class Planner {
 						${assignment.start_date && assignment.end_date ? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}` : ""}
 					</span>
 				</div>
+				<div class="visibility">
+					<p class="expand">Expand</p>
+					<p class="collapse">Collapse</p>
+				</div>
 			</li>
 		`;
 
-		return this.utility.createHtmlFromJson(assignmentElement);
+		const assignmentElement: HTMLElement = this.utility.createHtmlFromJson(assignmentData);
+
+		// Add event listener for expanding/collapsing the assignment.
+		const visibility: HTMLElement = assignmentElement.querySelector(".visibility")!;
+
+		visibility.addEventListener("click", (): void => {
+			assignmentElement.classList.toggle("collapsed");
+
+			// Invert the value and save it.
+			assignment.shown = !assignment.shown;
+			course!.saveCourse();
+		});
+
+		return assignmentElement;
 	}
 
 	saveValue(course: Course, assignment: Assignment, value: string, is_estimate: boolean): void {
