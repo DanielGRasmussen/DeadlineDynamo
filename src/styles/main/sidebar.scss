@@ -109,10 +109,12 @@
 			> .estimate-label,
 			// Events never go to the planner.
 			.location,
+			// Visibility doesn't effect anything in the sidebar.
+			.visibility,
 			// If it is completed there's no point in setting an estimate.
 			&.completed .estimate-edit,
 			// Hide the time-taken if it isn't completed.
-			&:not(.completed) .time-taken {
+			&:not(.completed) .time-taken{
 				display: none;
 			}
 
