@@ -363,7 +363,6 @@ class PlannerPreparer {
 				"p"
 			) as unknown as HTMLParagraphElement[];
 			for (const child of children) {
-				console.log(child);
 				if (child.textContent === "Nothing planned today. Selecting next item.") {
 					return true;
 				}
