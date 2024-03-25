@@ -8,7 +8,7 @@ class Settings {
 	showEvents!: boolean;
 
 	constructor() {
-		// Load settings from local storage.
+		// Load settings from storage.
 		this.utility.loadSettings().then(settings => {
 			this.useBasicEstimate = settings.useBasicEstimate;
 			this.useHistoryEstimate = settings.useHistoryEstimate;

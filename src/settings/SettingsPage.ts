@@ -66,11 +66,11 @@ abstract class SettingsPage {
 		const saveButton: Node = buttons.lastChild as Node;
 
 		cancelButton.addEventListener("click", (): void => {
-			this.restoreSettings.bind(this)();
+			this.restoreSettings();
 		});
 		saveButton.addEventListener("click", (): void => {
-			this.getSettings.bind(this)();
-			this.saveSettings.bind(this)();
+			this.getSettings();
+			this.saveSettings();
 		});
 
 		return buttons;

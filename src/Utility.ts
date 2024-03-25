@@ -55,9 +55,9 @@ class Utility {
 	}
 
 	async loadSettings(): Promise<SettingsJson> {
-		this.log("Loading settings from local storage.");
+		this.log("Loading settings from storage.");
 		const settingsJson: string | undefined = await this.loadStorage("settings");
-		// Default settings. To be overridden if settings are found in local storage.
+		// Default settings. To be overridden if settings are found in storage.
 		let settings: SettingsJson = {
 			useBasicEstimate: true,
 			useHistoryEstimate: true,
@@ -111,12 +111,12 @@ class Utility {
 	}
 
 	async clearStorage(): Promise<void> {
-		this.log("Clearing local storage.");
+		this.log("Clearing storage.");
 		await chrome.storage.sync.clear();
 	}
 
 	async loadPlan(): Promise<Plan> {
-		this.log("Loading plan from local storage.");
+		this.log("Loading plan from storage.");
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
 			// Create an empty plan for this week.

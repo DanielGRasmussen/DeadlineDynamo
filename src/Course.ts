@@ -22,7 +22,7 @@ class Course {
 	makeAssignments(assignments: AssignmentJson[], localAssignments: LocalAssignmentJson[]): void {
 		this.assignments = []; // Clear it out before we start.
 
-		// Use the right format depending on if the assignments are from the API or local storage.
+		// Use the right format depending on if the assignments are from the API or storage.
 		// TypeScript is not a big fan of the || tool when I have both formats as options for the same variable.
 		if (assignments.length !== 0) {
 			// This is API data.
@@ -69,7 +69,7 @@ class Course {
 				);
 			});
 		} else {
-			// This is local storage data.
+			// This is storage data.
 			this.assignments = localAssignments.map(assignment => {
 				return new Assignment(
 					assignment.id,
