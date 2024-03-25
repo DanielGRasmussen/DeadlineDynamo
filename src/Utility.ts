@@ -1,5 +1,6 @@
 class Utility {
 	domParser: DOMParser = new DOMParser();
+	location: string = window.location.host.split(".")[0];
 
 	log(message: string): void {
 		const logging: boolean = false;
@@ -47,9 +48,10 @@ class Utility {
 	}
 
 	async loadStorage(key: string): Promise<string | undefined> {
-		this.log(`Loading ${key} from local storage.`);
-		const info: { [p: string]: string } = await chrome.storage.sync.get(key);
-		return info[key];
+		const name: string = `${this.location}-${key}`;
+		this.log(`Loading ${name} from storage.`);
+		const info: { [p: string]: string } = await chrome.storage.sync.get(name);
+		return info[name];
 	}
 
 	async loadSettings(): Promise<SettingsJson> {
@@ -95,10 +97,11 @@ class Utility {
 	}
 
 	async saveStorage(key: string, data: string): Promise<void> {
-		this.log(`Saving ${key} to local storage.`);
+		const name: string = `${this.location}-${key}`;
+		this.log(`Saving ${name} to storage.`);
 		try {
 			const info: { [p: string]: string } = {};
-			info[key] = data;
+			info[name] = data;
 			await chrome.storage.sync.set(info);
 		} catch (error) {
 			// This likely happened because of too much data trying to be saved.

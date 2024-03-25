@@ -54,7 +54,7 @@ class SettingsPreparer {
 					else if (
 						parent &&
 						parent.id === "content" &&
-						node.id !== "byui-copyright" &&
+						!node.id.endsWith("copyright") &&
 						// Either no classes or not the settings wrapper.
 						(!node.classList || !node.classList.contains("settings-wrapper"))
 					) {
