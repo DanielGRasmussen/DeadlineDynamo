@@ -20,7 +20,7 @@ class SettingsMain extends SettingsPage {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.createHtmlFromJson(containerData);
+		const container: HTMLElement = this.utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Show events
@@ -31,7 +31,7 @@ class SettingsMain extends SettingsPage {
 			</div>
 		`;
 
-		const showEvents: HTMLElement = this.utility.createHtmlFromJson(showEventsData);
+		const showEvents: HTMLElement = this.utility.convertHtml(showEventsData);
 
 		settings.appendChild(showEvents);
 
@@ -48,7 +48,7 @@ class SettingsMain extends SettingsPage {
 			</div>
 		`;
 
-		const plannedWeeks: HTMLElement = this.utility.createHtmlFromJson(plannedWeeksData);
+		const plannedWeeks: HTMLElement = this.utility.convertHtml(plannedWeeksData);
 
 		settings.appendChild(plannedWeeks);
 
@@ -57,7 +57,7 @@ class SettingsMain extends SettingsPage {
 			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
 		`;
 
-		const clearStorage: HTMLElement = this.utility.createHtmlFromJson(clearStorageData);
+		const clearStorage: HTMLElement = this.utility.convertHtml(clearStorageData);
 		clearStorage.addEventListener("click", (): void => {
 			if (
 				confirm(

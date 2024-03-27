@@ -1,7 +1,7 @@
 class PlannerPreparer {
 	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	scrollToTodayButton: boolean = false;
+	scrollButton: boolean = false;
 	bodyAdded: boolean = false;
 	viewSet: boolean = false;
 	addedPlanner: boolean = false;
@@ -52,6 +52,8 @@ class PlannerPreparer {
 				}
 
 				// These are basic things for every view and should always happen.
+				// Sometimes view isn't defined until after the body is added. So it checks every time after the
+				// body is added.
 				if ((this.bodyAdded || node.tagName === "BODY") && !this.viewSet) {
 					// If the body has been added then check if the view has been set. If so then set the view,
 					if (!this.bodyAdded) {
@@ -84,23 +86,38 @@ class PlannerPreparer {
 				}
 
 				// Add various parts of our UI.
-				if (!this.scrollToTodayButton && node.querySelector("#planner-today-btn")) {
+				if (
+					!this.scrollButton &&
+					(node.querySelector("#planner-today-btn") || node.id === "planner-today-btn")
+				) {
 					const planner_button: HTMLElement | null =
 						node.querySelector("#planner-today-btn");
 
-					planner_button?.addEventListener("click", () => {
+					const scrollButtonData: string = `
+						<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton deadline-dynamo-scrollButton">
+							<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
+								Today
+							</span>
+						</button>
+					`;
+
+					const scrollButton: HTMLElement = this.utility.convertHtml(scrollButtonData);
+
+					scrollButton.addEventListener("click", () => {
 						this.utility.scrollToToday();
 					});
 
+					planner_button?.before(scrollButton);
+
 					this.utility.log("Added scroll to today button.");
-					this.scrollToTodayButton = true;
+					this.scrollButton = true;
 				} else if (!this.addedPlanner && node.id === "dashboard") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerData: string = `
 						<div id="deadline-dynamo-planner"></div>
 					`;
 
-					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerData);
+					const planner: HTMLElement = this.utility.convertHtml(plannerData);
 
 					const originalPlanner: Element | null = node.querySelector(
 						"#dashboard_header_container"
@@ -154,7 +171,8 @@ class PlannerPreparer {
 				}
 
 				if (
-					this.scrollToTodayButton &&
+					this.viewSet &&
+					this.scrollButton &&
 					this.addedPlanner &&
 					this.loadConditions[0] &&
 					this.addedShowMore &&
@@ -180,7 +198,7 @@ class PlannerPreparer {
 			</div>
 		`;
 
-		const spinner: HTMLElement = this.utility.createHtmlFromJson(spinnerData);
+		const spinner: HTMLElement = this.utility.convertHtml(spinnerData);
 
 		const planner: HTMLElement | null = document.querySelector("#deadline-dynamo-planner");
 
@@ -242,7 +260,7 @@ class PlannerPreparer {
 			</button>
 		`;
 
-		const sidebarButton: HTMLElement = this.utility.createHtmlFromJson(sidebarButtonData);
+		const sidebarButton: HTMLElement = this.utility.convertHtml(sidebarButtonData);
 
 		buttonSibling.after(sidebarButton);
 
@@ -271,7 +289,7 @@ class PlannerPreparer {
 		`;
 
 		const announcementButton: HTMLElement =
-			this.utility.createHtmlFromJson(announcementButtonData);
+			this.utility.convertHtml(announcementButtonData);
 
 		buttonSibling.before(announcementButton);
 	}
@@ -298,7 +316,7 @@ class PlannerPreparer {
 			</li>
 		`;
 
-		const viewButton: HTMLElement = this.utility.createHtmlFromJson(viewButtonData);
+		const viewButton: HTMLElement = this.utility.convertHtml(viewButtonData);
 
 		list.append(viewButton);
 
@@ -342,7 +360,7 @@ class PlannerPreparer {
 			<span class="show-old-assignments">Show More</span>
 		`;
 
-		const showMoreButton: HTMLElement = this.utility.createHtmlFromJson(showMoreButtonData);
+		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
 
 		parent.append(showMoreButton);
 

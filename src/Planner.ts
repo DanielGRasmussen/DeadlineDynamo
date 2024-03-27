@@ -113,7 +113,7 @@ class Planner {
 			</span>
 		`;
 
-		const sidebar: HTMLElement = this.utility.createHtmlFromJson(sidebarHTML);
+		const sidebar: HTMLElement = this.utility.convertHtml(sidebarHTML);
 
 		// This is the element that the default pullout sidebars are placed by, so we will do the same.
 		const sidebarSibling: HTMLElement | null = document.getElementById("nav-tray-portal");
@@ -210,7 +210,7 @@ class Planner {
 				</div>
 			`;
 
-			const courseDiv: HTMLElement = this.utility.createHtmlFromJson(courseElement);
+			const courseDiv: HTMLElement = this.utility.convertHtml(courseElement);
 
 			// Make the course name clickable to collapse the course.
 			const courseName: HTMLElement | null = courseDiv.querySelector(".course-name");
@@ -309,6 +309,13 @@ class Planner {
 
 		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
 
+		let title: string;
+		if (assignment.type !== "calendar_event") {
+			title = `<a target="_blank" href="${link}" class="name">${assignment.name}</a>`;
+		} else {
+			title = `<p class="name">${assignment.name}</p>`;
+		}
+
 		if (!course) {
 			course = this.courses!.find(
 				(course: Course): boolean => course.id === assignment.course_id
@@ -316,20 +323,24 @@ class Planner {
 
 			if (course === undefined) {
 				this.utility.alerter("Error: Course not found.");
-				return document.createElement("div");
+				return document.createElement("li");
 			}
 		}
 
-		const estimate: string = this.utility.getEstimate(
+		let estimate: string | typeof NaN = this.utility.getEstimate(
 			course,
 			assignment,
 			this.estimator,
 			this.settings
 		);
 
+		if (isNaN(Number(estimate))) {
+			estimate = "TBD";
+		}
+
 		const assignmentData: string = `
 			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
-				<a target="_blank" href="${link}">${assignment.name}</a>
+				${title}
 				<p class="estimate-edit">
 					<span class="estimate-label">Estimate: </span>
 					<input class="estimate-input assignment-${assignment.id}" type="number" value="${estimate}" min="0" max="1440">
@@ -356,7 +367,7 @@ class Planner {
 			</li>
 		`;
 
-		const assignmentElement: HTMLElement = this.utility.createHtmlFromJson(assignmentData);
+		const assignmentElement: HTMLElement = this.utility.convertHtml(assignmentData);
 
 		// Add event listener for expanding/collapsing the assignment.
 		const visibility: HTMLElement = assignmentElement.querySelector(".visibility")!;
@@ -561,7 +572,7 @@ class Planner {
 				</div>
 			`;
 
-			const announcementDiv: HTMLElement = this.utility.createHtmlFromJson(announcementData);
+			const announcementDiv: HTMLElement = this.utility.convertHtml(announcementData);
 			announcement_container.appendChild(announcementDiv);
 		}
 	}
@@ -593,7 +604,7 @@ class Planner {
 				</div>
 			`;
 
-			const dayDiv: HTMLElement = this.utility.createHtmlFromJson(dayElement);
+			const dayDiv: HTMLElement = this.utility.convertHtml(dayElement);
 
 			if (!previous) {
 				planner.appendChild(dayDiv);

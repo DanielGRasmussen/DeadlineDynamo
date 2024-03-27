@@ -12,12 +12,12 @@ class Utility {
 	async alerter(message: string): Promise<void> {
 		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
 		if (!alertContainer) {
-			alertContainer = this.createHtmlFromJson(`<div class="alert-container"></div>`);
+			alertContainer = this.convertHtml(`<div class="alert-container"></div>`);
 
 			document.querySelector("html")?.appendChild(alertContainer);
 		}
 
-		const alert: HTMLElement = this.createHtmlFromJson(`
+		const alert: HTMLElement = this.convertHtml(`
 			<div class="message-alert">
 				<p>${message}</p>
 				<span class="close-alert">
@@ -42,7 +42,7 @@ class Utility {
 		alert.remove();
 	}
 
-	createHtmlFromJson(data: string): HTMLElement {
+	convertHtml(data: string): HTMLElement {
 		const element = this.domParser.parseFromString(data, "text/html");
 		return element.body.firstChild as HTMLElement;
 	}
@@ -147,15 +147,15 @@ class Utility {
 
 		const today: Element | null = document.getElementsByClassName(date)[0];
 
-		if (today === null || today.parentElement === null) {
+		if (today === null) {
 			this.alerter("Error: Today not found.");
 			return;
 		}
 
 		// Get the top of the element.
-		const elementRect: DOMRect = today.getBoundingClientRect();
+		const elementRect: DOMRect = today.parentElement!.getBoundingClientRect();
 
-		const desiredY: number = elementRect.top + window.scrollY - 70;
+		const desiredY: number = elementRect.top + window.scrollY - 80;
 
 		window.scrollTo({ top: desiredY, behavior: "smooth" });
 	}
@@ -303,11 +303,17 @@ class Utility {
 		const formattedDate: string = `${dayOfWeek}, ${month} ${day}${ordinal}`;
 
 		// Format the time part
-		const hour: number = date.getHours();
+		let hour: number = date.getHours();
 		const minute: string = date.getMinutes().toString().padStart(2, "0");
 		const meridian: "am" | "pm" = hour < 12 ? "am" : "pm";
 
-		const formattedTime = `${hour % 12}:${minute} ${meridian}`;
+		// So noon is 12pm.
+		hour %= 12;
+		if (hour === 0) {
+			hour = 12;
+		}
+
+		const formattedTime: string = `${hour}:${minute} ${meridian}`;
 
 		// Combine the date and time parts
 		return [formattedDate, formattedTime];

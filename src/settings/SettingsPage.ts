@@ -43,7 +43,7 @@ abstract class SettingsPage {
 			</li>
 		`;
 
-		const location: HTMLElement = this.utility.createHtmlFromJson(locationData);
+		const location: HTMLElement = this.utility.convertHtml(locationData);
 
 		header.appendChild(location);
 	}
@@ -59,7 +59,7 @@ abstract class SettingsPage {
 			</div>
 		`;
 
-		const buttons: HTMLElement = this.utility.createHtmlFromJson(buttonsData);
+		const buttons: HTMLElement = this.utility.convertHtml(buttonsData);
 
 		// Add event listeners to the buttons
 		const cancelButton: Node = buttons.firstChild as Node;

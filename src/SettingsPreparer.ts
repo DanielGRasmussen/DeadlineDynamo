@@ -119,7 +119,7 @@ class SettingsPreparer {
 			</li>
 		`;
 
-		const sidebarElement: HTMLElement = this.utility.createHtmlFromJson(sidebarElementData);
+		const sidebarElement: HTMLElement = this.utility.convertHtml(sidebarElementData);
 
 		// Find the list of links on the sidebar.
 		const target: HTMLElement | null = document.querySelector(
@@ -173,7 +173,7 @@ class SettingsPreparer {
 			</li>
 		`;
 
-		const navButton: HTMLElement = this.utility.createHtmlFromJson(navButtonData);
+		const navButton: HTMLElement = this.utility.convertHtml(navButtonData);
 
 		navList.children[2].after(navButton);
 	}
@@ -211,7 +211,7 @@ class SettingsPreparer {
 			</div>
 		`;
 
-		const header: HTMLElement = this.utility.createHtmlFromJson(headerData);
+		const header: HTMLElement = this.utility.convertHtml(headerData);
 
 		const nav: HTMLElement = this.createNav();
 
@@ -237,7 +237,7 @@ class SettingsPreparer {
 			</div>
 		`;
 
-		const nav: HTMLElement = this.utility.createHtmlFromJson(navData);
+		const nav: HTMLElement = this.utility.convertHtml(navData);
 		const list: HTMLUListElement = nav.querySelector("ul")!;
 
 		const links: string[][] = [
@@ -252,7 +252,7 @@ class SettingsPreparer {
 				</li>
 			`;
 
-			const listItem: HTMLElement = this.utility.createHtmlFromJson(listItemData);
+			const listItem: HTMLElement = this.utility.convertHtml(listItemData);
 
 			list.appendChild(listItem);
 		}
@@ -265,7 +265,7 @@ class SettingsPreparer {
 		const containerData: string = `
 			<div class="settings-wrapper"></div>
 		`;
-		const container: HTMLElement = this.utility.createHtmlFromJson(containerData);
+		const container: HTMLElement = this.utility.convertHtml(containerData);
 
 		const target: Element | null = document.querySelector("#content");
 		if (target === null) {

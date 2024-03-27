@@ -3,6 +3,7 @@
 body:not(.deadline-dynamo-view) {
 	#deadline-dynamo-planner,
 	.announcement-button,
+	.deadline-dynamo-scrollButton,
 	.deadline-dynamo-sidebar-button,
 	.show-old-assignments {
 		display: none;
@@ -16,6 +17,8 @@ body.deadline-dynamo-view {
 	#dashboard-planner-header-aux,
 	#dashboard-activity,
 	#right-side-wrapper,
+	// Hide the planner's scroll button,
+	#planner-today-btn,
 	// Menu item from card view{
 	.css-1dndbkc-menu > :nth-child(3),
 	// Checkmarks on all other items
