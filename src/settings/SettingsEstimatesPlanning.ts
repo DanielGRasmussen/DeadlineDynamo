@@ -78,8 +78,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			</div>
 		`;
 
-		const estimateMultiplier: HTMLElement =
-			this.utility.convertHtml(estimateMultiplierData);
+		const estimateMultiplier: HTMLElement = this.utility.convertHtml(estimateMultiplierData);
 
 		for (const courseId in this.estimateMultiplier) {
 			// Get course name

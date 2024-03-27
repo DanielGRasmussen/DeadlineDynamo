@@ -13,7 +13,7 @@
 		flex: 50%;
 	}
 
-	@media (max-width: 900px) {
+	@media (width <= 900px) {
 		display: block;
 
 		.use-estimates {

@@ -12,15 +12,15 @@
 	border-radius: 0.25rem;
 	padding: 12px;
 	overflow-x: hidden;
-	// The box shadow that canvas uses.
-	box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625rem 0.125rem, rgba(0, 0, 0, 0.1) 0 0.0625rem 0.1875rem;
 
+	// The box shadow that canvas uses.
+	box-shadow: rgb(0 0 0 / 20%) 0 0.0625rem 0.125rem, rgb(0 0 0 / 10%) 0 0.0625rem 0.1875rem;
 	position: absolute;
 	top: 45px;
 	right: -120px;
 
 	h4 {
-		color: rgb(82, 82, 82);
+		color: rgb(82 82 82);
 		font-size: 16px;
 		font-weight: 700;
 	}
@@ -37,7 +37,6 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;
-
 		grid-column: 1 / 3;
 		grid-row: 2 / 3;
 	}
@@ -57,20 +56,19 @@
 		grid-row: 3 / 4;
 	}
 
-	.announcement + .announcement:before {
+	.announcement + .announcement::before {
 		content: "";
 		display: block;
 		background: linear-gradient(90deg, transparent 7%, #b7b7b7 25%, #b7b7b7 75%, transparent 93%);
 		height: 1px;
 		margin-bottom: 3px;
 		width: 100%;
-
 		grid-column: 1 / 3;
 		grid-row: 1 / 2;
 	}
 
 	// If the element doesn't have any announcements it will add a "No announcements" message.
-	&:not(:has(.announcement)):after {
+	&:not(:has(.announcement))::after {
 		content: "No announcements";
 		display: block;
 		text-align: center;
@@ -78,7 +76,7 @@
 	}
 }
 
-.announcement-container:before {
+.announcement-container::before {
 	// The up arrow from the container.
 	content: "";
 	position: absolute;

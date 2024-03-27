@@ -37,7 +37,6 @@
 		grid-template-columns: 75px 1fr 190px;
 		grid-template-rows: 25px 65px;
 		border: 1px solid black;
-
 		transition: padding-right 0.45s ease-in-out;
 
 		// Remove duplicate borders
@@ -50,7 +49,6 @@
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			overflow: hidden;
-
 			margin: 0;
 			color: var(--ic-link-color);
 		}
@@ -129,7 +127,7 @@
 	}
 
 	// Styling for assignments when <530px width.
-	@media (max-width: 530px) {
+	@media (width <= 530px) {
 		.assignment {
 			grid-template-columns: 75px 1fr;
 			grid-template-rows: 25px 20px 45px;
@@ -200,17 +198,16 @@
 	// Style the collapse/expand button.
 	.visibility {
 		height: 100%;
+
 		// Show the button/paragraphs in the bottom right.
 		text-align: right;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
-
 		grid-column: 3 / 4;
 		grid-row: 2 / 3;
 		padding: 5px;
 		cursor: pointer;
-
 		margin-top: -7px;
 
 		p {
@@ -231,6 +228,7 @@
 	.assignment.collapsed .collapse {
 		display: none;
 	}
+
 	.assignment:not(.collapsed) .expand {
 		display: none;
 	}
@@ -256,11 +254,9 @@
 	bottom: -30px;
 	right: 0;
 	padding: 3px 10px;
-
 	cursor: pointer;
 	color: white;
-
-	background: rgb(0, 118, 182);
+	background: rgb(0 118 182);
 	border-radius: 0 0 4px 4px;
 }
 
@@ -276,7 +272,7 @@
 		}
 
 		// Don't move to the right when the sidebar is at the bottom.
-		@media (max-width: 1000px) {
+		@media (width <= 1000px) {
 			padding-right: 0;
 		}
 	}
@@ -304,12 +300,12 @@
 // Change margins on the buttons
 .deadline-dynamo-sidebar-button,
 span.announcement-button {
-	@media (max-width: 896px) {
+	@media (width <= 896px) {
 		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
 		margin-right: 12px !important;
 	}
 
-	@media (max-width: 592px) {
+	@media (width <= 592px) {
 		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
 		margin-right: 8px !important;
 	}

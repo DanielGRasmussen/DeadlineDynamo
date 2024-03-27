@@ -128,7 +128,6 @@ class Course {
 					oldAssignment.shown = false;
 				}
 
-
 				oldAssignment.name = assignment.plannable.title;
 				oldAssignment.type = assignment.plannable_type;
 				oldAssignment.submitted = assignment.submissions.submitted;

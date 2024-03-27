@@ -170,15 +170,14 @@
 	&.slide-out {
 		animation: slide-out 0.45s ease-in-out;
 
-		@media (max-width: 1000px) {
+		@media (width <= 1000px) {
 			animation: slide-down 0.45s ease-in-out;
 		}
 	}
 
-	@media (max-width: 1000px) {
+	@media (width <= 1000px) {
 		top: 50%;
 		width: 100%;
-
 		animation: slide-up 0.45s ease-in-out;
 	}
 }
@@ -192,7 +191,7 @@
 // Don't add one before the first assignment.
 // Don't add one between hidden assignments (caused by dragged items that are hidden.)
 // Don't add one if the toggle show completed is off and the assignment is completed.
-.deadline-dynamo-sidebar:has(.sidebar-show-complete:not(:checked)) .assignment:not(.completed):not(.hidden) + .assignment::before,
+.deadline-dynamo-sidebar:has(.sidebar-show-complete:not(:checked)) .assignment:not(.completed, .hidden) + .assignment::before,
 .deadline-dynamo-sidebar:has(.sidebar-show-complete:checked) .assignment:not(.hidden) + .assignment::before {
 	content: "";
 	display: block;
@@ -209,14 +208,13 @@
 
 
 // Add the no assignments message.
-.course-assignments:empty:before,
-// Has has an assignment that is hidden and no assignments that are not hidden.
-.course-assignments:has(.assignment.hidden):has(:not(.assignment:not(.hidden))):before,
-// Show completed is off and there are no uncompleted assignments.
-.deadline-dynamo-sidebar:has(.sidebar-show-complete:not(:checked)) .course-assignments:not(:has(.assignment:not(.completed))):before {
+.course-assignments:empty::before,
+
+.course-assignments:has(.assignment.hidden):has(:not(.assignment:not(.hidden)))::before,
+
+.deadline-dynamo-sidebar:has(.sidebar-show-complete:not(:checked)) .course-assignments:not(:has(.assignment:not(.completed)))::before {
 	content: "No assignments to plan.";
 	display: block;
-
 	text-align: center;
 	line-height: 50px;
 }

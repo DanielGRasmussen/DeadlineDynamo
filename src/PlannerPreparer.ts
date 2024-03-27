@@ -288,8 +288,7 @@ class PlannerPreparer {
 			</div>
 		`;
 
-		const announcementButton: HTMLElement =
-			this.utility.convertHtml(announcementButtonData);
+		const announcementButton: HTMLElement = this.utility.convertHtml(announcementButtonData);
 
 		buttonSibling.before(announcementButton);
 	}
