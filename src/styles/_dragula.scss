@@ -11,6 +11,8 @@
 	}
 }
 
+$border-color: rgb(183 183 183);
+
 // Adds drop here boxes to the main planner whenever the sidebar is open.
 #dd-planner.sidebar-open {
 	// "Drop Here" boxes whenever an item is being dragged.
@@ -19,10 +21,17 @@
 		display: block;
 		line-height: 88px;
 		text-align: center;
-		border: dashed grey 2px;
+		border: dashed $border-color 2px;
 
 		// So it is centered ignoring the sidebar.
 		padding-right: 434px;
+	}
+
+	// Hide the top border when there are other assignments.
+	.weekday-assignments:not(:has(.assignment.gu-transit), :empty)::after,
+	.weekday-assignments:not(:has(.assignment.gu-transit)):has(.assignment:not(.hidden))::after {
+		border-top: 0;
+		line-height: 89px;
 	}
 
 	.weekday-assignments:not(:has(.assignment.gu-transit))::before {
@@ -39,11 +48,11 @@ body.gu-unselectable {
 		line-height: 131.778px;
 		text-align: center;
 		font-size: 1.2em;
-		border: dashed grey 2px;
+		border: dashed $border-color 2px;
 	}
 
 	// Hide the no planned assignments messages when dragging.
 	.course-assignments:not(:has(.assignment.gu-transit))::before {
-		display: none;
+		display: none !important;
 	}
 }

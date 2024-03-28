@@ -64,6 +64,15 @@
 	}
 }
 
+// Add hover effect for our scroll button
+.dd-scrollButton {
+	transition: background 0.2s ease 0s;
+
+	&:hover > span {
+		background: rgb(242 242 242);
+	}
+}
+
 // Change margins on the buttons
 .dd-sidebar-button,
 span.announcement-button {

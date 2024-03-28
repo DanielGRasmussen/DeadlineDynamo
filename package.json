@@ -1,6 +1,7 @@
 {
 	"scripts": {
-		"build": "run-p ts:watch sass:watch",
+		"build": "run-s ts sass",
+		"build:watch": "run-p ts:watch sass:watch",
 		"ts": "tsc",
 		"ts:watch": "tsc-watch",
 		"sass": "sass src/styles:dist/styles",

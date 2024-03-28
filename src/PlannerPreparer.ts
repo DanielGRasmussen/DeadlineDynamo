@@ -1,7 +1,6 @@
 class PlannerPreparer {
 	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	scrollButton: boolean = false;
 	bodyAdded: boolean = false;
 	viewSet: boolean = false;
 	addedPlanner: boolean = false;
@@ -86,32 +85,7 @@ class PlannerPreparer {
 				}
 
 				// Add various parts of our UI.
-				if (
-					!this.scrollButton &&
-					(node.querySelector("#planner-today-btn") || node.id === "planner-today-btn")
-				) {
-					const planner_button: HTMLElement | null =
-						node.querySelector("#planner-today-btn");
-
-					const scrollButtonData: string = `
-						<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scrollButton">
-							<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
-								Today
-							</span>
-						</button>
-					`;
-
-					const scrollButton: HTMLElement = this.utility.convertHtml(scrollButtonData);
-
-					scrollButton.addEventListener("click", () => {
-						this.utility.scrollToToday();
-					});
-
-					planner_button?.before(scrollButton);
-
-					this.utility.log("Added scroll to today button.");
-					this.scrollButton = true;
-				} else if (!this.addedPlanner && node.id === "dashboard") {
+				if (!this.addedPlanner && node.id === "dashboard") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerData: string = `
 						<div id="dd-planner"></div>
@@ -172,7 +146,6 @@ class PlannerPreparer {
 
 				if (
 					this.viewSet &&
-					this.scrollButton &&
 					this.addedPlanner &&
 					this.loadConditions[0] &&
 					this.addedShowMore &&
@@ -291,6 +264,23 @@ class PlannerPreparer {
 		const announcementButton: HTMLElement = this.utility.convertHtml(announcementButtonData);
 
 		buttonSibling.before(announcementButton);
+
+		// Add the scroll to today button.
+		const scrollButtonData: string = `
+			<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scrollButton">
+				<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
+					Today
+				</span>
+			</button>
+		`;
+
+		const scrollButton: HTMLElement = this.utility.convertHtml(scrollButtonData);
+
+		scrollButton.addEventListener("click", () => {
+			this.utility.scrollToToday();
+		});
+
+		announcementButton.before(scrollButton);
 	}
 
 	createViewButton(node: HTMLElement): void {
@@ -341,6 +331,7 @@ class PlannerPreparer {
 		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 		if (this.view === 3) {
 			body.classList.add("dd-view");
+			this.utility.scrollToToday();
 		} else {
 			body.classList.remove("dd-view");
 		}

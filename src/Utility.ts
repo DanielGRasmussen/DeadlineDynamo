@@ -284,8 +284,14 @@ class Utility {
 		return Math.ceil(difference / (1000 * 60 * 60 * 24));
 	}
 
-	formatDate(date: Date): [string, string] {
-		const dayOfWeek: string = date.toLocaleString("en-US", { weekday: "short" });
+	formatDate(date: Date, shortDay: boolean): [string, string] {
+		let dayOfWeek: string;
+		if (shortDay) {
+			dayOfWeek = date.toLocaleString("en-US", { weekday: "short" });
+		} else {
+			dayOfWeek = date.toLocaleString("en-US", { weekday: "long" });
+		}
+
 		const month: string = date.toLocaleString("en-US", { month: "short" });
 		const day: number = date.getDate();
 		// Got this from the internet. Just assigns the correct ordinal to the day.

@@ -291,7 +291,7 @@ class Planner {
 	}
 
 	makeAssignmentElement(assignment: Assignment, course?: Course): HTMLElement {
-		const due_date: [string, string] = this.utility.formatDate(assignment.due_date);
+		const due_date: [string, string] = this.utility.formatDate(assignment.due_date, true);
 
 		let link_type: string;
 		switch (assignment.type) {
@@ -355,7 +355,11 @@ class Planner {
 					<span class="date">${due_date[0]}</span>
 					<span class="time">${due_date[1]}</span>
 					<span class="times">
-						${assignment.start_date && assignment.end_date ? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}` : ""}
+						${
+							assignment.start_date && assignment.end_date
+								? `${this.utility.formatDate(assignment.start_date, true)[1]} - ${this.utility.formatDate(assignment.end_date, true)[1]}`
+								: ""
+						}
 					</span>
 				</div>
 				<div class="visibility">
@@ -564,7 +568,7 @@ class Planner {
 				unread++;
 			}
 
-			const announcementDate: string[] = this.utility.formatDate(announcement.due_date);
+			const announcementDate: string[] = this.utility.formatDate(announcement.due_date, true);
 
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
 
@@ -626,9 +630,18 @@ class Planner {
 			const day: Date = new Date(monday);
 			day.setDate(day.getDate() + i);
 
+			let date: string = this.utility.formatDate(day, false)[0];
+			if (day.getDate() === new Date().getDate()) {
+				// If the day is today swap the ...day out for "Today".
+				const today: string[] = date.split(",");
+				today[0] = "Today";
+
+				date = today.join(",");
+			}
+
 			const dayElement: string = `
 				<div class="weekday">
-					<h3 class="weekday-name">${this.utility.formatDate(day)[0]}</h3>
+					<h3 class="weekday-name">${date}</h3>
 					<ul class="weekday-assignments ${day.toISOString().slice(0, 10)}"></ul>
 				</div>
 			`;
@@ -697,7 +710,8 @@ class Planner {
 				// It can't be an announcement.
 				assignment.type !== "announcement" &&
 				// It has to be due on the day we're looking at.
-				this.utility.formatDate(assignment.due_date)[0] === this.utility.formatDate(day)[0]
+				this.utility.formatDate(assignment.due_date, true)[0] ===
+					this.utility.formatDate(day, true)[0]
 			);
 		});
 
