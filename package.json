@@ -3,8 +3,8 @@
 		"build": "run-p ts:watch sass:watch",
 		"ts": "tsc",
 		"ts:watch": "tsc-watch",
-		"sass": "sass src/styles:dist",
-		"sass:watch": "sass --watch src/styles:dist",
+		"sass": "sass src/styles:dist/styles",
+		"sass:watch": "sass --watch src/styles:dist/styles",
 		"format": "eslint --fix src/ && stylelint \"src/**/*.scss\" --fix --color --formatter verbose"
 	},
 	"devDependencies": {

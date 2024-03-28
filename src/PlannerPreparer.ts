@@ -67,9 +67,9 @@ class PlannerPreparer {
 						const body = document.getElementsByTagName("body")[0];
 
 						if (this.view === 3) {
-							body.classList.add("deadline-dynamo-view");
+							body.classList.add("dd-view");
 						} else {
-							body.classList.remove("deadline-dynamo-view");
+							body.classList.remove("dd-view");
 						}
 
 						this.viewSet = true;
@@ -94,7 +94,7 @@ class PlannerPreparer {
 						node.querySelector("#planner-today-btn");
 
 					const scrollButtonData: string = `
-						<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton deadline-dynamo-scrollButton">
+						<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scrollButton">
 							<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
 								Today
 							</span>
@@ -114,7 +114,7 @@ class PlannerPreparer {
 				} else if (!this.addedPlanner && node.id === "dashboard") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerData: string = `
-						<div id="deadline-dynamo-planner"></div>
+						<div id="dd-planner"></div>
 					`;
 
 					const planner: HTMLElement = this.utility.convertHtml(plannerData);
@@ -191,7 +191,7 @@ class PlannerPreparer {
 		this.utility.log("Adding spinner.");
 		// This gets hidden by css when the planner is loaded.
 		const spinnerData: string = `
-			<div class="deadline-dynamo-spinner">
+			<div class="dd-spinner">
 				<svg class="spinner" viewBox="0 0 50 50">
  					<circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 				</svg>
@@ -200,7 +200,7 @@ class PlannerPreparer {
 
 		const spinner: HTMLElement = this.utility.convertHtml(spinnerData);
 
-		const planner: HTMLElement | null = document.querySelector("#deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.querySelector("#dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -226,7 +226,7 @@ class PlannerPreparer {
 		const buttonClass: string = buttonSibling.classList[0];
 
 		const sidebarButtonData: string = `
-			<button class="${buttonClass} deadline-dynamo-sidebar-button" type="button" tabindex="0">
+			<button class="${buttonClass} dd-sidebar-button" type="button" tabindex="0">
 				<span class="css-1eaecfq-baseButton__content">
 					<span class="css-qi8ml9-baseButton__childrenLayout">
 						<span class="css-5udsuu-baseButton__iconOnly">
@@ -305,7 +305,7 @@ class PlannerPreparer {
 
 		// Add the view button.
 		const viewButtonData: string = `
-			<li role="none" class="deadline-dynamo-view">
+			<li role="none" class="dd-view">
 				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="css-lejo13-menuItem">
 					<span>
 						<span class="css-1nl5gro-menuItem__icon"></span>
@@ -340,9 +340,9 @@ class PlannerPreparer {
 
 		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 		if (this.view === 3) {
-			body.classList.add("deadline-dynamo-view");
+			body.classList.add("dd-view");
 		} else {
-			body.classList.remove("deadline-dynamo-view");
+			body.classList.remove("dd-view");
 		}
 
 		// Hide the list

@@ -34,9 +34,7 @@ class Planner {
 			if (!triggeredHeader && this.conditions[0]) {
 				this.utility.log("Creating sidebar button.");
 				// Check on if our sidebar pullout button is there. It should be.
-				const sidebar_button: Element | null = document.querySelector(
-					".deadline-dynamo-sidebar-button"
-				);
+				const sidebar_button: Element | null = document.querySelector(".dd-sidebar-button");
 
 				if (sidebar_button === null) {
 					this.utility.alerter("Error: Sidebar button not found.");
@@ -57,7 +55,7 @@ class Planner {
 				this.utility.log("Creating announcements.");
 				// Check if our announcement button is there. It should be.
 				const announcement_container: Element | null = document.querySelector(
-					".announcement-button .announcement-container"
+					".announcement-button > .announcement-container"
 				);
 
 				if (announcement_container === null) {
@@ -86,7 +84,7 @@ class Planner {
 	createSidebar(): void {
 		// Check if the sidebar is already open.
 		this.utility.log("Creating sidebar.");
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -98,7 +96,7 @@ class Planner {
 		}
 
 		const sidebarHTML: string = `
-			<span class="deadline-dynamo-sidebar">
+			<span class="dd-sidebar">
 				<div class="sidebar-header">
 					<div class="sidebar-close">
 						<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
@@ -165,7 +163,7 @@ class Planner {
 	deleteSidebar(): void {
 		// Deletes the sidebar for when the X button is pressed.
 		this.utility.log("Deleting sidebar.");
-		const sidebar: HTMLElement | null = document.querySelector(".deadline-dynamo-sidebar");
+		const sidebar: HTMLElement | null = document.querySelector(".dd-sidebar");
 
 		if (sidebar === null) {
 			this.utility.alerter("Error: Sidebar not found.");
@@ -185,7 +183,7 @@ class Planner {
 		);
 
 		// Remove the "sidebar-open" class so stuff isn't draggable.
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -419,8 +417,7 @@ class Planner {
 		const drake = dragula(containers, {
 			revertOnSpill: true,
 			invalid: (el: HTMLElement, _: never) => {
-				const planner: HTMLElement | null =
-					document.getElementById("deadline-dynamo-planner");
+				const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 				return (
 					// Don't drag the planning elements.
@@ -548,6 +545,9 @@ class Planner {
 			}
 		);
 
+		// To display the number of unread announcements.
+		let unread: number = 0;
+
 		// Add the announcements to the container
 		for (const announcement of sortedAnnouncements) {
 			// Get course name
@@ -558,6 +558,10 @@ class Planner {
 			if (course === undefined) {
 				this.utility.alerter("Error: Course not found.");
 				return;
+			}
+
+			if (!announcement.read) {
+				unread++;
 			}
 
 			const announcementDate: string[] = this.utility.formatDate(announcement.due_date);
@@ -575,12 +579,37 @@ class Planner {
 			const announcementDiv: HTMLElement = this.utility.convertHtml(announcementData);
 			announcement_container.appendChild(announcementDiv);
 		}
+
+		// Whenever the button is clicked mark all announcements as read.
+		if (unread !== 0) {
+			const button: HTMLElement = announcement_container.parentElement!;
+
+			button.addEventListener("click", () => {
+				for (const announcement of announcements) {
+					announcement.read = true;
+				}
+
+				button.querySelector(".unread-count")?.remove();
+
+				// Save the courses now.
+				for (const course of this.courses!) {
+					course.saveCourse();
+				}
+			});
+
+			// Display unread count to the user.
+			const unreadElement: HTMLElement = this.utility.convertHtml(`
+			<p class="unread-count">${unread}</p>
+		`);
+
+			button.firstChild!.before(unreadElement);
+		}
 	}
 
 	addWeekdaySlots(previous: boolean = false, offset: number = 0): void {
 		// Adds the empty weekday slots to the main UI of the planner.
 		this.utility.log("Adding weekday slots.");
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -644,7 +673,7 @@ class Planner {
 		}
 
 		// Hide the spinner now that the planner is done loading.
-		const spinner: HTMLElement | null = document.querySelector(".deadline-dynamo-spinner");
+		const spinner: HTMLElement | null = document.querySelector(".dd-spinner");
 		if (spinner === null) {
 			this.utility.alerter("Error: Spinner not found.");
 			return;

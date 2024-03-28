@@ -81,7 +81,7 @@ class SettingsPreparer {
 		// Create the element to insert.
 		let aria_current: string = "false";
 		let icon_fill: string = "#fff";
-		let class_list: string = "menu-item ic-app-header__menu-list-item deadline-dynamo-link";
+		let class_list: string = "menu-item ic-app-header__menu-list-item dd-link";
 		if (window.location.pathname.startsWith(this.link)) {
 			aria_current = "page";
 			icon_fill = "#0076b6";
@@ -140,11 +140,11 @@ class SettingsPreparer {
 			<li class="css-i3c1s5-view-listItem">
 				<a class="css-al447q-view--block-link" href="/deadline-dynamo">
 					<span class="css-10d73cs-view--flex-flex">
-						<span class="css-w1drs0-view-flexItem deadline-dynamo-mininav-icon">
+						<span class="css-w1drs0-view-flexItem dd-mininav-icon">
 							<svg height="32px" width="32px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve" fill="rgb(0, 118, 182)" stroke="rgb(0, 118, 182)">
 								<g>
 									<style type="text/css">
-										.deadline-dynamo-mininav-icon svg{margin-top:3px;}
+										.dd-mininav-icon svg{margin-top:3px;}
 										.st2{fill:rgb(0, 118, 182);}
 										li.css-i3c1s5-view-listItem a:hover svg .st2{fill:rgb(0, 85, 131)}
 									</style>

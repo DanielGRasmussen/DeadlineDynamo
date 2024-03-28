@@ -1,16 +1,16 @@
 // This file hides and displays all elements that need to be changed for the individual view options.
 
-body:not(.deadline-dynamo-view) {
-	#deadline-dynamo-planner,
+body:not(.dd-view) {
+	#dd-planner,
 	.announcement-button,
-	.deadline-dynamo-scrollButton,
-	.deadline-dynamo-sidebar-button,
+	.dd-scrollButton,
+	.dd-sidebar-button,
 	.show-old-assignments {
 		display: none;
 	}
 }
 
-body.deadline-dynamo-view {
+body.dd-view {
 	// Hide the original planner items. They use inline styles so it has to use !important.
 	#DashboardCard_Container,
 	#dashboard-planner,
@@ -33,13 +33,13 @@ body.deadline-dynamo-view {
 	}
 
 	// Add the checkmark for our list item.
-	.css-1te3it8-menuItemGroup__items .deadline-dynamo-view .css-1nl5gro-menuItem__icon {
+	.css-1te3it8-menuItemGroup__items .dd-view .css-1nl5gro-menuItem__icon {
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1920' aria-hidden='true' role='presentation' focusable='false' class='css-1uh2md0-inlineSVG-svgIcon' %3E%3Cg role='presentation'%3E%3Cpath d='M1743.858 267.012 710.747 1300.124 176.005 765.382 0 941.387l710.747 710.871 1209.24-1209.116z' fill-rule='evenodd'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
 		background-repeat: no-repeat;
 		background-position: center;
 	}
 
-	.css-1te3it8-menuItemGroup__items .deadline-dynamo-view:hover .css-1nl5gro-menuItem__icon {
+	.css-1te3it8-menuItemGroup__items .dd-view:hover .css-1nl5gro-menuItem__icon {
 		// I wasn't able to figure out a way to change the color of the checkmark on hover without exchanging the whole svg.
 		// I tried custom properties, inheritance, filters, text-shadows, and more.
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1920' style='fill: white;' aria-hidden='true' role='presentation' focusable='false' class='css-1uh2md0-inlineSVG-svgIcon' %3E%3Cg role='presentation'%3E%3Cpath d='M1743.858 267.012 710.747 1300.124 176.005 765.382 0 941.387l710.747 710.871 1209.24-1209.116z' fill-rule='evenodd'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");

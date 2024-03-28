@@ -2,6 +2,23 @@
 .announcement-button {
 	display: inline-block;
 	position: relative;
+
+	.unread-count {
+		position: absolute;
+		top: -0.25rem;
+		right: 1.25rem;
+		width: 12px;
+		height: 12px;
+		font-size: 0.7rem;
+		text-align: center;
+		line-height: 14px;
+		z-index: 1;
+		background: #f00;
+		color: white;
+		border-radius: 50%;
+		padding: 0.25rem;
+		margin: 0;
+	}
 }
 
 .announcement-container {

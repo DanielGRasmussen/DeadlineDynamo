@@ -191,6 +191,7 @@ interface LocalAssignmentJson {
 	lock: boolean; // Lock to due date if it's time is unchangeable.
 	planned: boolean;
 	shown: boolean; // Whether it will be shown.
+	read: boolean; // For announcements only.
 	basic_estimate: number | null;
 	history_estimate: number | null;
 	user_estimate: number | null;

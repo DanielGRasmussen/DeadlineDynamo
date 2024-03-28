@@ -1,0 +1,49 @@
+// Styling for when the item is being dragged.
+.assignment.gu-mirror {
+	list-style: none;
+
+	.estimate-edit,
+	.estimate-label,
+	.time-taken,
+	.location,
+	.visibility {
+		display: none;
+	}
+}
+
+// Adds drop here boxes to the main planner whenever the sidebar is open.
+#dd-planner.sidebar-open {
+	// "Drop Here" boxes whenever an item is being dragged.
+	.weekday-assignments:not(:has(.assignment.gu-transit))::after {
+		content: "Drop Here";
+		display: block;
+		line-height: 88px;
+		text-align: center;
+		border: dashed grey 2px;
+
+		// So it is centered ignoring the sidebar.
+		padding-right: 434px;
+	}
+
+	.weekday-assignments:not(:has(.assignment.gu-transit))::before {
+		display: none;
+	}
+}
+
+// When an item is being dragged the body gains the class gu-unselectable.
+body.gu-unselectable {
+	// "Drop Here" boxes whenever an item is being dragged.
+	.course-assignments:not(:has(.assignment.gu-transit))::after {
+		content: "Drop Here";
+		display: block;
+		line-height: 131.778px;
+		text-align: center;
+		font-size: 1.2em;
+		border: dashed grey 2px;
+	}
+
+	// Hide the no planned assignments messages when dragging.
+	.course-assignments:not(:has(.assignment.gu-transit))::before {
+		display: none;
+	}
+}

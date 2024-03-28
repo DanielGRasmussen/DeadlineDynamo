@@ -62,6 +62,7 @@ class Course {
 					assignment.plannable_type !== "calendar_event"
 						? !assignment.submissions.submitted
 						: true,
+					false,
 					null,
 					null,
 					null,
@@ -90,6 +91,7 @@ class Course {
 						: assignment.type !== "calendar_event"
 							? !assignment.submitted
 							: true,
+					assignment.read,
 					assignment.basic_estimate,
 					assignment.history_estimate,
 					assignment.user_estimate,
@@ -165,6 +167,7 @@ class Course {
 						assignment.plannable_type !== "calendar_event"
 							? !assignment.submissions.submitted
 							: true,
+						false,
 						null,
 						null,
 						null,
