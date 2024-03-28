@@ -65,7 +65,11 @@
 }
 
 // Add hover effect for our scroll button
-.dd-scrollButton {
+.dd-scroll-button {
+	background: 0;
+	padding: 0;
+	border: 0;
+	margin: 0 24px 0 0;
 	transition: background 0.2s ease 0s;
 
 	&:hover > span {

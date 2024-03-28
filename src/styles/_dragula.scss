@@ -24,7 +24,9 @@ $border-color: rgb(183 183 183);
 		border: dashed $border-color 2px;
 
 		// So it is centered ignoring the sidebar.
-		padding-right: 434px;
+		@media (width > 1000px) {
+			padding-right: 434px;
+		}
 	}
 
 	// Hide the top border when there are other assignments.

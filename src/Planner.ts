@@ -5,6 +5,7 @@ class Planner {
 	estimator!: Estimator;
 	settings!: SettingsJson;
 	plan!: Plan;
+	// [0] Header buttons are added. [1] Main is done loading.
 	conditions!: boolean[];
 
 	constructor(main: Main, conditions: boolean[]) {
@@ -67,6 +68,9 @@ class Planner {
 				this.createAnnouncements(announcement_container);
 
 				triggeredAnnouncements = true;
+
+				// Add unplanned/uncompleted count for the sidebar button.
+				this.addUnplannedCount();
 			}
 			if (this.conditions[1] && this.courses?.length !== 0 && !triggeredMain) {
 				this.utility.log("Creating planner.");
@@ -199,6 +203,7 @@ class Planner {
 			this.utility.alerter("Error: Courses not found.");
 			return;
 		}
+
 		for (const course of this.courses) {
 			const courseElement: string = `
 				<div class="sidebar-course cid-${course.id} collapsed">
@@ -294,15 +299,23 @@ class Planner {
 		const due_date: [string, string] = this.utility.formatDate(assignment.due_date, true);
 
 		let link_type: string;
+		let assignment_type: string;
 		switch (assignment.type) {
 			case "quiz":
 				link_type = "quizzes";
+				assignment_type = "type-quiz";
 				break;
 			case "discussion_topic":
 				link_type = "discussion_topics";
+				assignment_type = "type-discussion";
+				break;
+			case "calendar_event":
+				link_type = "assignments";
+				assignment_type = "type-event";
 				break;
 			default:
 				link_type = "assignments";
+				assignment_type = "type-assignment";
 		}
 
 		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
@@ -337,7 +350,7 @@ class Planner {
 		}
 
 		const assignmentData: string = `
-			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
+			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} ${assignment_type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
 				${title}
 				<p class="estimate-edit">
 					<span class="estimate-label">Estimate: </span>
@@ -383,6 +396,62 @@ class Planner {
 		});
 
 		return assignmentElement;
+	}
+
+	addUnplannedCount(): void {
+		// Adds the count of unplanned/uncompleted assignments to the sidebar button.
+		this.utility.log("Adding unplanned count.");
+		const sidebarButton: HTMLElement | null = document.querySelector(".dd-sidebar-button");
+
+		if (sidebarButton === null) {
+			this.utility.alerter("Error: Sidebar button not found.");
+			return;
+		}
+
+		const unplanned: Assignment[] = this.courses!.flatMap(
+			(course: Course): Assignment[] => course.assignments
+		).filter((assignment: Assignment): boolean => {
+			return (
+				!assignment.planned &&
+				!assignment.submitted &&
+				!assignment.lock &&
+				assignment.type !== "announcement"
+			);
+		});
+
+		console.log(unplanned);
+
+		console.log(this.courses!.flatMap((course: Course): Assignment[] => course.assignments));
+
+		const unplannedCount: number = unplanned.length;
+
+		if (unplannedCount === 0) {
+			return;
+		}
+
+		let unplannedText: string = unplannedCount.toString();
+		if (unplannedCount > 9) {
+			// If it is greater than 9, just display 9+.
+			unplannedText = "9+";
+		}
+
+		const countElement: HTMLElement = this.utility.convertHtml(`
+			<p class="count">${unplannedText}</p>
+		`);
+
+		sidebarButton.appendChild(countElement);
+	}
+
+	updateUnplannedCount(): void {
+		const unplannedElement: HTMLElement | null = document.querySelector(
+			".dd-sidebar-button .count"
+		);
+
+		if (unplannedElement !== null) {
+			unplannedElement.remove();
+		}
+
+		this.addUnplannedCount();
 	}
 
 	saveValue(course: Course, assignment: Assignment, value: string, is_estimate: boolean): void {
@@ -522,6 +591,8 @@ class Planner {
 				// Update the assignment info
 				assignment.planned = false;
 			}
+			// Update the unplanned/uncompleted count.
+			this.updateUnplannedCount();
 
 			this.utility.saveStorage("plan", JSON.stringify(this.plan));
 			course.saveCourse();
@@ -586,6 +657,12 @@ class Planner {
 
 		// Whenever the button is clicked mark all announcements as read.
 		if (unread !== 0) {
+			// If it is greater than 9, just display 9+.
+			let unreadText: string = unread.toString();
+			if (unread > 9) {
+				unreadText = "9+";
+			}
+
 			const button: HTMLElement = announcement_container.parentElement!;
 
 			button.addEventListener("click", () => {
@@ -603,8 +680,8 @@ class Planner {
 
 			// Display unread count to the user.
 			const unreadElement: HTMLElement = this.utility.convertHtml(`
-			<p class="unread-count">${unread}</p>
-		`);
+				<p class="count">${unreadText}</p>
+			`);
 
 			button.firstChild!.before(unreadElement);
 		}

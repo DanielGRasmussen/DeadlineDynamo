@@ -7,6 +7,7 @@ class PlannerPreparer {
 	addedShowMore: boolean = false;
 	removeNothingPlanned: boolean = false;
 	triggeredMain: boolean = false;
+	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[] = [false, false];
 	main: Main = new Main(this.loadConditions);
 	planner: Planner | undefined;
@@ -267,7 +268,7 @@ class PlannerPreparer {
 
 		// Add the scroll to today button.
 		const scrollButtonData: string = `
-			<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scrollButton">
+			<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scroll-button">
 				<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
 					Today
 				</span>
@@ -293,10 +294,14 @@ class PlannerPreparer {
 			return;
 		}
 
+		const viewButtonExample: HTMLElement = list.querySelector("li > span")!;
+
+		const viewButtonClass: string = viewButtonExample.classList[0];
+
 		// Add the view button.
 		const viewButtonData: string = `
 			<li role="none" class="dd-view">
-				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="css-lejo13-menuItem">
+				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="${viewButtonClass}">
 					<span>
 						<span class="css-1nl5gro-menuItem__icon"></span>
 						<span id="MenuItem__label_3" class="css-1u4c65l-menuItem__label">Deadline Dynamo</span>
