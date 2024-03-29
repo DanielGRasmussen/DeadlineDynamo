@@ -1,11 +1,11 @@
 abstract class SettingsPage {
 	utility: Utility = new Utility();
-	useBasicEstimate!: boolean;
-	useHistoryEstimate!: boolean;
-	workHours!: WorkHours;
-	estimateMultiplier!: EstimateMultiplier;
-	planDistance!: number;
-	showEvents!: boolean;
+	useBasicEstimate: boolean;
+	useHistoryEstimate: boolean;
+	workHours: WorkHours;
+	estimateMultiplier: EstimateMultiplier;
+	planDistance: number;
+	showEvents: boolean;
 
 	constructor(settings: Settings) {
 		this.useBasicEstimate = settings.useBasicEstimate;
@@ -43,7 +43,7 @@ abstract class SettingsPage {
 			</li>
 		`;
 
-		const location: HTMLElement = this.utility.createHtmlFromJson(locationData);
+		const location: HTMLElement = this.utility.convertHtml(locationData);
 
 		header.appendChild(location);
 	}
@@ -54,16 +54,16 @@ abstract class SettingsPage {
 		// Buttons
 		const buttonsData: string = `
 			<div class="button-container">
-				<button id="cancelButton" class="btn cancel_button">Cancel</button>
-				<button id="saveButton" class="btn btn-primary">Update Settings</button>
+				<button id="cancel-button" class="btn cancel_button">Cancel</button>
+				<button id="save-button" class="btn btn-primary">Update Settings</button>
 			</div>
 		`;
 
-		const buttons: HTMLElement = this.utility.createHtmlFromJson(buttonsData);
+		const buttons: HTMLElement = this.utility.convertHtml(buttonsData);
 
 		// Add event listeners to the buttons
-		const cancelButton: Node = buttons.firstChild as Node;
-		const saveButton: Node = buttons.lastChild as Node;
+		const cancelButton: Element = buttons.querySelector("#cancel-button")!;
+		const saveButton: Node = buttons.querySelector("#save-button")!;
 
 		cancelButton.addEventListener("click", (): void => {
 			this.restoreSettings();

@@ -1,6 +1,6 @@
 class ApiFetcher {
-	courseApi: string = "/api/v1/dashboard/dashboard_cards";
-	assignmentApi: string = "/api/v1/planner/items?per_page=50";
+	courseApi: string = window.location.origin + "/api/v1/dashboard/dashboard_cards";
+	assignmentApi: string = window.location.origin + "/api/v1/planner/items?per_page=50";
 	courses: Course[] = [];
 	utility: Utility = new Utility();
 
@@ -52,7 +52,8 @@ class ApiFetcher {
 
 	async fetchExtraAssignmentData(courseId: number): Promise<AssignmentExtraJson[]> {
 		this.utility.log("Fetching extra assignment data from API.");
-		const assignmentUrl = `/api/v1/courses/${courseId}/assignments?per_page=50`;
+		const assignmentUrl =
+			window.location.origin + `/api/v1/courses/${courseId}/assignments?per_page=50`;
 
 		let length: number = 50;
 		let allData: AssignmentExtraJson[] = [];

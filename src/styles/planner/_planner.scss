@@ -1,0 +1,76 @@
+#dd-planner {
+	// 229px is the height of the header.
+	min-height: calc(100vh - 229px);
+	width: 100%;
+
+	// The header height changes at this width.
+	@media screen and (width <= 991px) {
+		min-height: calc(100vh - 253px);
+	}
+
+	.weekday-name {
+		// Make the weekday names bold.
+		font-weight: bold;
+		font-size: 1.4em;
+	}
+
+	.weekday-assignments {
+		min-height: 50px;
+		margin: 0 0 6px;
+
+		// Add the no assignments message
+		// Check if it has no children
+		&:empty::before,
+		// Check if it does not have any assignments that don't have the class "hidden"
+		&:not(:has(.assignment:not(.hidden)))::before {
+			content: "No Assignments Planned";
+			display: block;
+			text-align: center;
+			line-height: 50px;
+			font-size: 1.2em;
+		}
+	}
+}
+
+// Loading spinner
+.spinner {
+	animation: rotate 2s linear infinite;
+	z-index: 2;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -25px 0 0 -25px;
+	width: 50px;
+	height: 50px;
+
+	& .path {
+		// Sidebar's color.
+		stroke: var(--ic-brand-global-nav-bgd);
+		stroke-linecap: round;
+		animation: dash 1.5s ease-in-out infinite;
+	}
+}
+
+// Spinner animations
+@keyframes rotate {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes dash {
+	0% {
+		stroke-dasharray: 1, 150;
+		stroke-dashoffset: 0;
+	}
+
+	50% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -35;
+	}
+
+	100% {
+		stroke-dasharray: 90, 150;
+		stroke-dashoffset: -124;
+	}
+}

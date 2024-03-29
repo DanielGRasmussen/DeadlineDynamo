@@ -1,13 +1,13 @@
 class PlannerPreparer {
 	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	scrollToTodayButton: boolean = false;
 	bodyAdded: boolean = false;
 	viewSet: boolean = false;
 	addedPlanner: boolean = false;
 	addedShowMore: boolean = false;
 	removeNothingPlanned: boolean = false;
 	triggeredMain: boolean = false;
+	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[] = [false, false];
 	main: Main = new Main(this.loadConditions);
 	planner: Planner | undefined;
@@ -25,8 +25,8 @@ class PlannerPreparer {
 		const view: string | undefined = await this.utility.loadStorage("view");
 
 		if (view === undefined) {
-			this.utility.saveStorage("view", "3");
-			this.view = 3;
+			this.utility.saveStorage("view", "1");
+			this.view = 1;
 		} else {
 			this.view = parseInt(view);
 		}
@@ -52,6 +52,8 @@ class PlannerPreparer {
 				}
 
 				// These are basic things for every view and should always happen.
+				// Sometimes view isn't defined until after the body is added. So it checks every time after the
+				// body is added.
 				if ((this.bodyAdded || node.tagName === "BODY") && !this.viewSet) {
 					// If the body has been added then check if the view has been set. If so then set the view,
 					if (!this.bodyAdded) {
@@ -65,9 +67,9 @@ class PlannerPreparer {
 						const body = document.getElementsByTagName("body")[0];
 
 						if (this.view === 3) {
-							body.classList.add("deadline-dynamo-view");
+							body.classList.add("dd-view");
 						} else {
-							body.classList.remove("deadline-dynamo-view");
+							body.classList.remove("dd-view");
 						}
 
 						this.viewSet = true;
@@ -75,7 +77,12 @@ class PlannerPreparer {
 						this.utility.log("View not set.");
 					}
 				} else if (
-					node.querySelector("ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items") &&
+					(node.querySelector(
+						"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
+					) ||
+						node.querySelector(
+							"ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items"
+						)) &&
 					node.parentElement?.tagName === "BODY"
 				) {
 					// This is the view list.
@@ -84,23 +91,13 @@ class PlannerPreparer {
 				}
 
 				// Add various parts of our UI.
-				if (!this.scrollToTodayButton && node.querySelector("#planner-today-btn")) {
-					const planner_button: HTMLElement | null =
-						node.querySelector("#planner-today-btn");
-
-					planner_button?.addEventListener("click", () => {
-						this.utility.scrollToToday();
-					});
-
-					this.utility.log("Added scroll to today button.");
-					this.scrollToTodayButton = true;
-				} else if (!this.addedPlanner && node.id === "dashboard") {
+				if (!this.addedPlanner && node.id === "dashboard") {
 					// Add our planner element where the original planner was (after #dashboard_header_container).
 					const plannerData: string = `
-						<div id="deadline-dynamo-planner"></div>
+						<div id="dd-planner"></div>
 					`;
 
-					const planner: HTMLElement = this.utility.createHtmlFromJson(plannerData);
+					const planner: HTMLElement = this.utility.convertHtml(plannerData);
 
 					const originalPlanner: Element | null = node.querySelector(
 						"#dashboard_header_container"
@@ -154,7 +151,7 @@ class PlannerPreparer {
 				}
 
 				if (
-					this.scrollToTodayButton &&
+					this.viewSet &&
 					this.addedPlanner &&
 					this.loadConditions[0] &&
 					this.addedShowMore &&
@@ -173,16 +170,16 @@ class PlannerPreparer {
 		this.utility.log("Adding spinner.");
 		// This gets hidden by css when the planner is loaded.
 		const spinnerData: string = `
-			<div class="deadline-dynamo-spinner">
+			<div class="dd-spinner">
 				<svg class="spinner" viewBox="0 0 50 50">
  					<circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
 				</svg>
 			</div>
 		`;
 
-		const spinner: HTMLElement = this.utility.createHtmlFromJson(spinnerData);
+		const spinner: HTMLElement = this.utility.convertHtml(spinnerData);
 
-		const planner: HTMLElement | null = document.querySelector("#deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.querySelector("#dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -208,7 +205,7 @@ class PlannerPreparer {
 		const buttonClass: string = buttonSibling.classList[0];
 
 		const sidebarButtonData: string = `
-			<button class="${buttonClass} deadline-dynamo-sidebar-button" type="button" tabindex="0">
+			<button class="${buttonClass} dd-sidebar-button" type="button" tabindex="0">
 				<span class="css-1eaecfq-baseButton__content">
 					<span class="css-qi8ml9-baseButton__childrenLayout">
 						<span class="css-5udsuu-baseButton__iconOnly">
@@ -242,7 +239,7 @@ class PlannerPreparer {
 			</button>
 		`;
 
-		const sidebarButton: HTMLElement = this.utility.createHtmlFromJson(sidebarButtonData);
+		const sidebarButton: HTMLElement = this.utility.convertHtml(sidebarButtonData);
 
 		buttonSibling.after(sidebarButton);
 
@@ -270,42 +267,68 @@ class PlannerPreparer {
 			</div>
 		`;
 
-		const announcementButton: HTMLElement =
-			this.utility.createHtmlFromJson(announcementButtonData);
+		const announcementButton: HTMLElement = this.utility.convertHtml(announcementButtonData);
 
 		buttonSibling.before(announcementButton);
+
+		// Add the scroll to today button.
+		const scrollButtonData: string = `
+			<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scroll-button">
+				<span class="css-p3olqp-baseButton__content css-1f6zcte-baseButton__content css-11xkk0o-baseButton__children">
+					Today
+				</span>
+			</button>
+		`;
+
+		const scrollButton: HTMLElement = this.utility.convertHtml(scrollButtonData);
+
+		scrollButton.addEventListener("click", () => {
+			this.utility.scrollToToday();
+		});
+
+		announcementButton.before(scrollButton);
 	}
 
 	createViewButton(node: HTMLElement): void {
-		const list: HTMLElement | null = node.querySelector(
+		let list: HTMLElement | null = node.querySelector(
 			"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
 		);
+
+		let iconClass: string = "css-1nl5gro-menuItem__icon";
+		if (list === null) {
+			list = node.querySelector("ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items");
+			iconClass = "css-1d91lml-menuItem__icon";
+		}
 
 		if (list === null) {
 			this.utility.alerter("Error: List not found.");
 			return;
 		}
 
+		const viewButtonExample: HTMLElement = list.querySelector("li > span")!;
+
+		const viewButtonClass: string = viewButtonExample.classList[0];
+
 		// Add the view button.
 		const viewButtonData: string = `
-			<li role="none" class="deadline-dynamo-view">
-				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="css-lejo13-menuItem">
+			<li role="none" class="dd-view">
+				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="${viewButtonClass}">
 					<span>
-						<span class="css-1nl5gro-menuItem__icon"></span>
+						<span class="${iconClass}"></span>
 						<span id="MenuItem__label_3" class="css-1u4c65l-menuItem__label">Deadline Dynamo</span>
 					</span>
 				</span>
 			</li>
 		`;
 
-		const viewButton: HTMLElement = this.utility.createHtmlFromJson(viewButtonData);
+		const viewButton: HTMLElement = this.utility.convertHtml(viewButtonData);
 
 		list.append(viewButton);
 
 		for (let i = 0; i < list.children.length; i++) {
 			const child: HTMLElement = list.children[i] as HTMLElement;
 			child.addEventListener("click", () => {
-				this.changeView(list, i);
+				this.changeView(list!, i);
 			});
 		}
 	}
@@ -323,9 +346,10 @@ class PlannerPreparer {
 
 		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 		if (this.view === 3) {
-			body.classList.add("deadline-dynamo-view");
+			body.classList.add("dd-view");
+			this.utility.scrollToToday();
 		} else {
-			body.classList.remove("deadline-dynamo-view");
+			body.classList.remove("dd-view");
 		}
 
 		// Hide the list
@@ -342,7 +366,7 @@ class PlannerPreparer {
 			<span class="show-old-assignments">Show More</span>
 		`;
 
-		const showMoreButton: HTMLElement = this.utility.createHtmlFromJson(showMoreButtonData);
+		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
 
 		parent.append(showMoreButton);
 
@@ -363,7 +387,6 @@ class PlannerPreparer {
 				"p"
 			) as unknown as HTMLParagraphElement[];
 			for (const child of children) {
-				console.log(child);
 				if (child.textContent === "Nothing planned today. Selecting next item.") {
 					return true;
 				}

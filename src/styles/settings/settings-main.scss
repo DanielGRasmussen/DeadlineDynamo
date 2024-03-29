@@ -30,16 +30,15 @@
 		grid-column: 2 / 3;
 		grid-row: 3 / 4;
 		justify-self: end;
-
 		margin-top: 2em;
 
-		@media (max-width: 475px) {
+		@media (width <= 475px) {
 			display: flex;
 			flex-direction: row-reverse;
 			grid-row: 4 / 5;
 			grid-column: 1 / 2;
 
-			#saveButton {
+			#save-button {
 				margin: 0 20px 0 0;
 			}
 		}

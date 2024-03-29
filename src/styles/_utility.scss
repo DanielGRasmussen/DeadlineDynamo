@@ -1,0 +1,29 @@
+*:has(> .count) {
+	position: relative;
+}
+
+.count {
+	font-size: 0.6875rem;
+	min-width: 20px;
+	line-height: 20px;
+	border-radius: 10px;
+	display: inline-block;
+	vertical-align: middle;
+	text-align: center;
+	box-sizing: border-box;
+	padding: 0 6px;
+	margin: 0;
+	position: absolute;
+	top: -0.25rem;
+	right: -0.25rem;
+	z-index: 1;
+
+	// In high contrast mode their variables set it to white background. That doesn't match well with a white background.
+	// Their variables are: ic-brand-global-nav-menu-item__badge-bgd & ic-brand-global-nav-menu-item__badge-text
+	background: rgb(245 131 0);
+	color: black;
+}
+
+.hidden {
+	display: none !important;
+}

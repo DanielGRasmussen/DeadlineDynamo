@@ -62,6 +62,7 @@ class Course {
 					assignment.plannable_type !== "calendar_event"
 						? !assignment.submissions.submitted
 						: true,
+					false,
 					null,
 					null,
 					null,
@@ -90,6 +91,7 @@ class Course {
 						: assignment.type !== "calendar_event"
 							? !assignment.submitted
 							: true,
+					assignment.read,
 					assignment.basic_estimate,
 					assignment.history_estimate,
 					assignment.user_estimate,
@@ -113,10 +115,21 @@ class Course {
 						new Date(assignment.plannable_date).getTime() &&
 					(oldAssignment.planned || oldAssignment.lock)
 				) {
-					this.utility.alerter(
-						`Due date changed for ${oldAssignment.name} in ${this.name}`
-					);
+					if (oldAssignment.type === "calendar_event") {
+						this.utility.alerter(
+							`Time changed for ${oldAssignment.name} from ${this.name}.`
+						);
+					} else {
+						this.utility.alerter(
+							`Due date changed for ${oldAssignment.name} in ${this.name}`
+						);
+					}
 				}
+
+				if (!oldAssignment.submitted && assignment.submissions.submitted) {
+					oldAssignment.shown = false;
+				}
+
 				oldAssignment.name = assignment.plannable.title;
 				oldAssignment.type = assignment.plannable_type;
 				oldAssignment.submitted = assignment.submissions.submitted;
@@ -154,6 +167,7 @@ class Course {
 						assignment.plannable_type !== "calendar_event"
 							? !assignment.submissions.submitted
 							: true,
+						false,
 						null,
 						null,
 						null,

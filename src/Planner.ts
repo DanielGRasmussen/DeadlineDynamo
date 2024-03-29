@@ -5,6 +5,7 @@ class Planner {
 	estimator!: Estimator;
 	settings!: SettingsJson;
 	plan!: Plan;
+	// [0] Header buttons are added. [1] Main is done loading.
 	conditions!: boolean[];
 
 	constructor(main: Main, conditions: boolean[]) {
@@ -34,9 +35,7 @@ class Planner {
 			if (!triggeredHeader && this.conditions[0]) {
 				this.utility.log("Creating sidebar button.");
 				// Check on if our sidebar pullout button is there. It should be.
-				const sidebar_button: Element | null = document.querySelector(
-					".deadline-dynamo-sidebar-button"
-				);
+				const sidebar_button: Element | null = document.querySelector(".dd-sidebar-button");
 
 				if (sidebar_button === null) {
 					this.utility.alerter("Error: Sidebar button not found.");
@@ -57,7 +56,7 @@ class Planner {
 				this.utility.log("Creating announcements.");
 				// Check if our announcement button is there. It should be.
 				const announcement_container: Element | null = document.querySelector(
-					".announcement-button .announcement-container"
+					".announcement-button > .announcement-container"
 				);
 
 				if (announcement_container === null) {
@@ -69,6 +68,9 @@ class Planner {
 				this.createAnnouncements(announcement_container);
 
 				triggeredAnnouncements = true;
+
+				// Add unplanned/uncompleted count for the sidebar button.
+				this.addUnplannedCount();
 			}
 			if (this.conditions[1] && this.courses?.length !== 0 && !triggeredMain) {
 				this.utility.log("Creating planner.");
@@ -86,7 +88,7 @@ class Planner {
 	createSidebar(): void {
 		// Check if the sidebar is already open.
 		this.utility.log("Creating sidebar.");
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -98,7 +100,7 @@ class Planner {
 		}
 
 		const sidebarHTML: string = `
-			<span class="deadline-dynamo-sidebar">
+			<span class="dd-sidebar">
 				<div class="sidebar-header">
 					<div class="sidebar-close">
 						<svg viewBox="0 0 1920 1920" width="1em" height="1em" aria-hidden="true" role="presentation" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon" style="width: 1em; height: 1em;"><g role="presentation"><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
@@ -113,7 +115,7 @@ class Planner {
 			</span>
 		`;
 
-		const sidebar: HTMLElement = this.utility.createHtmlFromJson(sidebarHTML);
+		const sidebar: HTMLElement = this.utility.convertHtml(sidebarHTML);
 
 		// This is the element that the default pullout sidebars are placed by, so we will do the same.
 		const sidebarSibling: HTMLElement | null = document.getElementById("nav-tray-portal");
@@ -165,7 +167,7 @@ class Planner {
 	deleteSidebar(): void {
 		// Deletes the sidebar for when the X button is pressed.
 		this.utility.log("Deleting sidebar.");
-		const sidebar: HTMLElement | null = document.querySelector(".deadline-dynamo-sidebar");
+		const sidebar: HTMLElement | null = document.querySelector(".dd-sidebar");
 
 		if (sidebar === null) {
 			this.utility.alerter("Error: Sidebar not found.");
@@ -185,7 +187,7 @@ class Planner {
 		);
 
 		// Remove the "sidebar-open" class so stuff isn't draggable.
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -201,6 +203,7 @@ class Planner {
 			this.utility.alerter("Error: Courses not found.");
 			return;
 		}
+
 		for (const course of this.courses) {
 			const courseElement: string = `
 				<div class="sidebar-course cid-${course.id} collapsed">
@@ -210,7 +213,7 @@ class Planner {
 				</div>
 			`;
 
-			const courseDiv: HTMLElement = this.utility.createHtmlFromJson(courseElement);
+			const courseDiv: HTMLElement = this.utility.convertHtml(courseElement);
 
 			// Make the course name clickable to collapse the course.
 			const courseName: HTMLElement | null = courseDiv.querySelector(".course-name");
@@ -293,21 +296,36 @@ class Planner {
 	}
 
 	makeAssignmentElement(assignment: Assignment, course?: Course): HTMLElement {
-		const due_date: [string, string] = this.utility.formatDate(assignment.due_date);
+		const due_date: [string, string] = this.utility.formatDate(assignment.due_date, true);
 
 		let link_type: string;
+		let assignment_type: string;
 		switch (assignment.type) {
 			case "quiz":
 				link_type = "quizzes";
+				assignment_type = "type-quiz";
 				break;
 			case "discussion_topic":
 				link_type = "discussion_topics";
+				assignment_type = "type-discussion";
+				break;
+			case "calendar_event":
+				link_type = "assignments";
+				assignment_type = "type-event";
 				break;
 			default:
 				link_type = "assignments";
+				assignment_type = "type-assignment";
 		}
 
 		const link: string = `/courses/${assignment.course_id}/${link_type}/${assignment.id}`;
+
+		let title: string;
+		if (assignment.type !== "calendar_event") {
+			title = `<a target="_blank" href="${link}" class="name">${assignment.name}</a>`;
+		} else {
+			title = `<p class="name">${assignment.name}</p>`;
+		}
 
 		if (!course) {
 			course = this.courses!.find(
@@ -316,20 +334,24 @@ class Planner {
 
 			if (course === undefined) {
 				this.utility.alerter("Error: Course not found.");
-				return document.createElement("div");
+				return document.createElement("li");
 			}
 		}
 
-		const estimate: string = this.utility.getEstimate(
+		let estimate: string | typeof NaN = this.utility.getEstimate(
 			course,
 			assignment,
 			this.estimator,
 			this.settings
 		);
 
+		if (isNaN(Number(estimate))) {
+			estimate = "TBD";
+		}
+
 		const assignmentData: string = `
-			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} type-${assignment.type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
-				<a target="_blank" href="${link}">${assignment.name}</a>
+			<li class="assignment cid-${assignment.course_id} aid-${assignment.id} ${assignment_type} ${assignment.shown ? "shown" : "collapsed"} ${assignment.submitted ? "completed" : ""}">
+				${title}
 				<p class="estimate-edit">
 					<span class="estimate-label">Estimate: </span>
 					<input class="estimate-input assignment-${assignment.id}" type="number" value="${estimate}" min="0" max="1440">
@@ -346,7 +368,11 @@ class Planner {
 					<span class="date">${due_date[0]}</span>
 					<span class="time">${due_date[1]}</span>
 					<span class="times">
-						${assignment.start_date && assignment.end_date ? `${this.utility.formatDate(assignment.start_date)[1]} - ${this.utility.formatDate(assignment.end_date)[1]}` : ""}
+						${
+							assignment.start_date && assignment.end_date
+								? `${this.utility.formatDate(assignment.start_date, true)[1]} - ${this.utility.formatDate(assignment.end_date, true)[1]}`
+								: ""
+						}
 					</span>
 				</div>
 				<div class="visibility">
@@ -356,7 +382,7 @@ class Planner {
 			</li>
 		`;
 
-		const assignmentElement: HTMLElement = this.utility.createHtmlFromJson(assignmentData);
+		const assignmentElement: HTMLElement = this.utility.convertHtml(assignmentData);
 
 		// Add event listener for expanding/collapsing the assignment.
 		const visibility: HTMLElement = assignmentElement.querySelector(".visibility")!;
@@ -370,6 +396,56 @@ class Planner {
 		});
 
 		return assignmentElement;
+	}
+
+	addUnplannedCount(): void {
+		// Adds the count of unplanned/uncompleted assignments to the sidebar button.
+		this.utility.log("Adding unplanned count.");
+		const sidebarButton: HTMLElement | null = document.querySelector(".dd-sidebar-button");
+
+		if (sidebarButton === null) {
+			this.utility.alerter("Error: Sidebar button not found.");
+			return;
+		}
+
+		const unplannedCount: number = this.courses!.flatMap(
+			(course: Course): Assignment[] => course.assignments
+		).filter((assignment: Assignment): boolean => {
+			return (
+				!assignment.planned &&
+				!assignment.submitted &&
+				!assignment.lock &&
+				assignment.type !== "announcement"
+			);
+		}).length;
+
+		if (unplannedCount === 0) {
+			return;
+		}
+
+		let unplannedText: string = unplannedCount.toString();
+		if (unplannedCount > 9) {
+			// If it is greater than 9, just display 9+.
+			unplannedText = "9+";
+		}
+
+		const countElement: HTMLElement = this.utility.convertHtml(`
+			<p class="count">${unplannedText}</p>
+		`);
+
+		sidebarButton.appendChild(countElement);
+	}
+
+	updateUnplannedCount(): void {
+		const unplannedElement: HTMLElement | null = document.querySelector(
+			".dd-sidebar-button .count"
+		);
+
+		if (unplannedElement !== null) {
+			unplannedElement.remove();
+		}
+
+		this.addUnplannedCount();
 	}
 
 	saveValue(course: Course, assignment: Assignment, value: string, is_estimate: boolean): void {
@@ -408,8 +484,7 @@ class Planner {
 		const drake = dragula(containers, {
 			revertOnSpill: true,
 			invalid: (el: HTMLElement, _: never) => {
-				const planner: HTMLElement | null =
-					document.getElementById("deadline-dynamo-planner");
+				const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 				return (
 					// Don't drag the planning elements.
@@ -510,6 +585,8 @@ class Planner {
 				// Update the assignment info
 				assignment.planned = false;
 			}
+			// Update the unplanned/uncompleted count.
+			this.updateUnplannedCount();
 
 			this.utility.saveStorage("plan", JSON.stringify(this.plan));
 			course.saveCourse();
@@ -537,6 +614,9 @@ class Planner {
 			}
 		);
 
+		// To display the number of unread announcements.
+		let unread: number = 0;
+
 		// Add the announcements to the container
 		for (const announcement of sortedAnnouncements) {
 			// Get course name
@@ -549,7 +629,11 @@ class Planner {
 				return;
 			}
 
-			const announcementDate: string[] = this.utility.formatDate(announcement.due_date);
+			if (!announcement.read) {
+				unread++;
+			}
+
+			const announcementDate: string[] = this.utility.formatDate(announcement.due_date, true);
 
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
 
@@ -561,15 +645,46 @@ class Planner {
 				</div>
 			`;
 
-			const announcementDiv: HTMLElement = this.utility.createHtmlFromJson(announcementData);
+			const announcementDiv: HTMLElement = this.utility.convertHtml(announcementData);
 			announcement_container.appendChild(announcementDiv);
+		}
+
+		// Whenever the button is clicked mark all announcements as read.
+		if (unread !== 0) {
+			// If it is greater than 9, just display 9+.
+			let unreadText: string = unread.toString();
+			if (unread > 9) {
+				unreadText = "9+";
+			}
+
+			const button: HTMLElement = announcement_container.parentElement!;
+
+			button.addEventListener("click", () => {
+				for (const announcement of announcements) {
+					announcement.read = true;
+				}
+
+				button.querySelector(".count")?.remove();
+
+				// Save the courses now.
+				for (const course of this.courses!) {
+					course.saveCourse();
+				}
+			});
+
+			// Display unread count to the user.
+			const unreadElement: HTMLElement = this.utility.convertHtml(`
+				<p class="count">${unreadText}</p>
+			`);
+
+			button.firstChild!.before(unreadElement);
 		}
 	}
 
 	addWeekdaySlots(previous: boolean = false, offset: number = 0): void {
 		// Adds the empty weekday slots to the main UI of the planner.
 		this.utility.log("Adding weekday slots.");
-		const planner: HTMLElement | null = document.getElementById("deadline-dynamo-planner");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
 			this.utility.alerter("Error: Planner not found.");
@@ -586,14 +701,23 @@ class Planner {
 			const day: Date = new Date(monday);
 			day.setDate(day.getDate() + i);
 
+			let date: string = this.utility.formatDate(day, false)[0];
+			if (day.getDate() === new Date().getDate()) {
+				// If the day is today swap the ...day out for "Today".
+				const today: string[] = date.split(",");
+				today[0] = "Today";
+
+				date = today.join(",");
+			}
+
 			const dayElement: string = `
 				<div class="weekday">
-					<h3 class="weekday-name">${this.utility.formatDate(day)[0]}</h3>
+					<h3 class="weekday-name">${date}</h3>
 					<ul class="weekday-assignments ${day.toISOString().slice(0, 10)}"></ul>
 				</div>
 			`;
 
-			const dayDiv: HTMLElement = this.utility.createHtmlFromJson(dayElement);
+			const dayDiv: HTMLElement = this.utility.convertHtml(dayElement);
 
 			if (!previous) {
 				planner.appendChild(dayDiv);
@@ -633,7 +757,7 @@ class Planner {
 		}
 
 		// Hide the spinner now that the planner is done loading.
-		const spinner: HTMLElement | null = document.querySelector(".deadline-dynamo-spinner");
+		const spinner: HTMLElement | null = document.querySelector(".dd-spinner");
 		if (spinner === null) {
 			this.utility.alerter("Error: Spinner not found.");
 			return;
@@ -657,7 +781,8 @@ class Planner {
 				// It can't be an announcement.
 				assignment.type !== "announcement" &&
 				// It has to be due on the day we're looking at.
-				this.utility.formatDate(assignment.due_date)[0] === this.utility.formatDate(day)[0]
+				this.utility.formatDate(assignment.due_date, true)[0] ===
+					this.utility.formatDate(day, true)[0]
 			);
 		});
 

@@ -20,7 +20,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.createHtmlFromJson(containerData);
+		const container: HTMLElement = this.utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Use estimates
@@ -37,7 +37,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			</div>
 		`;
 
-		const useEstimates: HTMLElement = this.utility.createHtmlFromJson(useEstimatesData);
+		const useEstimates: HTMLElement = this.utility.convertHtml(useEstimatesData);
 
 		settings.appendChild(useEstimates);
 
@@ -55,7 +55,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			</div>
 		`;
 
-		const workHours: HTMLElement = this.utility.createHtmlFromJson(workHoursData);
+		const workHours: HTMLElement = this.utility.convertHtml(workHoursData);
 
 		for (const day in this.workHours) {
 			const workHoursDayData: string = `
@@ -65,7 +65,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 				</p>
 			`;
 
-			const workHoursDay: HTMLElement = this.utility.createHtmlFromJson(workHoursDayData);
+			const workHoursDay: HTMLElement = this.utility.convertHtml(workHoursDayData);
 			workHours.appendChild(workHoursDay);
 		}
 
@@ -78,8 +78,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			</div>
 		`;
 
-		const estimateMultiplier: HTMLElement =
-			this.utility.createHtmlFromJson(estimateMultiplierData);
+		const estimateMultiplier: HTMLElement = this.utility.convertHtml(estimateMultiplierData);
 
 		for (const courseId in this.estimateMultiplier) {
 			// Get course name
@@ -100,7 +99,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 				</p>
 			`;
 
-			const estimateMultiplierCourse: HTMLElement = this.utility.createHtmlFromJson(
+			const estimateMultiplierCourse: HTMLElement = this.utility.convertHtml(
 				estimateMultiplierCourseData
 			);
 			estimateMultiplier.appendChild(estimateMultiplierCourse);
