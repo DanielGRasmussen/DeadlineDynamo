@@ -408,7 +408,7 @@ class Planner {
 			return;
 		}
 
-		const unplanned: Assignment[] = this.courses!.flatMap(
+		const unplannedCount: number = this.courses!.flatMap(
 			(course: Course): Assignment[] => course.assignments
 		).filter((assignment: Assignment): boolean => {
 			return (
@@ -417,13 +417,7 @@ class Planner {
 				!assignment.lock &&
 				assignment.type !== "announcement"
 			);
-		});
-
-		console.log(unplanned);
-
-		console.log(this.courses!.flatMap((course: Course): Assignment[] => course.assignments));
-
-		const unplannedCount: number = unplanned.length;
+		}).length;
 
 		if (unplannedCount === 0) {
 			return;
