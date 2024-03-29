@@ -1,0 +1,39 @@
+// Show older assignments button
+.show-old-assignments {
+	display: block;
+	position: absolute;
+	bottom: -30px;
+	right: 0;
+	padding: 3px 10px;
+	cursor: pointer;
+	color: white;
+	background: rgb(0 118 182);
+	border-radius: 0 0 4px 4px;
+}
+
+// Add hover effect for our scroll button
+.dd-scroll-button {
+	background: 0;
+	padding: 0;
+	border: 0;
+	margin: 0 24px 0 0;
+	transition: background 0.2s ease 0s;
+
+	&:hover > span {
+		background: rgb(242 242 242);
+	}
+}
+
+// Change margins on the buttons
+.dd-sidebar-button,
+span.announcement-button {
+	@media (width <= 896px) {
+		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
+		margin-right: 12px !important;
+	}
+
+	@media (width <= 592px) {
+		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
+		margin-right: 8px !important;
+	}
+}

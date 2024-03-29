@@ -670,7 +670,7 @@ class Planner {
 					announcement.read = true;
 				}
 
-				button.querySelector(".unread-count")?.remove();
+				button.querySelector(".count")?.remove();
 
 				// Save the courses now.
 				for (const course of this.courses!) {

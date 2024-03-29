@@ -25,8 +25,8 @@ class PlannerPreparer {
 		const view: string | undefined = await this.utility.loadStorage("view");
 
 		if (view === undefined) {
-			this.utility.saveStorage("view", "3");
-			this.view = 3;
+			this.utility.saveStorage("view", "1");
+			this.view = 1;
 		} else {
 			this.view = parseInt(view);
 		}
@@ -77,7 +77,12 @@ class PlannerPreparer {
 						this.utility.log("View not set.");
 					}
 				} else if (
-					node.querySelector("ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items") &&
+					(node.querySelector(
+						"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
+					) ||
+						node.querySelector(
+							"ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items"
+						)) &&
 					node.parentElement?.tagName === "BODY"
 				) {
 					// This is the view list.
@@ -269,7 +274,7 @@ class PlannerPreparer {
 		// Add the scroll to today button.
 		const scrollButtonData: string = `
 			<button type="button" class="css-1mcl61n-view--inlineBlock-baseButton dd-scroll-button">
-				<span class="css-p3olqp-baseButton__content css-11xkk0o-baseButton__children">
+				<span class="css-p3olqp-baseButton__content css-1f6zcte-baseButton__content css-11xkk0o-baseButton__children">
 					Today
 				</span>
 			</button>
@@ -285,9 +290,15 @@ class PlannerPreparer {
 	}
 
 	createViewButton(node: HTMLElement): void {
-		const list: HTMLElement | null = node.querySelector(
+		let list: HTMLElement | null = node.querySelector(
 			"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
 		);
+
+		let iconClass: string = "css-1nl5gro-menuItem__icon";
+		if (list === null) {
+			list = node.querySelector("ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items");
+			iconClass = "css-1d91lml-menuItem__icon";
+		}
 
 		if (list === null) {
 			this.utility.alerter("Error: List not found.");
@@ -303,7 +314,7 @@ class PlannerPreparer {
 			<li role="none" class="dd-view">
 				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="${viewButtonClass}">
 					<span>
-						<span class="css-1nl5gro-menuItem__icon"></span>
+						<span class="${iconClass}"></span>
 						<span id="MenuItem__label_3" class="css-1u4c65l-menuItem__label">Deadline Dynamo</span>
 					</span>
 				</span>
@@ -317,7 +328,7 @@ class PlannerPreparer {
 		for (let i = 0; i < list.children.length; i++) {
 			const child: HTMLElement = list.children[i] as HTMLElement;
 			child.addEventListener("click", () => {
-				this.changeView(list, i);
+				this.changeView(list!, i);
 			});
 		}
 	}

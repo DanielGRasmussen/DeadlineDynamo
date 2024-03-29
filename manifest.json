@@ -10,6 +10,9 @@
 		"128": "src/images/icon - 128px.png"
 	},
 	"permissions": [ "storage" ],
+	"background": {
+		"service_worker": "dist/out-tsc/welcome.js"
+	},
 	"content_scripts": [
 		{
 			"matches": ["https://*.instructure.com/*"],
