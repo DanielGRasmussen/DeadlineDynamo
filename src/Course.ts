@@ -42,33 +42,7 @@ class Course {
 				return 0;
 			});
 
-			this.assignments = assignments.map(assignment => {
-				return new Assignment(
-					assignment.plannable.id,
-					assignment.course_id,
-					assignment.plannable.title,
-					assignment.plannable_type,
-					assignment.submissions.submitted,
-					new Date(assignment.plannable_date),
-					assignment.plannable.start_at ? new Date(assignment.plannable.start_at) : null,
-					assignment.plannable.end_at ? new Date(assignment.plannable.end_at) : null,
-					assignment.plannable.points_possible,
-					// If it's not an event it will be undefined.
-					assignment.plannable.location_name || "",
-					assignment.plannable_type === "calendar_event",
-					false,
-					// If it is an event, it will default to shown, otherwise it's the opposite of if it's been
-					// submitted.
-					assignment.plannable_type !== "calendar_event"
-						? !assignment.submissions.submitted
-						: true,
-					false,
-					null,
-					null,
-					null,
-					null
-				);
-			});
+			this.assignments = assignments.map(this.storageAssignment);
 		} else {
 			// This is storage data.
 			this.assignments = localAssignments.map(assignment => {
@@ -110,7 +84,7 @@ class Course {
 			);
 			if (oldAssignment !== undefined) {
 				if (
-					// If the due date has changed and it's a planned or locked assignment let the user know.
+					// If the due date has changed, and it's a planned or locked assignment let the user know.
 					oldAssignment.due_date.getTime() !==
 						new Date(assignment.plannable_date).getTime() &&
 					(oldAssignment.planned || oldAssignment.lock)
@@ -148,36 +122,37 @@ class Course {
 					oldAssignment.lock || assignment.plannable_type === "calendar_event";
 			} else {
 				// Adds a new assignment
-				this.assignments.push(
-					new Assignment(
-						assignment.plannable.id,
-						assignment.course_id,
-						assignment.plannable.title,
-						assignment.plannable_type,
-						assignment.submissions.submitted,
-						new Date(assignment.plannable_date),
-						assignment.plannable.start_at
-							? new Date(assignment.plannable.start_at)
-							: null,
-						assignment.plannable.end_at ? new Date(assignment.plannable.end_at) : null,
-						assignment.plannable.points_possible,
-						assignment.plannable.location_name || "",
-						assignment.plannable_type === "calendar_event",
-						false,
-						// If it is an event, it will default to shown, otherwise it's the opposite of if it's been
-						// submitted.
-						assignment.plannable_type !== "calendar_event"
-							? !assignment.submissions.submitted
-							: true,
-						false,
-						null,
-						null,
-						null,
-						null
-					)
-				);
+				this.assignments.push(this.storageAssignment(assignment));
 			}
 		}
+	}
+
+	storageAssignment(assignment: AssignmentJson): Assignment {
+		return new Assignment(
+			assignment.plannable.id,
+			assignment.course_id,
+			assignment.plannable.title,
+			assignment.plannable_type,
+			assignment.submissions.submitted,
+			new Date(assignment.plannable_date),
+			assignment.plannable.start_at ? new Date(assignment.plannable.start_at) : null,
+			assignment.plannable.end_at ? new Date(assignment.plannable.end_at) : null,
+			assignment.plannable.points_possible,
+			// If it's not an event it will be undefined.
+			assignment.plannable.location_name || "",
+			assignment.plannable_type === "calendar_event",
+			false,
+			// If it is an event, it will default to shown, otherwise it's the opposite of if it's been
+			// submitted.
+			assignment.plannable_type !== "calendar_event"
+				? !assignment.submissions.submitted
+				: true,
+			false,
+			null,
+			null,
+			null,
+			null
+		);
 	}
 
 	addExtraData(extraData: AssignmentExtraJson[]): void {
@@ -214,15 +189,15 @@ class Course {
 		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
 		// Ensure we can access this course id again.
 		if (courseIds === undefined) {
-			await this.utility.saveStorage("courseIds", JSON.stringify([key]));
+			this.utility.saveStorage("courseIds", JSON.stringify([key]));
 		} else {
 			const courses: string[] = JSON.parse(courseIds);
 			if (!courses.includes(key)) {
 				courses.push(key);
-				await this.utility.saveStorage("courseIds", JSON.stringify(courses));
+				this.utility.saveStorage("courseIds", JSON.stringify(courses));
 			}
 		}
 
-		await this.utility.saveStorage(key, dataString);
+		this.utility.saveStorage(key, dataString);
 	}
 }

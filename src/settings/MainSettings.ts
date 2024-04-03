@@ -1,4 +1,4 @@
-class SettingsMain extends SettingsPage {
+class MainSettings extends BaseSettings {
 	getName(): string {
 		return "Main";
 	}

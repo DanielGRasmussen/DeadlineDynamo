@@ -25,10 +25,10 @@ class Settings {
 		const location: string = window.location.href.replace(/\/$/, "");
 		if (location.endsWith("/deadline-dynamo")) {
 			this.utility.log("Creating the main settings.");
-			new SettingsMain(this);
+			new MainSettings(this);
 		} else if (location.endsWith("/deadline-dynamo/estimates-planning")) {
 			this.utility.log("Creating the estimates & planning settings.");
-			new SettingsEstimatesPlanning(this);
+			new EstimatesPlanningSettings(this);
 		}
 	}
 }

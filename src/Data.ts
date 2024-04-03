@@ -1,4 +1,4 @@
-class Main {
+class Data {
 	courses: Course[] = [];
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
@@ -9,24 +9,24 @@ class Main {
 	constructor(loadConditions: boolean[]) {
 		this.loadConditions = loadConditions;
 
-		this.main();
+		this.main().then(_ => {});
 	}
 
 	async main(): Promise<void> {
-		const firstLoadup: boolean = await this.getCourses();
+		const isFirstLoadUp: boolean = await this.getCourses();
 
-		if (!firstLoadup) {
+		if (!isFirstLoadUp) {
 			// This just sends 1 request for all courses.
 			await this.updateCourses();
 			// This just sends 1 request for all assignments.
 			await this.updateAssignments();
 		}
 
-		// This sends a request per course causing it to take too long for everything else.
-		this.addExtraData();
-
 		this.utility.log("Done loading.");
 		this.loadConditions[1] = true;
+
+		// This sends a request per course causing it to take too long for everything else.
+		await this.addExtraData();
 	}
 
 	async getCourses(): Promise<boolean> {
@@ -38,7 +38,7 @@ class Main {
 
 		if (courseIds === undefined) {
 			// First time loading up so it'll return true.
-			await this.firstLoadup();
+			await this.firstLoadUp();
 			return true;
 		}
 		// Load stuff from local storage.
@@ -55,7 +55,7 @@ class Main {
 			if (courseData === undefined) {
 				// Get all data from scratch if any course localstorage data is missing.
 				// This would happen either when a course is added/removed or when the user tampered with local storage.
-				await this.firstLoadup();
+				await this.firstLoadUp();
 				return true;
 			}
 			courseJson = JSON.parse(courseData);
@@ -72,7 +72,7 @@ class Main {
 		return false;
 	}
 
-	async firstLoadup() {
+	async firstLoadUp() {
 		// First time loading up, therefore we need to get everything from scratch.
 		this.utility.log("First time loading up.");
 		await this.apiFetcher.makeCourses();
@@ -101,7 +101,7 @@ class Main {
 			!courseIds.every((id: number) => newCourseIds.includes(id)) ||
 			!newCourseIds.every((id: number) => courseIds.includes(id))
 		) {
-			await this.firstLoadup();
+			await this.firstLoadUp();
 			return;
 		}
 	}

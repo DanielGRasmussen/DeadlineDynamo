@@ -18,7 +18,8 @@
 			"matches": ["https://*.instructure.com/*"],
 			"js": [
 				"dist/out-tsc/Utility.js",
-				"dist/out-tsc/SettingsPreparer.js"
+				"dist/out-tsc/preparers/BasePreparer.js",
+				"dist/out-tsc/preparers/SettingsPreparer.js"
 			],
 			"css": [
 				"dist/styles/settings/links.css",
@@ -31,7 +32,7 @@
 			"matches": ["https://*.instructure.com/deadline-dynamo/*"],
 			"js": [
 				"dist/out-tsc/Settings.js",
-				"dist/out-tsc/settings/SettingsPage.js"
+				"dist/out-tsc/settings/BaseSettings.js"
 			],
 			"css": [
 				"dist/styles/settings/settings.css"
@@ -41,7 +42,7 @@
 		{
 			"matches": ["https://*.instructure.com/deadline-dynamo", "https://*.instructure.com/deadline-dynamo/"],
 			"js": [
-				"dist/out-tsc/settings/SettingsMain.js"
+				"dist/out-tsc/settings/MainSettings.js"
 			],
 			"css": [
 				"dist/styles/settings/settings-main.css"
@@ -51,7 +52,7 @@
 		{
 			"matches": ["https://*.instructure.com/deadline-dynamo/estimates-planning"],
 			"js": [
-				"dist/out-tsc/settings/SettingsEstimatesPlanning.js"
+				"dist/out-tsc/settings/EstimatesPlanningSettings.js"
 			],
 			"css": [
 				"dist/styles/settings/settings-estimates-planning.css"
@@ -68,8 +69,8 @@
 				"dist/out-tsc/Course.js",
 				"third_party/dragula.min.js",
 				"dist/out-tsc/Planner.js",
-				"dist/out-tsc/Main.js",
-				"dist/out-tsc/PlannerPreparer.js"
+				"dist/out-tsc/Data.js",
+				"dist/out-tsc/preparers/PlannerPreparer.js"
 			],
 			"css": [
 				"dist/styles/main.css",

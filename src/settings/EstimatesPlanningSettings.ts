@@ -1,4 +1,4 @@
-class SettingsEstimatesPlanning extends SettingsPage {
+class EstimatesPlanningSettings extends BaseSettings {
 	getName(): string {
 		return "Estimates & Planning";
 	}

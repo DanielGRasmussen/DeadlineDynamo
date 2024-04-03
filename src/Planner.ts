@@ -1,21 +1,21 @@
 class Planner {
-	main!: Main;
+	data!: Data;
 	courses: Course[] | undefined;
 	utility!: Utility;
 	estimator!: Estimator;
 	settings!: SettingsJson;
 	plan!: Plan;
-	// [0] Header buttons are added. [1] Main is done loading.
+	// [0] Header buttons are added. [1] Data is done loading.
 	conditions!: boolean[];
 
-	constructor(main: Main, conditions: boolean[]) {
-		this.start(main, conditions);
+	constructor(data: Data, conditions: boolean[]) {
+		this.start(data, conditions).then(_ => {});
 	}
 
-	async start(main: Main, conditions: boolean[]): Promise<void> {
-		this.main = main;
-		this.utility = main.utility;
-		this.estimator = main.estimator;
+	async start(data: Data, conditions: boolean[]): Promise<void> {
+		this.data = data;
+		this.utility = data.utility;
+		this.estimator = data.estimator;
 		this.conditions = conditions;
 		// Settings are used for various things, so we have to get them in ASAP.
 		this.settings = await this.utility.loadSettings();
@@ -28,8 +28,8 @@ class Planner {
 		for (let i: number = 0; i < 20; i++) {
 			await this.utility.wait(500);
 
-			if (this.main.courses.length !== 0) {
-				this.courses = this.main.courses;
+			if (this.data.courses.length !== 0) {
+				this.courses = this.data.courses;
 			}
 
 			if (!triggeredHeader && this.conditions[0]) {
@@ -488,7 +488,7 @@ class Planner {
 			}
 		});
 
-		drake.on("drop", (el: HTMLElement, target: HTMLElement, source: never, _: never): void => {
+		drake.on("drop", (el: HTMLElement, target: HTMLElement, _: never, __: never): void => {
 			// Gets course and assignment id to allow us to find the assignment.
 			// They have identifiers of "cid-#" and "aid-#" respectively.
 			const course_id: number = parseInt(el.classList[1].substring(4));

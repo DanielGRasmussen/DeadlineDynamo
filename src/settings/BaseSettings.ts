@@ -1,4 +1,4 @@
-abstract class SettingsPage {
+abstract class BaseSettings {
 	utility: Utility = new Utility();
 	useBasicEstimate: boolean;
 	useHistoryEstimate: boolean;
@@ -80,7 +80,7 @@ abstract class SettingsPage {
 
 	abstract restoreSettings(): void;
 
-	async saveSettings(): Promise<void> {
+	saveSettings(): void {
 		// Stringifies and saves the settings to local storage.
 		const settings: string = JSON.stringify({
 			useBasicEstimate: this.useBasicEstimate,
@@ -90,7 +90,7 @@ abstract class SettingsPage {
 			planDistance: this.planDistance,
 			showEvents: this.showEvents
 		});
-		await this.utility.saveStorage("settings", settings);
+		this.utility.saveStorage("settings", settings);
 
 		this.utility.notify("success", "Settings saved!");
 	}

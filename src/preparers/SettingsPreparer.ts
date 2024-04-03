@@ -1,79 +1,69 @@
-class SettingsPreparer {
-	utility: Utility = new Utility();
-	link: string = "/deadline-dynamo";
-	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	insertedSidebarLink: boolean = false;
-	titleHeaderChanged: boolean = false;
-	removedNotFound: boolean = false;
-	addedHeader: boolean = false;
+class SettingsPreparer extends BasePreparer {
+	link!: string;
 
-	constructor() {
-		this.observer.observe(document, { childList: true, subtree: true });
-	}
+	getConditions(): Condition[] {
+		this.link = "/deadline-dynamo";
+		const isSettingsPage: boolean = window.location.pathname.startsWith("/deadline-dynamo");
 
-	// Prepare the settings page.
-	listener(mutationsList: MutationRecord[]): void {
-		// The goal of this is to catch any changes that we don't like and remove them or use them as a reference to
-		// make our own changes.
-		// This is to make sure that the changes don't appear for a split second before we remove them.
-		for (const mutation of mutationsList) {
-			// We only need to check for added nodes.
-			if (mutation.type !== "childList") {
-				continue;
+		return [
+			// Add the sidebar link after the courses link has been added.
+			{
+				checks: [["id", "global_nav_courses_link"]],
+				all: true,
+				callback: this.insertSidebarLink.bind(this),
+				triggerOnce: true,
+				triggered: false
+			},
+			// This is the mobile nav button that appears whenever the user opens the nav.
+			{
+				checks: [
+					["tag", "span"],
+					["class", "css-rstbmp-view--block"],
+					["querySelector", "ul.css-vftc6n-view--block-list"]
+				],
+				all: true,
+				callback: this.addMiniNavButton.bind(this),
+				triggerOnce: false,
+				triggered: false
+			},
+			// Set the title and fix the mobile header.
+			{
+				checks: [
+					["class", "mobile-header-title"],
+					["boolCheck", isSettingsPage]
+				],
+				all: true,
+				callback: (node: HTMLElement) => {
+					node.innerHTML = "Deadline Dynamo Settings";
+					document.title = "Deadline Dynamo Settings";
+				},
+				triggerOnce: true,
+				triggered: false
+			},
+			// Remove the "Page not found" message & svg.
+			{
+				checks: [
+					["parentId", "content"],
+					["notClass", "settings-wrapper"],
+					["boolCheck", isSettingsPage]
+				],
+				all: true,
+				callback: this.addContainer.bind(this),
+				triggerOnce: true,
+				triggered: false
+			},
+			// Add our header to the settings page.
+			{
+				checks: [
+					["id", "main"],
+					["boolCheck", isSettingsPage]
+				],
+				all: true,
+				callback: this.addHeader.bind(this),
+				triggerOnce: true,
+				triggered: false
 			}
-
-			mutation.addedNodes.forEach(node => {
-				if (!(node instanceof HTMLElement)) {
-					return;
-				}
-				const parent: HTMLElement | null = node.parentElement;
-
-				// Add the sidebar link after the courses link has been added.
-				if (node.id === "global_nav_courses_link") {
-					this.insertSidebarLink();
-					this.insertedSidebarLink = true;
-				} else if (
-					node.classList.contains("css-rstbmp-view--block") &&
-					node.tagName === "SPAN" &&
-					node.querySelector("ul.css-vftc6n-view--block-list")
-				) {
-					// This is added and removed repeatedly, so it has to be checked for every time it is added.
-					this.utility.log("Adding mini nav button.");
-					this.addMiniNavButton(node);
-				}
-				if (window.location.pathname.startsWith(this.link)) {
-					// The rest of the changes should only occur on the settings page.
-					// Set the title and fix the mobile header.
-					if (node.classList && node.classList.contains("mobile-header-title")) {
-						node.innerHTML = "Deadline Dynamo Settings";
-						document.title = "Deadline Dynamo Settings";
-						this.titleHeaderChanged = true;
-					}
-
-					// Remove the "Page not found" message & svg.
-					else if (
-						parent &&
-						parent.id === "content" &&
-						!node.id.endsWith("copyright") &&
-						// Either no classes or not the settings wrapper.
-						(!node.classList || !node.classList.contains("settings-wrapper"))
-					) {
-						node.remove();
-
-						// Removed the div and all its content, but we need the div.
-						this.addContainer();
-
-						this.removedNotFound = true;
-					}
-
-					// Add our header to the settings page.
-					else if (node.id === "main") {
-						this.addHeader();
-						this.addedHeader = true;
-					}
-				}
-			});
-		}
+		];
 	}
 
 	insertSidebarLink(): void {
@@ -178,6 +168,24 @@ class SettingsPreparer {
 		navList.children[2].after(navButton);
 	}
 
+	addContainer(node: HTMLElement): void {
+		// Removes the original element and our container.
+		node.remove();
+
+		// Container for the list of items
+		const containerData: string = `
+			<div class="settings-wrapper"></div>
+		`;
+		const container: HTMLElement = this.utility.convertHtml(containerData);
+
+		const target: Element | null = document.querySelector("#content");
+		if (target === null) {
+			this.utility.notify("error", "Couldn't find the target.");
+			return;
+		}
+		target.insertBefore(container, target.firstChild);
+	}
+
 	addHeader(): void {
 		// Adds our header to the settings page.
 		const headerData: string = `
@@ -258,21 +266,6 @@ class SettingsPreparer {
 		}
 
 		return nav;
-	}
-
-	addContainer(): void {
-		// Container for the list of items
-		const containerData: string = `
-			<div class="settings-wrapper"></div>
-		`;
-		const container: HTMLElement = this.utility.convertHtml(containerData);
-
-		const target: Element | null = document.querySelector("#content");
-		if (target === null) {
-			this.utility.notify("error", "Couldn't find the target.");
-			return;
-		}
-		target.insertBefore(container, target.firstChild);
 	}
 }
 

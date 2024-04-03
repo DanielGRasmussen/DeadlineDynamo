@@ -3,13 +3,13 @@ class Utility {
 	location: string = window.location.host.split(".")[0];
 
 	log(message: string): void {
-		const logging: boolean = false;
+		const logging: boolean = true;
 		if (logging) {
 			console.log(message);
 		}
 	}
 
-	async notify(type: "error" | "warning" | "info" | "success", message: string): Promise<void> {
+	notify(type: "error" | "warning" | "info" | "success", message: string): void {
 		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
 		if (!alertContainer) {
 			alertContainer = this.convertHtml(`<div class="alert-container"></div>`);
@@ -32,8 +32,8 @@ class Utility {
 
 		alertContainer.appendChild(alert);
 
-		await this.wait(10000);
-		await this.removeAlert(alert);
+		// Using .then instead of await so that way we don't ignore promises.
+		this.wait(10000).then(this.removeAlert.bind(this, alert));
 	}
 
 	async removeAlert(alert: HTMLElement): Promise<void> {
@@ -96,13 +96,13 @@ class Utility {
 		return settings;
 	}
 
-	async saveStorage(key: string, data: string): Promise<void> {
+	saveStorage(key: string, data: string): void {
 		const name: string = `${this.location}-${key}`;
 		this.log(`Saving ${name} to storage.`);
 		try {
 			const info: { [p: string]: string } = {};
 			info[name] = data;
-			await chrome.storage.sync.set(info);
+			chrome.storage.sync.set(info).then(_ => {});
 		} catch (error) {
 			// This likely happened because of too much data trying to be saved.
 			console.log(key);

@@ -226,3 +226,26 @@ interface PlanItem {
 	id: number;
 	due_date: Date;
 }
+
+interface Condition {
+	checks: Check[];
+	all: boolean; // If all checks need to be true or just one.
+	callback: (node: HTMLElement) => void;
+	triggerOnce: boolean;
+	triggered: boolean;
+}
+
+type Check = [CheckTypes, CheckValue];
+
+type CheckTypes =
+	| "tag"
+	| "id"
+	| "class"
+	| "notClass"
+	| "querySelector"
+	| "parentTag"
+	| "parentId"
+	| "boolCheck"
+	| "funcCheck";
+
+type CheckValue = string | boolean | ((node: HTMLElement) => boolean);
