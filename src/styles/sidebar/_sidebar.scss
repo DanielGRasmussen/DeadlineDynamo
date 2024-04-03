@@ -1,4 +1,5 @@
 @import "../colors";
+@import "../mixins";
 $sidebar-animation: 0.45s ease-in-out;
 
 .dd-sidebar {
@@ -118,12 +119,12 @@ $sidebar-animation: 0.45s ease-in-out;
 	&.slide-out {
 		animation: slide-out $sidebar-animation;
 
-		@media (width <= 1000px) {
+		@include less-desktop {
 			animation: slide-down $sidebar-animation;
 		}
 	}
 
-	@media (width <= 1000px) {
+	@include less-desktop {
 		top: 50%;
 		width: 100%;
 		animation: slide-up $sidebar-animation;
@@ -131,7 +132,7 @@ $sidebar-animation: 0.45s ease-in-out;
 }
 
 // Make room for the user to scroll all the way down when the sidebar is open.
-@media (width <= 1000px) {
+@include less-desktop {
 	#content {
 		transition: padding-bottom $sidebar-animation;
 

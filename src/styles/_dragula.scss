@@ -1,4 +1,5 @@
 @import "colors";
+@import "mixins";
 
 // Styling for when the item is being dragged.
 .assignment.gu-mirror {
@@ -25,7 +26,7 @@
 		border-radius: 8px;
 
 		// So it is centered ignoring the sidebar.
-		@media (width > 1000px) {
+		@include desktop {
 			padding-right: 434px;
 		}
 	}
