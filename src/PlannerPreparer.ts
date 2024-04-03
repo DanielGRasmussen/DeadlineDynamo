@@ -64,7 +64,7 @@ class PlannerPreparer {
 					if (this.view !== undefined) {
 						this.utility.log(`Setting view to ${this.view}.`);
 
-						const body = document.getElementsByTagName("body")[0];
+						const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 
 						if (this.view === 3) {
 							body.classList.add("dd-view");
@@ -325,7 +325,7 @@ class PlannerPreparer {
 
 		list.append(viewButton);
 
-		for (let i = 0; i < list.children.length; i++) {
+		for (let i: number = 0; i < list.children.length; i++) {
 			const child: HTMLElement = list.children[i] as HTMLElement;
 			child.addEventListener("click", () => {
 				this.changeView(list!, i);

@@ -25,7 +25,7 @@ class Planner {
 		let triggeredAnnouncements: boolean = false;
 		let triggeredMain: boolean = false;
 
-		for (let i = 0; i < 20; i++) {
+		for (let i: number = 0; i < 20; i++) {
 			await this.utility.wait(500);
 
 			if (this.main.courses.length !== 0) {
@@ -697,7 +697,7 @@ class Planner {
 		const monday: Date = this.utility.getMonday(new Date(), offset);
 
 		// Add the slots for each day of the week.
-		for (let i = 0; i < 7 * this.settings.planDistance; i++) {
+		for (let i: number = 0; i < 7 * this.settings.planDistance; i++) {
 			const day: Date = new Date(monday);
 			day.setDate(day.getDate() + i);
 

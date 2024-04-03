@@ -52,16 +52,16 @@ class ApiFetcher {
 
 	async fetchExtraAssignmentData(courseId: number): Promise<AssignmentExtraJson[]> {
 		this.utility.log("Fetching extra assignment data from API.");
-		const assignmentUrl =
+		const assignmentUrl: string =
 			window.location.origin + `/api/v1/courses/${courseId}/assignments?per_page=50`;
 
 		let length: number = 50;
 		let allData: AssignmentExtraJson[] = [];
 
 		// Get all assignments but stop if there are less than 50.
-		for (let page = 1; length === 50; page++) {
-			const url = `${assignmentUrl}&page=${page}`;
-			const response = await fetch(url);
+		for (let page: number = 1; length === 50; page++) {
+			const url: string = `${assignmentUrl}&page=${page}`;
+			const response: Response = await fetch(url);
 			const data: AssignmentExtraJson[] = await response.json();
 
 			length = data.length;

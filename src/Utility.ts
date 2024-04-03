@@ -43,7 +43,7 @@ class Utility {
 	}
 
 	convertHtml(data: string): HTMLElement {
-		const element = this.domParser.parseFromString(data, "text/html");
+		const element: Document = this.domParser.parseFromString(data, "text/html");
 		return element.body.firstChild as HTMLElement;
 	}
 
@@ -122,7 +122,7 @@ class Utility {
 			// Create an empty plan for this week.
 			const monday: Date = this.getMonday(new Date());
 			const plan: Plan = {};
-			for (let i = 0; i < 5; i++) {
+			for (let i: number = 0; i < 5; i++) {
 				const day: Date = new Date(monday);
 				day.setDate(day.getDate() + i);
 				plan[day.toISOString().slice(0, 10)] = [];
