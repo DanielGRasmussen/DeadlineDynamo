@@ -264,7 +264,8 @@ class Utility {
 
 		if (leftoverAssignments.length > 0) {
 			this.notify(
-				"info", `There are ${leftoverAssignments.length} assignments that could not be planned.`
+				"info",
+				`There are ${leftoverAssignments.length} assignments that could not be planned.`
 			);
 		}
 

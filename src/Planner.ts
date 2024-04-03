@@ -545,7 +545,8 @@ class Planner {
 				// If the is being planned for after it's due date send an alert.
 				if (new Date(target_day) > new Date(assignment.due_date)) {
 					this.utility.notify(
-						"warning", `${assignment.name} is being planned for after it's due date.`
+						"warning",
+						`${assignment.name} is being planned for after it's due date.`
 					);
 				}
 
