@@ -274,6 +274,7 @@ class Utility {
 	getMonday(date: Date, offset: number = 0): Date {
 		const monday: Date = new Date(date);
 		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
+		monday.setHours(0, 0, 0, 0);
 		return monday;
 	}
 

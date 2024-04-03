@@ -54,18 +54,9 @@ class Planner {
 				this.courses?.length !== 0
 			) {
 				this.utility.log("Creating announcements.");
-				// Check if our announcement button is there. It should be.
-				const announcement_container: Element | null = document.querySelector(
-					".announcement-button > .announcement-container"
-				);
-
-				if (announcement_container === null) {
-					this.utility.alerter("Error: Announcement button not found.");
-					return;
-				}
 
 				// Populate the list of announcements.
-				this.createAnnouncements(announcement_container);
+				this.createAnnouncements();
 
 				triggeredAnnouncements = true;
 
@@ -593,13 +584,31 @@ class Planner {
 		});
 	}
 
-	createAnnouncements(announcement_container: Element): void {
+	createAnnouncements(): void {
 		// Adds the announcements to the container
-		this.utility.log("Creating announcements.");
+
+		// Check if our announcement button is there. It should be.
+		const announcement_container: Element | null = document.querySelector(
+			".announcement-button > .announcement-container"
+		);
+
+		if (announcement_container === null) {
+			this.utility.alerter("Error: Announcement button not found.");
+			return;
+		}
+
 		// Get list of announcements
 		const announcements: Assignment[] = this.courses!.flatMap(
 			(course: Course): Assignment[] => course.assignments
-		).filter((assignment: Assignment): boolean => assignment.type === "announcement");
+		).filter((assignment: Assignment): boolean => {
+			if (assignment.type !== "announcement") {
+				return false;
+			} else if (assignment.due_date < this.utility.getMonday(new Date())) {
+				return false;
+			}
+
+			return true;
+		});
 
 		// Sort the announcements by date.
 		const sortedAnnouncements: Assignment[] = announcements.sort(
