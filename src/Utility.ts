@@ -9,7 +9,7 @@ class Utility {
 		}
 	}
 
-	async alerter(message: string): Promise<void> {
+	async notify(type: "error" | "warning" | "info" | "success", message: string): Promise<void> {
 		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
 		if (!alertContainer) {
 			alertContainer = this.convertHtml(`<div class="alert-container"></div>`);
@@ -18,7 +18,7 @@ class Utility {
 		}
 
 		const alert: HTMLElement = this.convertHtml(`
-			<div class="message-alert">
+			<div class="message-alert ${type}">
 				<p>${message}</p>
 				<span class="close-alert">
 					<svg viewBox="0 0 1920 1920" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon"><g><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
@@ -148,7 +148,7 @@ class Utility {
 		const today: Element | null = document.getElementsByClassName(date)[0];
 
 		if (today === null) {
-			this.alerter("Error: Today not found.");
+			this.notify("error", "Today not found.");
 			return;
 		}
 
@@ -188,7 +188,7 @@ class Utility {
 		estimator.estimateTime(assignment);
 
 		if (assignment.basic_estimate === null) {
-			this.alerter("Error: No estimator failed to estimate.");
+			this.notify("error", "No estimator failed to estimate.");
 			return "";
 		} else if (!settings.useBasicEstimate) {
 			this.log("Basic estimate not used.");
@@ -263,8 +263,8 @@ class Utility {
 		);
 
 		if (leftoverAssignments.length > 0) {
-			this.alerter(
-				`There are ${leftoverAssignments.length} assignments that could not be planned.`
+			this.notify(
+				"info", `There are ${leftoverAssignments.length} assignments that could not be planned.`
 			);
 		}
 

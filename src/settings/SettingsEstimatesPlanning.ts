@@ -8,7 +8,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 		this.utility.log("Creating the estimates & planning settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.alerter("Error: Couldn't find the content wrapper.");
+			this.utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -84,7 +84,7 @@ class SettingsEstimatesPlanning extends SettingsPage {
 			// Get course name
 			const courseInfo: string | undefined = await this.utility.loadStorage(courseId);
 			if (courseInfo === undefined) {
-				this.utility.alerter("Error: Couldn't find course info.");
+				this.utility.notify("error", "Couldn't find course info.");
 				return;
 			}
 

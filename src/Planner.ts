@@ -38,7 +38,7 @@ class Planner {
 				const sidebar_button: Element | null = document.querySelector(".dd-sidebar-button");
 
 				if (sidebar_button === null) {
-					this.utility.alerter("Error: Sidebar button not found.");
+					this.utility.notify("error", "Sidebar button not found.");
 					return;
 				}
 
@@ -82,7 +82,7 @@ class Planner {
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
+			this.utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -112,7 +112,7 @@ class Planner {
 		const sidebarSibling: HTMLElement | null = document.getElementById("nav-tray-portal");
 
 		if (sidebarSibling === null) {
-			this.utility.alerter("Error: Sidebar sibling not found.");
+			this.utility.notify("error", "Sidebar sibling not found.");
 			return;
 		}
 
@@ -122,7 +122,7 @@ class Planner {
 		const closeButton: HTMLElement | null = document.querySelector(".sidebar-close");
 
 		if (closeButton === null) {
-			this.utility.alerter("Error: Sidebar close button not found.");
+			this.utility.notify("error", "Sidebar close button not found.");
 			return;
 		}
 
@@ -132,7 +132,7 @@ class Planner {
 		const planButton: HTMLElement | null = document.querySelector(".plan");
 
 		if (planButton === null) {
-			this.utility.alerter("Error: Plan button not found.");
+			this.utility.notify("error", "Plan button not found.");
 			return;
 		}
 
@@ -161,7 +161,7 @@ class Planner {
 		const sidebar: HTMLElement | null = document.querySelector(".dd-sidebar");
 
 		if (sidebar === null) {
-			this.utility.alerter("Error: Sidebar not found.");
+			this.utility.notify("error", "Sidebar not found.");
 			return;
 		}
 
@@ -181,7 +181,7 @@ class Planner {
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
+			this.utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -191,7 +191,7 @@ class Planner {
 	addAssignmentsToSidebar(previous: boolean = false, offset: number = 0): void {
 		this.utility.log("Adding assignments to sidebar.");
 		if (!this.courses) {
-			this.utility.alerter("Error: Courses not found.");
+			this.utility.notify("error", "Courses not found.");
 			return;
 		}
 
@@ -210,7 +210,7 @@ class Planner {
 			const courseName: HTMLElement | null = courseDiv.querySelector(".course-name");
 
 			if (courseName === null) {
-				this.utility.alerter("Error: Course name not found.");
+				this.utility.notify("error", "Course name not found.");
 				return;
 			}
 
@@ -220,7 +220,7 @@ class Planner {
 					!(mouseEvent.target instanceof HTMLElement) ||
 					!mouseEvent.target.parentElement
 				) {
-					this.utility.alerter("Error: Can't add hook to collapse course list.");
+					this.utility.notify("error", "Can't add hook to collapse course list.");
 					return;
 				}
 				mouseEvent.target.parentElement.classList.toggle("collapsed");
@@ -230,7 +230,7 @@ class Planner {
 			const sidebarCourses: HTMLElement | null = document.querySelector(".sidebar-courses");
 
 			if (sidebarCourses === null) {
-				this.utility.alerter("Error: Sidebar courses not found.");
+				this.utility.notify("error", "Sidebar courses not found.");
 				return;
 			}
 
@@ -241,7 +241,7 @@ class Planner {
 
 			if (assignmentList === null) {
 				// If this is ever hit, I must've removed something from earlier in this function.
-				this.utility.alerter("Error: Assignment list not found.");
+				this.utility.notify("error", "Assignment list not found.");
 				return;
 			}
 
@@ -261,7 +261,7 @@ class Planner {
 				);
 
 				if (estimateInput === null) {
-					this.utility.alerter("Error: Input not found.");
+					this.utility.notify("error", "Input not found.");
 					return;
 				}
 
@@ -275,7 +275,7 @@ class Planner {
 				);
 
 				if (timeTakenInput === null) {
-					this.utility.alerter("Error: Input not found.");
+					this.utility.notify("error", "Input not found.");
 					return;
 				}
 
@@ -324,7 +324,7 @@ class Planner {
 			);
 
 			if (course === undefined) {
-				this.utility.alerter("Error: Course not found.");
+				this.utility.notify("error", "Course not found.");
 				return document.createElement("li");
 			}
 		}
@@ -395,7 +395,7 @@ class Planner {
 		const sidebarButton: HTMLElement | null = document.querySelector(".dd-sidebar-button");
 
 		if (sidebarButton === null) {
-			this.utility.alerter("Error: Sidebar button not found.");
+			this.utility.notify("error", "Sidebar button not found.");
 			return;
 		}
 
@@ -500,7 +500,7 @@ class Planner {
 			);
 
 			if (course === undefined) {
-				this.utility.alerter("Error: Course not found.");
+				this.utility.notify("error", "Course not found.");
 				return;
 			}
 
@@ -510,7 +510,7 @@ class Planner {
 			);
 
 			if (assignment === undefined) {
-				this.utility.alerter("Error: Assignment not found.");
+				this.utility.notify("error", "Assignment not found.");
 				return;
 			}
 
@@ -544,8 +544,8 @@ class Planner {
 
 				// If the is being planned for after it's due date send an alert.
 				if (new Date(target_day) > new Date(assignment.due_date)) {
-					this.utility.alerter(
-						`Warning: ${assignment.name} is being planned for after it's due date.`
+					this.utility.notify(
+						"warning", `${assignment.name} is being planned for after it's due date.`
 					);
 				}
 
@@ -562,7 +562,7 @@ class Planner {
 				);
 
 				if (target_course === null) {
-					this.utility.alerter("Error: Target course not found.");
+					this.utility.notify("error", "Target course not found.");
 					return;
 				}
 				const new_element: HTMLElement = el.cloneNode(true) as HTMLElement;
@@ -593,7 +593,7 @@ class Planner {
 		);
 
 		if (announcement_container === null) {
-			this.utility.alerter("Error: Announcement button not found.");
+			this.utility.notify("error", "Announcement button not found.");
 			return;
 		}
 
@@ -634,7 +634,7 @@ class Planner {
 			});
 
 			if (course === undefined) {
-				this.utility.alerter("Error: Course not found.");
+				this.utility.notify("error", "Course not found.");
 				return;
 			}
 
@@ -696,7 +696,7 @@ class Planner {
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
+			this.utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -746,7 +746,7 @@ class Planner {
 					).find((assignment: Assignment): boolean => assignment.id === planItem.id);
 
 					if (assignment === undefined) {
-						this.utility.alerter("Error: Assignment not found.");
+						this.utility.notify("error", "Assignment not found.");
 						return;
 					}
 
@@ -756,7 +756,7 @@ class Planner {
 						dayDiv.querySelector(".weekday-assignments");
 
 					if (weekdayAssignments === null) {
-						this.utility.alerter("Error: Weekday assignments not found.");
+						this.utility.notify("error", "Weekday assignments not found.");
 						return;
 					}
 
@@ -768,7 +768,7 @@ class Planner {
 		// Hide the spinner now that the planner is done loading.
 		const spinner: HTMLElement | null = document.querySelector(".dd-spinner");
 		if (spinner === null) {
-			this.utility.alerter("Error: Spinner not found.");
+			this.utility.notify("error", "Spinner not found.");
 			return;
 		}
 
@@ -803,7 +803,7 @@ class Planner {
 				dayDiv.querySelector(".weekday-assignments");
 
 			if (weekdayAssignments === null) {
-				this.utility.alerter("Error: Weekday assignments not found.");
+				this.utility.notify("error", "Weekday assignments not found.");
 				return;
 			}
 

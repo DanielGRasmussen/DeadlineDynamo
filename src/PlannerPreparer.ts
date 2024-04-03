@@ -104,7 +104,7 @@ class PlannerPreparer {
 					);
 
 					if (!originalPlanner) {
-						this.utility.alerter("Error: No header container.");
+						this.utility.notify("error", "No header container.");
 						return;
 					}
 
@@ -182,7 +182,7 @@ class PlannerPreparer {
 		const planner: HTMLElement | null = document.querySelector("#dd-planner");
 
 		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
+			this.utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -197,7 +197,7 @@ class PlannerPreparer {
 		);
 
 		if (buttonSibling === null) {
-			this.utility.alerter("Error: Button sibling not found.");
+			this.utility.notify("error", "Button sibling not found.");
 			return;
 		}
 
@@ -301,7 +301,7 @@ class PlannerPreparer {
 		}
 
 		if (list === null) {
-			this.utility.alerter("Error: List not found.");
+			this.utility.notify("error", "List not found.");
 			return;
 		}
 

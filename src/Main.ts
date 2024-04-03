@@ -86,7 +86,7 @@ class Main {
 	async updateCourses(): Promise<void> {
 		// Gets updated info for courses
 		if (this.courses.length === 0) {
-			this.utility.alerter("Error: No courses loaded!");
+			this.utility.notify("error", "No courses loaded!");
 			return;
 		}
 
@@ -109,7 +109,7 @@ class Main {
 	async updateAssignments(): Promise<void> {
 		// Gets updated info for assignments.
 		if (this.courses.length === 0) {
-			this.utility.alerter("Error: Courses not loaded!");
+			this.utility.notify("error", "Courses not loaded!");
 			return;
 		}
 
@@ -128,7 +128,7 @@ class Main {
 	async addExtraData(): Promise<void> {
 		// Adds extra data to the courses.
 		if (this.courses.length === 0) {
-			this.utility.alerter("Error: Courses not loaded!");
+			this.utility.notify("error", "Courses not loaded!");
 			return;
 		}
 

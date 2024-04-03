@@ -116,12 +116,12 @@ class Course {
 					(oldAssignment.planned || oldAssignment.lock)
 				) {
 					if (oldAssignment.type === "calendar_event") {
-						this.utility.alerter(
-							`Time changed for ${oldAssignment.name} from ${this.name}.`
+						this.utility.notify(
+							"info", `Time changed for ${oldAssignment.name} from ${this.name}.`
 						);
 					} else {
-						this.utility.alerter(
-							`Due date changed for ${oldAssignment.name} in ${this.name}`
+						this.utility.notify(
+							"info", `Due date changed for ${oldAssignment.name} in ${this.name}`
 						);
 					}
 				}

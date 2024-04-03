@@ -127,7 +127,7 @@ class SettingsPreparer {
 		);
 
 		if (target === null) {
-			this.utility.alerter("Error: Couldn't find the target.");
+			this.utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 		target.after(sidebarElement);
@@ -218,7 +218,7 @@ class SettingsPreparer {
 		// Find the main content area.
 		const target: HTMLElement | null = document.querySelector("#main");
 		if (target === null) {
-			this.utility.alerter("Error: Couldn't find the target.");
+			this.utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 
@@ -269,7 +269,7 @@ class SettingsPreparer {
 
 		const target: Element | null = document.querySelector("#content");
 		if (target === null) {
-			this.utility.alerter("Error: Couldn't find the target.");
+			this.utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 		target.insertBefore(container, target.firstChild);

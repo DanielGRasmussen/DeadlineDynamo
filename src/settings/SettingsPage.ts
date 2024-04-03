@@ -33,7 +33,7 @@ abstract class SettingsPage {
 		const header: HTMLElement | null = document.querySelector("#breadcrumbs ul");
 		if (header === null) {
 			// This triggers when on mobile.
-			this.utility.alerter("Couldn't find the header.");
+			this.utility.notify("error", "Couldn't find the header.");
 			return;
 		}
 
@@ -92,6 +92,6 @@ abstract class SettingsPage {
 		});
 		await this.utility.saveStorage("settings", settings);
 
-		this.utility.alerter("Settings saved!");
+		this.utility.notify("success", "Settings saved!");
 	}
 }
