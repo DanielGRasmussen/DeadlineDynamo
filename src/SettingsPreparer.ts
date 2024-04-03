@@ -141,12 +141,12 @@ class SettingsPreparer {
 				<a class="css-al447q-view--block-link" href="/deadline-dynamo">
 					<span class="css-10d73cs-view--flex-flex">
 						<span class="css-w1drs0-view-flexItem dd-mininav-icon">
-							<svg height="32px" width="32px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve" fill="rgb(0, 118, 182)" stroke="rgb(0, 118, 182)">
+							<svg height="32px" width="32px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" xml:space="preserve" fill="#0076B6" stroke="#0076B6">
 								<g>
 									<style type="text/css">
 										.dd-mininav-icon svg{margin-top:3px;}
-										.st2{fill:rgb(0, 118, 182);}
-										li.css-i3c1s5-view-listItem a:hover svg .st2{fill:rgb(0, 85, 131)}
+										.st2{fill: #0076B6;}
+										li.css-i3c1s5-view-listItem a:hover svg .st2{fill: #005583}
 									</style>
 									<g>
 										<path class="st2" d="M190.5,213.96c-3.887,5.298-3.314,12.346,1.299,15.726l55.58,42.879l0.774,0.444l0.347,0.193 c4.806,2.677,11.17,1.258,15.411-3.412l0.371-0.354l68.121-80.597c3.879-4.347,3.944-10.605,0.17-13.96 c-3.782-3.363-9.984-2.556-13.847,1.79l-63.678,68.024l-49.161-34.235C201.29,207.073,194.395,208.645,190.5,213.96z"/>

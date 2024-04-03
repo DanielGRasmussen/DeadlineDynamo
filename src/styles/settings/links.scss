@@ -1,12 +1,12 @@
-$background: #fff;
-$text-color: #0076b6;
+@import "../colors";
 
+// The link to Deadline Dynamo Settings.
 .dd-link.active {
-	background-color: $background;
+	background-color: white;
 
 	// Needed more specificity.
 	.menu-item__text {
-		color: $text-color;
+		color: $light-blue;
 	}
 
 	img {
