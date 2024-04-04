@@ -116,16 +116,19 @@ class Assignment {
 			<li class="assignment cid-${this.course_id} aid-${this.id} ${assignment_type} ${this.shown ? "shown" : "collapsed"} ${this.submitted ? "completed" : ""}">
 				${title}
 				<p class="estimate-edit">
-					<span class="estimate-label">Estimate: </span>
+					<span>Estimate: </span>
 					<input class="estimate-input assignment-${this.id}" type="number" value="${estimate}" min="0" max="1440">
-					<span class="estimate-time"> minutes</span>
+					<span> minutes</span>
 				</p>
 				<p class="estimate-label">Estimate: ${estimate}m</p>
-				<div class="time-taken">
+				<div class="time-taken-edit">
 					<span title="How long it took you to complete the assignment. It is used for history based estimations.">Time taken: </span>
 					<input class="time-taken-input assignment-${this.id}" type="number" value="${this.time_taken === null ? "" : this.time_taken.toString()}" min="0" max="1440">
 					<span> minutes</span>
 				</div>
+				<p class="time-taken-label">
+					${this.time_taken === null ? "Time taken: TBD" : `Time taken: ${this.time_taken}m`}
+				</p>
 				<p class="location">${this.location_name}</p>
 				<div class="due-date">
 					<span class="date">${due_date[0]}</span>
@@ -156,6 +159,61 @@ class Assignment {
 			// Invert the value and save it.
 			this.shown = !this.shown;
 			course!.saveCourse();
+		});
+
+		// Add event listener for editing the items.
+		const estimate_label: HTMLElement = assignmentElement.querySelector("p.estimate-label")!;
+		estimate_label.addEventListener("click", (event): void => {
+			if ((event.target as Node)?.nodeName === "INPUT") {
+				return;
+			}
+			assignmentElement.classList.add("editing");
+		});
+
+		const time_taken_label: HTMLElement =
+			assignmentElement.querySelector("p.time-taken-label")!;
+		time_taken_label.addEventListener("click", (event): void => {
+			if ((event.target as Node)?.nodeName === "INPUT") {
+				return;
+			}
+			assignmentElement.classList.add("editing");
+		});
+
+		// Add event listener to get rid of the editing class.
+		const estimate_edit: HTMLElement = assignmentElement.querySelector("p.estimate-edit")!;
+		estimate_edit.addEventListener("click", (event: MouseEvent): void => {
+			if ((event.target as Node)?.nodeName === "INPUT") {
+				return;
+			}
+			assignmentElement.classList.remove("editing");
+
+			let estimate: string | typeof NaN = this.utility.getEstimate(this, course!);
+
+			if (isNaN(Number(estimate))) {
+				estimate = "TBD";
+			}
+
+			this.utility.log(`Updating estimate to ${estimate}m`);
+
+			estimate_label.textContent = `Estimate: ${estimate}m`;
+		});
+
+		const time_taken_edit: HTMLElement =
+			assignmentElement.querySelector("div.time-taken-edit")!;
+		time_taken_edit.addEventListener("click", (event): void => {
+			if ((event.target as Node)?.nodeName === "INPUT") {
+				return;
+			}
+			assignmentElement.classList.remove("editing");
+
+			const time_taken_value: string = (
+				time_taken_edit.querySelector("input") as HTMLInputElement
+			).value;
+
+			this.utility.log(`Updating time taken to ${time_taken_value}m`);
+
+			time_taken_label.textContent =
+				this.time_taken === null ? "Time taken: TBD" : `Time taken: ${time_taken_value}m`;
 		});
 
 		// Add event listener to save the user's estimate.

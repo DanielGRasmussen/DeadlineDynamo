@@ -10,7 +10,7 @@
 		transition: padding-right 0.45s ease-in-out;
 
 		// Remove duplicate borders
-		+ .assignment {
+		&:not(.hidden) + .assignment {
 			border-top: 0;
 		}
 
@@ -23,11 +23,16 @@
 			color: var(--ic-link-color);
 		}
 
-		.estimate-label,
+		&:not(.completed).editing .estimate-edit,
+		&:not(.completed, .editing) .estimate-label,
+		&.completed:not(.collapsed).editing .estimate-edit,
+		&.completed:not(.collapsed, .editing) .estimate-label,
 		.location {
+			display: block;
 			grid-column: 2 / 3;
 			grid-row: 2 / 3;
 			margin: 0;
+			user-select: none;
 		}
 
 		.due-date {
@@ -68,9 +73,11 @@
 			}
 		}
 
-		.estimate-edit,
 		.location,
-		.time-taken {
+		.estimate-edit,
+		.estimate-label,
+		.time-taken-edit,
+		.time-taken-label {
 			display: none;
 		}
 
@@ -87,10 +94,12 @@
 				grid-row: 3 / 4;
 			}
 
+			.estimate-edit,
 			.estimate-label,
 			.due-date .date,
 			.due-date .time,
-			.time-taken {
+			.time-taken-edit,
+			.time-taken-label {
 				display: none;
 			}
 		}
@@ -139,6 +148,18 @@
 		}
 	}
 
+	.estimate-edit,
+	.time-taken-edit {
+		grid-column: 2 / 3;
+		grid-row: 2 / 3;
+		margin: -7px 0 0 0;
+
+		input {
+			max-width: 45px;
+			margin: 0;
+		}
+	}
+
 	// Styling for collapsed/shown assignments.
 	.assignment.collapsed {
 		grid-template-rows: 50px;
@@ -159,16 +180,17 @@
 		}
 
 		&.completed {
-			.time-taken {
+			&.editing .time-taken-edit {
+				display: block;
+				user-select: none;
+			}
+
+			&:not(.editing) .time-taken-label {
 				display: block;
 				grid-column: 2 / 3;
-				margin-top: -10px;
-				padding-bottom: 5px;
-
-				input {
-					max-width: 45px;
-					margin: 0;
-				}
+				grid-row: 2 / 3;
+				margin: 0;
+				user-select: none;
 			}
 
 			&::before {
