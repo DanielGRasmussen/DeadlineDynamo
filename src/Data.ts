@@ -5,7 +5,22 @@ class Data {
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[];
 	courses: Course[] = this.apiFetcher.courses;
-	settings!: SettingsJson;
+	settings: SettingsJson = {
+		useBasicEstimate: true,
+		useHistoryEstimate: true,
+		workHours: {
+			monday: 6,
+			tuesday: 6,
+			wednesday: 6,
+			thursday: 6,
+			friday: 6,
+			saturday: 6,
+			sunday: 0
+		},
+		estimateMultiplier: {},
+		planDistance: 1,
+		showEvents: true
+	};
 	plan: Plan = {};
 
 	constructor(loadConditions: boolean[]) {
@@ -15,8 +30,8 @@ class Data {
 	}
 
 	async main(): Promise<void> {
-		this.settings = await this.utility.loadSettings();
-		this.plan = await this.utility.loadPlan();
+		await this.utility.loadSettings(this.settings);
+		await this.utility.loadPlan(this.plan);
 
 		const isFirstLoadUp: boolean = await this.getCourses();
 
