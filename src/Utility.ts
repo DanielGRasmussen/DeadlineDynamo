@@ -75,7 +75,6 @@ class Utility {
 		const name: string = `${this.location}-${key}`;
 		this.log(`Loading ${name} from storage.`);
 		const info: { [p: string]: string } = await chrome.storage.sync.get(name);
-		console.log(name, info[name]);
 		return info[name];
 	}
 
