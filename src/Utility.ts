@@ -75,10 +75,11 @@ class Utility {
 		const name: string = `${this.location}-${key}`;
 		this.log(`Loading ${name} from storage.`);
 		const info: { [p: string]: string } = await chrome.storage.sync.get(name);
+		console.log(name, info[name]);
 		return info[name];
 	}
 
-	async loadSettings(): Promise<SettingsJson> {
+	async loadSettings(originalSettings?: SettingsJson): Promise<SettingsJson> {
 		this.log("Loading settings from storage.");
 		const settingsJson: string | undefined = await this.loadStorage("settings");
 		// Default settings. To be overridden if settings are found in storage.
@@ -116,11 +117,19 @@ class Utility {
 			settings = JSON.parse(settingsJson);
 		}
 
+		if (originalSettings !== undefined) {
+			// Merge the settings with the original settings.
+			for (const key in originalSettings) {
+				// @ts-expect-error This is how I decided to merge the settings.
+				originalSettings[key] = settings[key];
+			}
+		}
+
 		this.log(JSON.stringify(settings));
 		return settings;
 	}
 
-	async loadPlan(): Promise<Plan> {
+	async loadPlan(originalPlan: Plan): Promise<Plan> {
 		this.log("Loading plan from storage.");
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
@@ -132,6 +141,13 @@ class Utility {
 				day.setDate(day.getDate() + i);
 				plan[day.toISOString().slice(0, 10)] = [];
 			}
+
+			if (originalPlan !== undefined) {
+				// Merge the plan with the original plan.
+				for (const date in plan) {
+					originalPlan[date] = plan[date];
+				}
+			}
 			return plan;
 		} else {
 			const planObject: Plan = JSON.parse(plan);
@@ -142,6 +158,12 @@ class Utility {
 				});
 			}
 
+			if (originalPlan !== undefined) {
+				// Merge the plan with the original plan.
+				for (const date in planObject) {
+					originalPlan[date] = planObject[date];
+				}
+			}
 			return planObject;
 		}
 	}
