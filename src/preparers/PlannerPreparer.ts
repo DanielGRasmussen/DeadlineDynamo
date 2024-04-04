@@ -1,24 +1,15 @@
-class PlannerPreparer {
-	utility: Utility = new Utility();
-	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
-	bodyAdded: boolean = false;
-	viewSet: boolean = false;
-	addedPlanner: boolean = false;
-	addedShowMore: boolean = false;
-	removeNothingPlanned: boolean = false;
-	triggeredMain: boolean = false;
-	// [0] Header buttons are added. [1] Main is done loading.
+class PlannerPreparer extends BasePreparer {
+	// [0] Header buttons are added. [1] Data is done loading.
 	loadConditions: boolean[] = [false, false];
-	main: Main = new Main(this.loadConditions);
+	data: Data = new Data(this.loadConditions);
 	planner: Planner | undefined;
 	view!: number;
 	// To ignore a view change triggered by us.
 	ignoreViewChange: boolean = false;
 
 	constructor() {
-		this.observer.observe(document, { childList: true, subtree: true });
-
-		this.setView();
+		super();
+		this.setView().then(_ => {});
 	}
 
 	async setView(): Promise<void> {
@@ -32,140 +23,153 @@ class PlannerPreparer {
 		}
 
 		this.utility.log(`View: ${this.view}`);
+
+		let body: HTMLBodyElement = document.getElementsByTagName("body")[0];
+		while (body === undefined) {
+			body = document.getElementsByTagName("body")[0];
+			await this.utility.wait(20);
+		}
+
+		this.setViewClass();
 	}
 
-	// Prepare the settings page.
-	listener(mutationsList: MutationRecord[]): void {
-		// The goal of this is to catch any changes that we don't like and remove them or use them as a reference to
-		// make our own changes.
-		// This is to make sure that the changes don't appear for a split second before we remove them.
-		for (const mutation of mutationsList) {
-			// We only need to check for added nodes.
-			if (mutation.type !== "childList") {
-				continue;
+	setViewClass(): void {
+		this.utility.log(`Setting view to ${this.view}.`);
+
+		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
+
+		if (this.view === 3) {
+			body.classList.add("dd-view");
+		} else {
+			body.classList.remove("dd-view");
+		}
+	}
+
+	getConditions(): Condition[] {
+		// Since this technically gets called before most of our constructor and defining code runs, we need to
+		// define this here, so it will be updated later.
+		return [
+			// Checks if the view options in the top right have been added, if so then it adds the option for our view.
+			{
+				checks: [
+					[
+						"querySelector",
+						"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items, ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items"
+					],
+					["parentTag", "body"]
+				],
+				all: true,
+				callback: this.createViewButton.bind(this),
+				triggerOnce: false,
+				triggered: false
+			},
+			// Checks if the planner has been added, if so then it triggers the adds the filler items.
+			{
+				checks: [["id", "dashboard"]],
+				all: true,
+				callback: this.addNewPlanner.bind(this),
+				triggerOnce: true,
+				triggered: false
+			},
+			// Checks if an element in the header has been added, if so then it adds our header buttons.
+			// This checks for when a style element is added to the header. I am not sure what the deal is, but I
+			// can not find any point where items with the attributes of the buttons are added. This is shortly
+			// thereafter in the process though, so it should work for now.
+			{
+				checks: [
+					["tag", "style"],
+					["parentId", "dashboard-planner-header"]
+				],
+				all: true,
+				callback: this.createHeaderButtons.bind(this),
+				triggerOnce: true,
+				triggered: false
+			},
+			// Adds the show more button displayed right under the header.
+			{
+				checks: [["parentId", "dashboard-planner-header"]],
+				all: true,
+				callback: this.addShowMoreButton.bind(this),
+				triggerOnce: true,
+				triggered: false
+			},
+			// Hides the "Nothing planned" message. This appears due to nothing being due on current day.
+			// We change how things look, so it is not needed.
+			{
+				checks: [["funcCheck", this.isNothingPlannedMessage.bind(this)]],
+				all: true,
+				callback: this.removeNothingPlanned.bind(this),
+				triggerOnce: true,
+				triggered: false
 			}
+		];
+	}
 
-			mutation.addedNodes.forEach((node: Node) => {
-				// So that we can make sure it is an HTMLElement and has the methods/attributes we check.
-				if (!(node instanceof HTMLElement)) {
-					return;
-				}
+	createViewButton(node: HTMLElement): void {
+		// Adds the view button in the top right dropdown.
+		this.utility.log("Adding view button.");
 
-				// These are basic things for every view and should always happen.
-				// Sometimes view isn't defined until after the body is added. So it checks every time after the
-				// body is added.
-				if ((this.bodyAdded || node.tagName === "BODY") && !this.viewSet) {
-					// If the body has been added then check if the view has been set. If so then set the view,
-					if (!this.bodyAdded) {
-						this.bodyAdded = true;
-						this.utility.log("Body added.");
-					}
+		let list: HTMLElement | null = node.querySelector(
+			"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
+		);
 
-					if (this.view !== undefined) {
-						this.utility.log(`Setting view to ${this.view}.`);
+		let iconClass: string = "css-1nl5gro-menuItem__icon";
+		if (list === null) {
+			list = node.querySelector("ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items");
+			iconClass = "css-1d91lml-menuItem__icon";
+		}
 
-						const body = document.getElementsByTagName("body")[0];
+		if (list === null) {
+			this.utility.notify("error", "List not found.");
+			return;
+		}
 
-						if (this.view === 3) {
-							body.classList.add("dd-view");
-						} else {
-							body.classList.remove("dd-view");
-						}
+		const viewButtonExample: HTMLElement = list.querySelector("li > span")!;
 
-						this.viewSet = true;
-					} else {
-						this.utility.log("View not set.");
-					}
-				} else if (
-					(node.querySelector(
-						"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
-					) ||
-						node.querySelector(
-							"ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items"
-						)) &&
-					node.parentElement?.tagName === "BODY"
-				) {
-					// This is the view list.
-					this.utility.log("View button being created.");
-					this.createViewButton(node);
-				}
+		const viewButtonClass: string = viewButtonExample.classList[0];
 
-				// Add various parts of our UI.
-				if (!this.addedPlanner && node.id === "dashboard") {
-					// Add our planner element where the original planner was (after #dashboard_header_container).
-					const plannerData: string = `
-						<div id="dd-planner"></div>
-					`;
+		// Add the view button.
+		const viewButtonData: string = `
+			<li role="none" class="dd-view">
+				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="${viewButtonClass}">
+					<span>
+						<span class="${iconClass}"></span>
+						<span id="MenuItem__label_3" class="css-1u4c65l-menuItem__label">Deadline Dynamo</span>
+					</span>
+				</span>
+			</li>
+		`;
 
-					const planner: HTMLElement = this.utility.convertHtml(plannerData);
+		const viewButton: HTMLElement = this.utility.convertHtml(viewButtonData);
 
-					const originalPlanner: Element | null = node.querySelector(
-						"#dashboard_header_container"
-					);
+		list.append(viewButton);
 
-					if (!originalPlanner) {
-						this.utility.alerter("Error: No header container.");
-						return;
-					}
-
-					originalPlanner.after(planner);
-					this.addedPlanner = true;
-
-					this.utility.log("Added planner.");
-
-					// Spinner while the plan is loading.
-					this.createSpinner();
-				} else if (
-					// This checks for when a style element is added to the header.
-					// I am not sure what the deal is, but I can not find any point where items with the attributes
-					// of the buttons are added. This is shortly thereafter in the process though so it should work
-					// for now.
-					!this.loadConditions[0] &&
-					node?.parentElement?.id === "dashboard-planner-header" &&
-					node.tagName === "STYLE"
-				) {
-					// Create our sidebar button.
-					this.utility.log("Adding header buttons.");
-					this.createHeaderButtons();
-					this.loadConditions[0] = true;
-				} else if (
-					!this.addedShowMore &&
-					node.parentElement?.id === "dashboard_header_container"
-				) {
-					// Gets the main header element.
-					this.addShowMoreButton(node);
-				} else if (!this.removeNothingPlanned && this.isNothingPlannedMessage(node)) {
-					// Hides the "Nothing planned" message. This appears due to nothing being due on current day.
-					// We change how things look so it is not needed.
-					this.utility.log("Hiding nothing planned message.");
-					node.style.display = "none";
-					this.removeNothingPlanned = true;
-				}
-
-				if (this.addedPlanner && !this.triggeredMain) {
-					// This will make the planner load.
-					this.utility.log("Triggering main.");
-					this.planner = new Planner(this.main, this.loadConditions);
-
-					this.triggeredMain = true;
-				}
-
-				if (
-					this.viewSet &&
-					this.addedPlanner &&
-					this.loadConditions[0] &&
-					this.addedShowMore &&
-					this.triggeredMain
-				) {
-					// We've done everything.
-					this.utility.log("Disconnecting PlannerPreparer's observer");
-					this.observer.disconnect();
-				}
+		for (let i: number = 0; i < list.children.length; i++) {
+			const child: HTMLElement = list.children[i] as HTMLElement;
+			child.addEventListener("click", () => {
+				this.changeView(list!, i);
 			});
 		}
 	}
 
-	createSpinner(): void {
+	addNewPlanner(node: HTMLElement): void {
+		// Add our planner element where the original planner was (after #dashboard_header_container).
+		const plannerData: string = `
+						<div id="dd-planner"></div>
+					`;
+
+		const planner: HTMLElement = this.utility.convertHtml(plannerData);
+
+		const originalPlanner: Element | null = node.querySelector("#dashboard_header_container");
+
+		if (!originalPlanner) {
+			this.utility.notify("error", "No header container.");
+			return;
+		}
+
+		originalPlanner.after(planner);
+		this.utility.log("Added planner.");
+
 		// Adds the spinner for the main planning UI.
 		this.utility.log("Adding spinner.");
 		// This gets hidden by css when the planner is loaded.
@@ -179,14 +183,11 @@ class PlannerPreparer {
 
 		const spinner: HTMLElement = this.utility.convertHtml(spinnerData);
 
-		const planner: HTMLElement | null = document.querySelector("#dd-planner");
-
-		if (planner === null) {
-			this.utility.alerter("Error: Planner not found.");
-			return;
-		}
-
 		planner.append(spinner);
+
+		// Now that the planner is added, we can trigger the planner class.
+		this.utility.log("Triggering the planner.");
+		this.planner = new Planner();
 	}
 
 	createHeaderButtons(): void {
@@ -197,7 +198,7 @@ class PlannerPreparer {
 		);
 
 		if (buttonSibling === null) {
-			this.utility.alerter("Error: Button sibling not found.");
+			this.utility.notify("error", "Button sibling not found.");
 			return;
 		}
 
@@ -287,81 +288,12 @@ class PlannerPreparer {
 		});
 
 		announcementButton.before(scrollButton);
+
+		// We are done adding the header buttons, set the checker.
+		this.loadConditions[0] = true;
 	}
 
-	createViewButton(node: HTMLElement): void {
-		let list: HTMLElement | null = node.querySelector(
-			"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
-		);
-
-		let iconClass: string = "css-1nl5gro-menuItem__icon";
-		if (list === null) {
-			list = node.querySelector("ul.css-a6zj6t-menu ul.css-1te3it8-menuItemGroup__items");
-			iconClass = "css-1d91lml-menuItem__icon";
-		}
-
-		if (list === null) {
-			this.utility.alerter("Error: List not found.");
-			return;
-		}
-
-		const viewButtonExample: HTMLElement = list.querySelector("li > span")!;
-
-		const viewButtonClass: string = viewButtonExample.classList[0];
-
-		// Add the view button.
-		const viewButtonData: string = `
-			<li role="none" class="dd-view">
-				<span tabindex="-1" role="menuitemradio" aria-labelledby="MenuItem__label_3" aria-checked="false" class="${viewButtonClass}">
-					<span>
-						<span class="${iconClass}"></span>
-						<span id="MenuItem__label_3" class="css-1u4c65l-menuItem__label">Deadline Dynamo</span>
-					</span>
-				</span>
-			</li>
-		`;
-
-		const viewButton: HTMLElement = this.utility.convertHtml(viewButtonData);
-
-		list.append(viewButton);
-
-		for (let i = 0; i < list.children.length; i++) {
-			const child: HTMLElement = list.children[i] as HTMLElement;
-			child.addEventListener("click", () => {
-				this.changeView(list!, i);
-			});
-		}
-	}
-
-	changeView(list: HTMLElement, view: number): void {
-		if (this.ignoreViewChange) {
-			this.utility.log("Ignoring view change.");
-			// This was triggered by the click event in this function.
-			this.ignoreViewChange = false;
-			return;
-		}
-		this.utility.log(`Changing view to ${view}.`);
-		this.view = view;
-		this.utility.saveStorage("view", view.toString());
-
-		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
-		if (this.view === 3) {
-			body.classList.add("dd-view");
-			this.utility.scrollToToday();
-		} else {
-			body.classList.remove("dd-view");
-		}
-
-		// Hide the list
-		if (this.view === 3) {
-			// It's not technically a button, but it has a click listener.
-			const listView: HTMLButtonElement = list.children[1].children[0] as HTMLButtonElement;
-			this.ignoreViewChange = true; // This sets it so that the click event doesn't trigger the changeView function.
-			listView.click();
-		}
-	}
-
-	addShowMoreButton(parent: Element): void {
+	addShowMoreButton(parent: HTMLElement): void {
 		const showMoreButtonData: string = `
 			<span class="show-old-assignments">Show More</span>
 		`;
@@ -378,10 +310,13 @@ class PlannerPreparer {
 		});
 	}
 
-	isNothingPlannedMessage(element: Element): boolean {
+	isNothingPlannedMessage(element: HTMLElement): boolean {
+		// Checks if the element is the "Nothing planned today. Selecting next item." message that is useless with
+		// our view.
 		if (
-			element.id === "flashalert_message_holder" ||
-			element.querySelector(".css-8v1ycj-view-alert")
+			this.view === 3 &&
+			(element.id === "flashalert_message_holder" ||
+				element.querySelector(".css-8v1ycj-view-alert"))
 		) {
 			const children: HTMLParagraphElement[] = element.querySelectorAll(
 				"p"
@@ -394,6 +329,35 @@ class PlannerPreparer {
 		}
 		return false;
 	}
+
+	removeNothingPlanned(node: HTMLElement): void {
+		node.style.display = "none";
+		this.utility.log("Hiding nothing planned message.");
+	}
+
+	changeView(list: HTMLElement, view: number): void {
+		if (this.ignoreViewChange) {
+			this.utility.log("Ignoring view change.");
+			// This was triggered by the click event in this function.
+			this.ignoreViewChange = false;
+			return;
+		}
+		this.utility.log(`Changing view to ${view}.`);
+		this.view = view;
+		this.utility.saveStorage("view", view.toString());
+
+		this.setViewClass();
+
+		// Hide the list
+		if (this.view === 3) {
+			// It's not technically a button, but it has a click listener.
+			const listView: HTMLButtonElement = list.children[1].children[0] as HTMLButtonElement;
+			this.ignoreViewChange = true; // This sets it so that the click event doesn't trigger the changeView function.
+			listView.click();
+		}
+	}
 }
 
-new PlannerPreparer();
+// Make data a global so that all classes can get basic data without having to mess around with a confusing
+// amount of arguments/hand-me-downs.
+const data: Data = new PlannerPreparer().data;

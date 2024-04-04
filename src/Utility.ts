@@ -3,13 +3,13 @@ class Utility {
 	location: string = window.location.host.split(".")[0];
 
 	log(message: string): void {
-		const logging: boolean = false;
+		const logging: boolean = true;
 		if (logging) {
 			console.log(message);
 		}
 	}
 
-	async alerter(message: string): Promise<void> {
+	notify(type: "error" | "warning" | "info" | "success", message: string): void {
 		let alertContainer: Element | null = document.getElementsByClassName("alert-container")[0];
 		if (!alertContainer) {
 			alertContainer = this.convertHtml(`<div class="alert-container"></div>`);
@@ -18,7 +18,7 @@ class Utility {
 		}
 
 		const alert: HTMLElement = this.convertHtml(`
-			<div class="message-alert">
+			<div class="message-alert ${type}">
 				<p>${message}</p>
 				<span class="close-alert">
 					<svg viewBox="0 0 1920 1920" focusable="false" class="css-1uh2md0-inlineSVG-svgIcon"><g><path d="M797.32 985.882 344.772 1438.43l188.561 188.562 452.549-452.549 452.548 452.549 188.562-188.562-452.549-452.548 452.549-452.549-188.562-188.561L985.882 797.32 533.333 344.772 344.772 533.333z"></path></g></svg>
@@ -32,8 +32,8 @@ class Utility {
 
 		alertContainer.appendChild(alert);
 
-		await this.wait(10000);
-		await this.removeAlert(alert);
+		// Using .then instead of await so that way we don't ignore promises.
+		this.wait(10000).then(this.removeAlert.bind(this, alert));
 	}
 
 	async removeAlert(alert: HTMLElement): Promise<void> {
@@ -43,8 +43,32 @@ class Utility {
 	}
 
 	convertHtml(data: string): HTMLElement {
-		const element = this.domParser.parseFromString(data, "text/html");
+		const element: Document = this.domParser.parseFromString(data, "text/html");
 		return element.body.firstChild as HTMLElement;
+	}
+
+	scrollToToday(): void {
+		this.log("Scrolling to today.");
+		const date: string = new Date().toISOString().slice(0, 10);
+
+		const today: Element | null = document.getElementsByClassName(date)[0];
+
+		if (today === null) {
+			this.notify("error", "Today not found.");
+			return;
+		}
+
+		// Get the top of the element.
+		const elementRect: DOMRect = today.parentElement!.getBoundingClientRect();
+
+		const desiredY: number = elementRect.top + window.scrollY - 80;
+
+		window.scrollTo({ top: desiredY, behavior: "smooth" });
+	}
+
+	wait(ms: number): Promise<void> {
+		this.log(`Waiting for ${ms}ms.`);
+		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
 	async loadStorage(key: string): Promise<string | undefined> {
@@ -96,25 +120,6 @@ class Utility {
 		return settings;
 	}
 
-	async saveStorage(key: string, data: string): Promise<void> {
-		const name: string = `${this.location}-${key}`;
-		this.log(`Saving ${name} to storage.`);
-		try {
-			const info: { [p: string]: string } = {};
-			info[name] = data;
-			await chrome.storage.sync.set(info);
-		} catch (error) {
-			// This likely happened because of too much data trying to be saved.
-			console.log(key);
-			console.log(data);
-		}
-	}
-
-	async clearStorage(): Promise<void> {
-		this.log("Clearing storage.");
-		await chrome.storage.sync.clear();
-	}
-
 	async loadPlan(): Promise<Plan> {
 		this.log("Loading plan from storage.");
 		const plan: string | undefined = await this.loadStorage("plan");
@@ -122,7 +127,7 @@ class Utility {
 			// Create an empty plan for this week.
 			const monday: Date = this.getMonday(new Date());
 			const plan: Plan = {};
-			for (let i = 0; i < 5; i++) {
+			for (let i: number = 0; i < 5; i++) {
 				const day: Date = new Date(monday);
 				day.setDate(day.getDate() + i);
 				plan[day.toISOString().slice(0, 10)] = [];
@@ -141,62 +146,23 @@ class Utility {
 		}
 	}
 
-	scrollToToday(): void {
-		this.log("Scrolling to today.");
-		const date: string = new Date().toISOString().slice(0, 10);
-
-		const today: Element | null = document.getElementsByClassName(date)[0];
-
-		if (today === null) {
-			this.alerter("Error: Today not found.");
-			return;
+	saveStorage(key: string, data: string): void {
+		const name: string = `${this.location}-${key}`;
+		this.log(`Saving ${name} to storage.`);
+		try {
+			const info: { [p: string]: string } = {};
+			info[name] = data;
+			chrome.storage.sync.set(info).then(_ => {});
+		} catch (error) {
+			// This likely happened because of too much data trying to be saved.
+			console.log(key);
+			console.log(data);
 		}
-
-		// Get the top of the element.
-		const elementRect: DOMRect = today.parentElement!.getBoundingClientRect();
-
-		const desiredY: number = elementRect.top + window.scrollY - 80;
-
-		window.scrollTo({ top: desiredY, behavior: "smooth" });
 	}
 
-	getEstimate(
-		course: Course,
-		assignment: Assignment,
-		estimator: Estimator,
-		settings: Settings | SettingsJson
-	): string {
-		this.log("Getting estimate.");
-		if (assignment.user_estimate !== null) {
-			// If there is a user estimate, use that.
-			this.log("User estimate found.");
-			return assignment.user_estimate.toString();
-		} else if (settings.useHistoryEstimate && assignment.history_estimate !== null) {
-			// If there is a history estimate, use that.
-			this.log("History estimate found.");
-			return assignment.history_estimate.toString();
-		} else if (settings.useHistoryEstimate) {
-			// Otherwise try to make a history based estimate.
-			estimator.historyEstimate(course, assignment);
-
-			if (assignment.history_estimate !== null) {
-				this.log("History estimate made.");
-				return assignment.history_estimate.toString();
-			}
-		}
-		// If a history based estimate can't be made, use the basic estimate.
-		estimator.estimateTime(assignment);
-
-		if (assignment.basic_estimate === null) {
-			this.alerter("Error: No estimator failed to estimate.");
-			return "";
-		} else if (!settings.useBasicEstimate) {
-			this.log("Basic estimate not used.");
-			return "";
-		} else {
-			this.log("Basic estimate used.");
-			return assignment.basic_estimate.toString();
-		}
+	async clearStorage(): Promise<void> {
+		this.log("Clearing storage.");
+		await chrome.storage.sync.clear();
 	}
 
 	createPlan(plan: Plan, courses: Course[], estimator: Estimator, settings: SettingsJson): Plan {
@@ -236,7 +202,7 @@ class Utility {
 				}
 
 				const estimate: number = parseInt(
-					this.getEstimate(courses[assignment.course_id], assignment, estimator, settings)
+					this.getEstimate(assignment, courses[assignment.course_id])
 				);
 
 				// If the assignment can be planned without running over the limit, plan it.
@@ -263,7 +229,8 @@ class Utility {
 		);
 
 		if (leftoverAssignments.length > 0) {
-			this.alerter(
+			this.notify(
+				"info",
 				`There are ${leftoverAssignments.length} assignments that could not be planned.`
 			);
 		}
@@ -271,17 +238,38 @@ class Utility {
 		return plan;
 	}
 
-	getMonday(date: Date, offset: number = 0): Date {
-		const monday: Date = new Date(date);
-		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
-		return monday;
-	}
+	getEstimate(assignment: Assignment, course: Course): string {
+		this.log("Getting estimate.");
+		if (assignment.user_estimate !== null) {
+			// If there is a user estimate, use that.
+			this.log("User estimate found.");
+			return assignment.user_estimate.toString();
+		} else if (data.settings.useHistoryEstimate && assignment.history_estimate !== null) {
+			// If there is a history estimate, use that.
+			this.log("History estimate found.");
+			return assignment.history_estimate.toString();
+		} else if (data.settings.useHistoryEstimate) {
+			// Otherwise try to make a history based estimate.
+			data.estimator.historyEstimate(course, assignment);
 
-	daysUntil(date: Date): number {
-		// Gets days between the monday and the date.
-		const monday: Date = this.getMonday(new Date());
-		const difference: number = date.getTime() - monday.getTime();
-		return Math.ceil(difference / (1000 * 60 * 60 * 24));
+			if (assignment.history_estimate !== null) {
+				this.log("History estimate made.");
+				return assignment.history_estimate.toString();
+			}
+		}
+		// If a history based estimate can't be made, use the basic estimate.
+		data.estimator.estimateTime(assignment);
+
+		if (assignment.basic_estimate === null) {
+			this.notify("error", "No estimator failed to estimate.");
+			return "";
+		} else if (!data.settings.useBasicEstimate) {
+			this.log("Basic estimate not used.");
+			return "";
+		} else {
+			this.log("Basic estimate used.");
+			return assignment.basic_estimate.toString();
+		}
 	}
 
 	formatDate(date: Date, shortDay: boolean): [string, string] {
@@ -325,9 +313,18 @@ class Utility {
 		return [formattedDate, formattedTime];
 	}
 
-	wait(ms: number): Promise<void> {
-		this.log(`Waiting for ${ms}ms.`);
-		return new Promise(resolve => setTimeout(resolve, ms));
+	getMonday(date: Date, offset: number = 0): Date {
+		const monday: Date = new Date(date);
+		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
+		monday.setHours(0, 0, 0, 0);
+		return monday;
+	}
+
+	daysUntil(date: Date): number {
+		// Gets days between the monday and the date.
+		const monday: Date = this.getMonday(new Date());
+		const difference: number = date.getTime() - monday.getTime();
+		return Math.ceil(difference / (1000 * 60 * 60 * 24));
 	}
 
 	parseLinkHeader(linkHeader: string | null): { [rel: string]: string } {

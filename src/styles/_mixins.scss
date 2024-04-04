@@ -1,0 +1,18 @@
+// Desktop mixin
+@mixin desktop {
+	@media screen and (width > 1000px) {
+		@content;
+	}
+}
+
+@mixin less-desktop {
+	@media screen and (width <= 1000px) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media screen and (width <= 768px) {
+		@content;
+	}
+}

@@ -7,7 +7,7 @@
 	padding: 3px 10px;
 	cursor: pointer;
 	color: white;
-	background: rgb(0 118 182);
+	background: #0076B6;
 	border-radius: 0 0 4px 4px;
 }
 
@@ -20,7 +20,7 @@
 	transition: background 0.2s ease 0s;
 
 	&:hover > span {
-		background: rgb(242 242 242);
+		background: #F2F2F2;
 	}
 }
 

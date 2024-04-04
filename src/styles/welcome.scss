@@ -1,4 +1,6 @@
-/* Reset styles */
+@import "colors";
+@import "mixins";
+
 * {
 	box-sizing: border-box;
 	margin: 0;
@@ -12,14 +14,14 @@ body {
 	color: #333;
 	font-size: 1.15rem;
 
-	@media (width <= 768px) {
+	@include tablet {
 		font-size: 1rem;
 	}
 }
 
 header {
-	background-color: #0077b6;
-	color: #fff;
+	background-color: $light-blue;
+	color: white;
 	padding: 1rem;
 	text-align: center;
 }
@@ -28,7 +30,7 @@ main {
 	max-width: 800px;
 	margin: 2rem auto;
 	padding: 1rem;
-	background-color: #fff;
+	background-color: white;
 	box-shadow: 0 0 10px rgb(0 0 0 / 10%);
 	border-radius: 5px;
 
@@ -37,7 +39,7 @@ main {
 	}
 
 	h2 {
-		color: #0077b6;
+		color: $light-blue;
 		margin-bottom: 1rem;
 	}
 
@@ -46,7 +48,7 @@ main {
 		margin-left: 2rem;
 	}
 
-	@media (width <= 768px) {
+	@include tablet {
 		padding: 0.5rem;
 	}
 }

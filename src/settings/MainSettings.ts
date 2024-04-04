@@ -1,4 +1,4 @@
-class SettingsMain extends SettingsPage {
+class MainSettings extends BaseSettings {
 	getName(): string {
 		return "Main";
 	}
@@ -8,7 +8,7 @@ class SettingsMain extends SettingsPage {
 		this.utility.log("Creating the main settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.alerter("Error: Couldn't find the content wrapper.");
+			this.utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -65,7 +65,7 @@ class SettingsMain extends SettingsPage {
 				)
 			) {
 				this.utility.clearStorage();
-				this.utility.alerter("Storage cleared!");
+				this.utility.notify("success", "Storage cleared!");
 			}
 		});
 		container.appendChild(clearStorage);

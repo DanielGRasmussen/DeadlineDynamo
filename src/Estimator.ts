@@ -1,18 +1,17 @@
 class Estimator {
-	assignment!: Assignment;
-	courseId!: number;
-	courses?: Course[];
-	utility: Utility = new Utility();
+	utility!: Utility;
+	courses!: Course[];
 	settings!: SettingsJson;
 
-	constructor(courses?: Course[]) {
-		this.courses = courses;
-		this.utility.loadSettings().then((settings: SettingsJson): void => {
-			this.settings = settings;
-		});
-	}
+	assignment!: Assignment;
+	courseId!: number;
 
 	estimateTime(assignment: Assignment): void {
+		if (!this.utility) {
+			this.utility = data.utility;
+			this.courses = data.courses;
+			this.settings = data.settings;
+		}
 		// Check if there is a basic estimate that isn't 0. If it is 0 then it was set by a failure to load in time.
 		// If there isn't then it should just predict the same thing.
 		if (assignment.basic_estimate !== null && assignment.basic_estimate !== 0) {
