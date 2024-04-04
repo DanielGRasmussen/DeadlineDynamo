@@ -3,7 +3,7 @@ class Course {
 	name: string;
 	code: string;
 	assignments!: Assignment[];
-	utility: Utility = new Utility();
+	utility: Utility = data.utility;
 
 	constructor(
 		id: number,

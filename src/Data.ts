@@ -1,10 +1,12 @@
 class Data {
-	courses: Course[] = [];
 	utility: Utility = new Utility();
 	apiFetcher: ApiFetcher = new ApiFetcher();
-	estimator: Estimator = new Estimator(this.courses);
+	estimator: Estimator = new Estimator();
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[];
+	courses: Course[] = this.apiFetcher.courses;
+	settings!: SettingsJson;
+	plan: Plan = {};
 
 	constructor(loadConditions: boolean[]) {
 		this.loadConditions = loadConditions;
@@ -13,6 +15,9 @@ class Data {
 	}
 
 	async main(): Promise<void> {
+		this.settings = await this.utility.loadSettings();
+		this.plan = await this.utility.loadPlan();
+
 		const isFirstLoadUp: boolean = await this.getCourses();
 
 		if (!isFirstLoadUp) {
@@ -44,7 +49,6 @@ class Data {
 		// Load stuff from local storage.
 		// Course ids isn't null so this will be returning false.
 		const course_ids: string[] = JSON.parse(courseIds);
-		const courses: Course[] = [];
 
 		let courseData: string | undefined;
 		let courseJson: LocalCourseJson;
@@ -66,9 +70,8 @@ class Data {
 				[], // Empty assignments so it knows to use the local format for assignments.
 				courseJson.assignments
 			);
-			courses.push(course);
+			this.courses.push(course);
 		}
-		this.courses = courses;
 		return false;
 	}
 

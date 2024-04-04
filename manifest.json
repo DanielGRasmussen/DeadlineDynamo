@@ -67,6 +67,8 @@
 				"dist/out-tsc/Estimator.js",
 				"dist/out-tsc/Assignment.js",
 				"dist/out-tsc/Course.js",
+				"dist/out-tsc/Announcements.js",
+				"dist/out-tsc/Sidebar.js",
 				"third_party/dragula.min.js",
 				"dist/out-tsc/Planner.js",
 				"dist/out-tsc/Data.js",

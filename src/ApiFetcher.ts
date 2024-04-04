@@ -1,8 +1,9 @@
 class ApiFetcher {
+	utility: Utility = new Utility();
+	courses: Course[] = [];
+
 	courseApi: string = window.location.origin + "/api/v1/dashboard/dashboard_cards";
 	assignmentApi: string = window.location.origin + "/api/v1/planner/items?per_page=50";
-	courses: Course[] = [];
-	utility: Utility = new Utility();
 
 	async fetchCourses(): Promise<CourseJson[]> {
 		// Gets all courses from the API.
@@ -62,11 +63,11 @@ class ApiFetcher {
 		for (let page: number = 1; length === 50; page++) {
 			const url: string = `${assignmentUrl}&page=${page}`;
 			const response: Response = await fetch(url);
-			const data: AssignmentExtraJson[] = await response.json();
+			const assignmentData: AssignmentExtraJson[] = await response.json();
 
-			length = data.length;
+			length = assignmentData.length;
 
-			allData = allData.concat(data);
+			allData = allData.concat(assignmentData);
 		}
 
 		return allData;

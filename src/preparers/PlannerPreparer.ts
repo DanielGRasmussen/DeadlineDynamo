@@ -187,7 +187,7 @@ class PlannerPreparer extends BasePreparer {
 
 		// Now that the planner is added, we can trigger the planner class.
 		this.utility.log("Triggering the planner.");
-		this.planner = new Planner(this.data, this.loadConditions);
+		this.planner = new Planner();
 	}
 
 	createHeaderButtons(): void {
@@ -358,4 +358,6 @@ class PlannerPreparer extends BasePreparer {
 	}
 }
 
-new PlannerPreparer();
+// Make data a global so that all classes can get basic data without having to mess around with a confusing
+// amount of arguments/hand-me-downs.
+const data: Data = new PlannerPreparer().data;
