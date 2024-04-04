@@ -2,7 +2,7 @@ class Assignment {
 	id: number;
 	course_id: number;
 	name: string;
-	type: PlanableType;
+	type: PlannableType;
 	submitted: boolean;
 	due_date: Date;
 	start_date: Date | null;
@@ -29,7 +29,7 @@ class Assignment {
 		id: number,
 		course_id: number,
 		name: string,
-		type: PlanableType,
+		type: PlannableType,
 		submitted: boolean,
 		due_date: Date,
 		start_date: Date | null,
@@ -155,6 +155,26 @@ class Assignment {
 
 			// Invert the value and save it.
 			this.shown = !this.shown;
+			course!.saveCourse();
+		});
+
+		// Add event listener to save the user's estimate.
+		const estimateInput: HTMLInputElement | null = assignmentElement.querySelector(
+			`.estimate-input.assignment-${this.id}`
+		)!;
+
+		estimateInput.addEventListener("change", (): void => {
+			this.user_estimate = parseInt(estimateInput.value);
+			course!.saveCourse();
+		});
+
+		// Add event listener to save the time taken.
+		const timeTakenInput: HTMLInputElement | null = assignmentElement.querySelector(
+			`.time-taken-input.assignment-${this.id}`
+		)!;
+
+		timeTakenInput.addEventListener("change", (): void => {
+			this.time_taken = parseInt(timeTakenInput.value);
 			course!.saveCourse();
 		});
 

@@ -28,7 +28,7 @@ interface CourseJson {
 	frontPageTitle: never;
 }
 
-type PlanableType = "announcement" | "assignment" | "calendar_event" | "discussion_topic" | "quiz";
+type PlannableType = "announcement" | "assignment" | "calendar_event" | "discussion_topic" | "quiz";
 
 interface AssignmentJson {
 	course_id: number;
@@ -54,7 +54,7 @@ interface AssignmentJson {
 		created_at: never;
 		updated_at: never;
 	};
-	plannable_type: PlanableType;
+	plannable_type: PlannableType;
 	context_image: never;
 	context_name: never;
 	context_type: never;
@@ -181,7 +181,7 @@ interface LocalAssignmentJson {
 	id: number;
 	course_id: number;
 	name: string;
-	type: PlanableType;
+	type: PlannableType;
 	submitted: boolean;
 	due_date: Date;
 	start_date: Date | null;

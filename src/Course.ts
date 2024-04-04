@@ -2,7 +2,7 @@ class Course {
 	id: number;
 	name: string;
 	code: string;
-	assignments!: Assignment[];
+	assignments: Assignment[] = [];
 	utility: Utility = data.utility;
 
 	constructor(
@@ -20,8 +20,6 @@ class Course {
 	}
 
 	makeAssignments(assignments: AssignmentJson[], localAssignments: LocalAssignmentJson[]): void {
-		this.assignments = []; // Clear it out before we start.
-
 		// Use the right format depending on if the assignments are from the API or storage.
 		// TypeScript is not a big fan of the || tool when I have both formats as options for the same variable.
 		if (assignments.length !== 0) {
@@ -75,9 +73,11 @@ class Course {
 		}
 	}
 
-	updateAssignments(assignments: AssignmentJson[]): void {
+	updateAssignments(assignments: AssignmentJson[]): Assignment[] {
 		// Uses the old information from assignments and the new information from the API to update the assignments.
 		// Takes a filtered assignments for just this course with API information.
+		// Returns a list of new assignments.
+		const newAssignments: Assignment[] = [];
 		for (const assignment of assignments) {
 			const oldAssignment: Assignment | undefined = this.assignments.find(
 				assign => assign.id === assignment.plannable.id
@@ -122,9 +122,12 @@ class Course {
 					oldAssignment.lock || assignment.plannable_type === "calendar_event";
 			} else {
 				// Adds a new assignment
-				this.assignments.push(this.storageAssignment(assignment));
+				const newAssignment: Assignment = this.storageAssignment(assignment);
+				newAssignments.push(newAssignment);
+				this.assignments.push(newAssignment);
 			}
 		}
+		return newAssignments;
 	}
 
 	storageAssignment(assignment: AssignmentJson): Assignment {

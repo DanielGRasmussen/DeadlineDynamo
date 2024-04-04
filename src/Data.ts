@@ -1,5 +1,9 @@
 class Data {
 	utility: Utility = new Utility();
+	backPlan: number = 0;
+	today: Date = new Date();
+	startDate: Date;
+	endDate: Date;
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
 	// [0] Header buttons are added. [1] Main is done loading.
@@ -25,6 +29,21 @@ class Data {
 
 	constructor(loadConditions: boolean[]) {
 		this.loadConditions = loadConditions;
+		// Set the start and end date for the plan.
+		this.startDate = new Date(
+			this.today.setDate(this.today.getDate() - this.today.getDay() + 1 + this.backPlan)
+		);
+		this.endDate = new Date(
+			this.startDate.setDate(
+				this.startDate.getDate() + this.settings.planDistance * 7 + this.backPlan
+			)
+		);
+
+		this.startDate = new Date(this.today);
+		this.today = new Date();
+		this.today.setHours(0, 0, 0, 0);
+		this.startDate.setHours(0, 0, 0, 0);
+		this.endDate.setHours(23, 59, 59, 999);
 
 		this.main().then(_ => {});
 	}

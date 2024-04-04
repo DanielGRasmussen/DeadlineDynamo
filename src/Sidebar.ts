@@ -75,7 +75,7 @@ class Sidebar {
 			this.utility.saveStorage("plan", JSON.stringify(this.plan));
 		});
 
-		this.addAssignmentsToSidebar();
+		this.addCoursesToSidebar();
 
 		// Dragula is now useful since the sidebar (where assignments are dragged to/from) is now created.
 		this.addDragula();
@@ -239,25 +239,12 @@ class Sidebar {
 		planner.classList.remove("sidebar-open");
 	}
 
-	checkPlanAssignment(assignment: Assignment): boolean {
-		// Returns true if the assignment should be planned.
+	addCoursesToSidebar(): void {
+		// Parent container of all assignments added by this.createSidebar.
+		const sidebarCourses: HTMLElement | null = document.querySelector(".sidebar-courses");
 
-		return !(
-			// Already planned assignments don't need to be planned.
-			(
-				assignment.planned ||
-				// Locked assignments are moved into the planner elsewhere.
-				assignment.lock ||
-				// Announcements aren't in the base planner.
-				assignment.type === "announcement"
-			)
-		);
-	}
-
-	addAssignmentsToSidebar(previous: boolean = false, offset: number = 0): void {
-		this.utility.log("Adding assignments to sidebar.");
-		if (!this.courses) {
-			this.utility.notify("error", "Courses not found.");
+		if (sidebarCourses === null) {
+			this.utility.notify("error", "Sidebar courses not found.");
 			return;
 		}
 
@@ -292,73 +279,49 @@ class Sidebar {
 				mouseEvent.target.parentElement.classList.toggle("collapsed");
 			});
 
-			// Parent container of all assignments added by this.createSidebar.
-			const sidebarCourses: HTMLElement | null = document.querySelector(".sidebar-courses");
-
-			if (sidebarCourses === null) {
-				this.utility.notify("error", "Sidebar courses not found.");
-				return;
-			}
-
 			sidebarCourses.appendChild(courseDiv);
 
-			const assignmentList: HTMLElement | null =
-				courseDiv.querySelector(".course-assignments");
-
-			if (assignmentList === null) {
-				// If this is ever hit, I must've removed something from earlier in this function.
-				this.utility.notify("error", "Assignment list not found.");
-				return;
-			}
-
-			for (const assignment of course.assignments) {
-				// Make sure it is valid to be planned.
-				if (!this.checkPlanAssignment(assignment)) {
-					continue;
-				}
-
-				const assignmentDiv: HTMLElement = assignment.makeElement(course);
-
-				assignmentList.appendChild(assignmentDiv);
-
-				// Add event listener to save the user's estimate.
-				const estimateInput: HTMLInputElement | null = assignmentDiv.querySelector(
-					`.estimate-input.assignment-${assignment.id}`
-				);
-
-				if (estimateInput === null) {
-					this.utility.notify("error", "Input not found.");
-					return;
-				}
-
-				estimateInput.addEventListener("change", (): void => {
-					this.saveValue(course, assignment, estimateInput.value, true);
-				});
-
-				// Add event listener to save the time taken.
-				const timeTakenInput: HTMLInputElement | null = assignmentDiv.querySelector(
-					`.time-taken-input.assignment-${assignment.id}`
-				);
-
-				if (timeTakenInput === null) {
-					this.utility.notify("error", "Input not found.");
-					return;
-				}
-
-				timeTakenInput.addEventListener("change", (): void => {
-					this.saveValue(course, assignment, timeTakenInput.value, false);
-				});
-			}
+			this.addAssignmentsToSidebar(course, courseDiv.querySelector(".course-assignments")!);
 		}
 	}
 
-	saveValue(course: Course, assignment: Assignment, value: string, is_estimate: boolean): void {
-		if (is_estimate) {
-			assignment.user_estimate = parseInt(value);
-		} else {
-			assignment.time_taken = parseInt(value);
+	async addAssignmentsToSidebar(
+		course: Course,
+		assignmentContainer: HTMLElement,
+		assignments: Assignment[] = course.assignments
+	): Promise<void> {
+		this.utility.log("Adding assignments to sidebar.");
+		if (!this.courses) {
+			this.utility.notify("error", "Courses not found.");
+			return;
 		}
-		course.saveCourse();
+
+		for (const assignment of assignments) {
+			// Make sure it is valid to be planned.
+			if (!this.checkPlannable(assignment)) {
+				continue;
+			}
+
+			assignmentContainer.appendChild(assignment.makeElement(course));
+		}
+	}
+
+	checkPlannable(assignment: Assignment): boolean {
+		// Returns true if the assignment should be plannable.
+
+		return (
+			// Already planned assignments don't need to be planned.
+			!(
+				assignment.planned ||
+				// Locked assignments are moved into the planner elsewhere.
+				assignment.lock ||
+				// Announcements aren't in the base planner.
+				assignment.type === "announcement"
+			) &&
+			// Check if it's in the planning period.
+			assignment.due_date >= data.startDate &&
+			assignment.due_date <= data.endDate
+		);
 	}
 
 	updateUnplannedCount(): void {
@@ -390,7 +353,10 @@ class Sidebar {
 				!assignment.planned &&
 				!assignment.submitted &&
 				!assignment.lock &&
-				assignment.type !== "announcement"
+				assignment.type !== "announcement" &&
+				// Check if it's in the planning period
+				assignment.due_date >= data.startDate &&
+				assignment.due_date <= data.endDate
 			);
 		}).length;
 

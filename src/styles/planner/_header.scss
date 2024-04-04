@@ -1,5 +1,5 @@
 // Show older assignments button
-.show-old-assignments {
+.show-more-button {
 	display: block;
 	position: absolute;
 	bottom: -30px;
@@ -9,6 +9,11 @@
 	color: white;
 	background: #0076B6;
 	border-radius: 0 0 4px 4px;
+}
+
+// Hide this when the sidebar is open. It won't work while the sidebar is open and tablet view can see both at once.
+#dashboard:has(> #dd-planner.sidebar-open) .show-more-button {
+	display: none;
 }
 
 // Add hover effect for our scroll button
