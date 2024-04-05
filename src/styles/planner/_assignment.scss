@@ -23,18 +23,6 @@
 			color: var(--ic-link-color);
 		}
 
-		&:not(.completed).editing .estimate-edit,
-		&:not(.completed, .editing) .estimate-label,
-		&.completed:not(.collapsed).editing .estimate-edit,
-		&.completed:not(.collapsed, .editing) .estimate-label,
-		.location {
-			display: block;
-			grid-column: 2 / 3;
-			grid-row: 2 / 3;
-			margin: 0;
-			user-select: none;
-		}
-
 		.due-date {
 			text-align: right;
 			padding-right: 5px;
@@ -79,6 +67,18 @@
 		.time-taken-edit,
 		.time-taken-label {
 			display: none;
+		}
+
+		&:not(.completed).editing .estimate-edit,
+		&:not(.completed, .editing) .estimate-label,
+		&.completed:not(.collapsed).editing .estimate-edit,
+		&.completed:not(.collapsed, .editing) .estimate-label,
+		.location {
+			display: block;
+			grid-column: 2 / 3;
+			grid-row: 2 / 3;
+			margin: 0;
+			user-select: none;
 		}
 
 		// Modify how it looks for calendar events.
@@ -152,7 +152,7 @@
 	.time-taken-edit {
 		grid-column: 2 / 3;
 		grid-row: 2 / 3;
-		margin: -7px 0 0 0;
+		margin: -7px 0 0;
 
 		input {
 			max-width: 45px;

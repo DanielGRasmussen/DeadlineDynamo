@@ -171,7 +171,7 @@ $sidebar-animation: 0.45s ease-in-out;
 
 
 // Add the no assignments message.
-.course-assignments:empty::before,
+// .course-assignments:empty::before,
 // I am not sure why but the previous one doesn't trigger
 .course-assignments:not(:has(*))::before,
 // Has no assignments that aren't hidden.
