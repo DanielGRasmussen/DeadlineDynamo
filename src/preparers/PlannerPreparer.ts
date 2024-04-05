@@ -293,21 +293,32 @@ class PlannerPreparer extends BasePreparer {
 		this.loadConditions[0] = true;
 	}
 
-	addShowMoreButton(parent: HTMLElement): void {
+	addShowMoreButton(node: HTMLElement): void {
+		this.utility.log("Adding show more button.");
 		const showMoreButtonData: string = `
-			<span class="show-old-assignments">Show More</span>
+			<span class="show-more-button">Show More</span>
 		`;
 
 		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
 
+		const parent: HTMLElement = node.parentElement!;
+		console.log(parent);
+
 		parent.append(showMoreButton);
 
-		let offset: number = -1;
+		showMoreButton.addEventListener("click", this.showMore.bind(this));
+	}
 
-		showMoreButton.addEventListener("click", () => {
-			this.planner?.addWeekdaySlots(true, offset);
-			offset -= 1;
-		});
+	async showMore(): Promise<void> {
+		// Change our planning dates and get the new assignments.
+		this.data.backPlan -= 1;
+		this.data.startDate.setDate(this.data.startDate.getDate() - 7);
+
+		this.planner!.addWeekdaySlots(this.data.backPlan);
+
+		await this.data.updateAssignments();
+
+		this.planner!.sidebar.updateUnplannedCount();
 	}
 
 	isNothingPlannedMessage(element: HTMLElement): boolean {

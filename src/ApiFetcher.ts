@@ -17,24 +17,10 @@ class ApiFetcher {
 		// Gets all assignments for a course.
 		let allData: AssignmentJson[] = [];
 
-		// Get planDistance from settings.
-		const settings: SettingsJson = await this.utility.loadSettings();
-
-		// Get start and end date
-		const today: Date = new Date();
-		let start_date: Date = new Date(today.setDate(today.getDate() - today.getDay() + 1));
-
-		// Calculate x weeks from the Monday to determine where planning should end.
-		const endDate: Date = new Date(
-			start_date.setDate(start_date.getDate() + settings.planDistance * 7)
-		);
-		// Creating the new date sets the one used in it, so we need to reset monday to be monday.
-		start_date = new Date(today);
-
 		// Get all assignments but stop if there is no next page.
 		let fetchUrl: string =
 			this.assignmentApi +
-			`&start_date=${start_date.toISOString()}&end_date=${endDate.toISOString()}`;
+			`&start_date=${data.startDate.toISOString()}&end_date=${data.endDate.toISOString()}`;
 		while (fetchUrl) {
 			const response: Response = await fetch(fetchUrl);
 			const data: AssignmentJson[] = await response.json();

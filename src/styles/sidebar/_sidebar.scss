@@ -45,7 +45,7 @@ $sidebar-animation: 0.45s ease-in-out;
 			}
 
 			.estimate-edit,
-			.time-taken {
+			.time-taken-edit {
 				padding-top: 0.5rem;
 				padding-left: 50px;
 				margin: 0;
@@ -57,14 +57,16 @@ $sidebar-animation: 0.45s ease-in-out;
 			}
 
 			> .estimate-label,
-				// Events never go to the planner.
+			> .time-taken-label,
+			// Events never go to the planner.
 			.location,
-				// Visibility doesn't effect anything in the sidebar.
+			// Visibility doesn't effect anything in the sidebar.
 			.visibility,
-				// If it is completed there's no point in setting an estimate.
+			// If it is completed there's no point in setting an estimate.
 			&.completed .estimate-edit,
-				// Hide the time-taken if it isn't completed.
-			&:not(.completed) .time-taken{
+			// Hide the time-taken if it isn't completed.
+			&:not(.completed) .time-taken-edit,
+			&:not(.completed) .time-taken-label {
 				display: none;
 			}
 
@@ -169,7 +171,9 @@ $sidebar-animation: 0.45s ease-in-out;
 
 
 // Add the no assignments message.
-.course-assignments:empty::before,
+// .course-assignments:empty::before,
+// I am not sure why but the previous one doesn't trigger
+.course-assignments:not(:has(*))::before,
 // Has no assignments that aren't hidden.
 .course-assignments:has(.assignment.hidden):not(:has(.assignment:not(.hidden)))::before,
 // Has no assignments that aren't completed and the toggle is off.

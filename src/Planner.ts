@@ -71,7 +71,7 @@ class Planner {
 		}
 	}
 
-	addWeekdaySlots(previous: boolean = false, offset: number = 0): void {
+	addWeekdaySlots(offset: number = 0): void {
 		// Adds the empty weekday slots to the main UI of the planner.
 		this.utility.log("Adding weekday slots.");
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
@@ -109,7 +109,7 @@ class Planner {
 
 			const dayDiv: HTMLElement = this.utility.convertHtml(dayElement);
 
-			if (!previous) {
+			if (offset === 0) {
 				planner.appendChild(dayDiv);
 			} else {
 				sibling?.before(dayDiv);
