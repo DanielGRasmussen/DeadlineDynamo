@@ -106,10 +106,16 @@ class Assignment {
 			}
 		}
 
-		let estimate: string | typeof NaN = this.utility.getEstimate(this, course);
+		const estimate: string | typeof NaN = this.utility.getEstimate(this, course);
 
+		let estimate_label_value: string;
+		let estimate_input_value: string;
 		if (isNaN(Number(estimate))) {
-			estimate = "TBD";
+			estimate_label_value = "TBD";
+			estimate_input_value = "";
+		} else {
+			estimate_label_value = `${estimate}m`;
+			estimate_input_value = estimate;
 		}
 
 		const assignmentData: string = `
@@ -117,10 +123,10 @@ class Assignment {
 				${title}
 				<p class="estimate-edit">
 					<span>Estimate: </span>
-					<input class="estimate-input assignment-${this.id}" type="number" value="${estimate}" min="0" max="1440">
+					<input class="estimate-input assignment-${this.id}" type="number" value="${estimate_input_value}" min="0" max="1440">
 					<span> minutes</span>
 				</p>
-				<p class="estimate-label">Estimate: ${estimate}m</p>
+				<p class="estimate-label">Estimate: ${estimate_label_value}</p>
 				<div class="time-taken-edit">
 					<span title="How long it took you to complete the assignment. It is used for history based estimations.">Time taken: </span>
 					<input class="time-taken-input assignment-${this.id}" type="number" value="${this.time_taken === null ? "" : this.time_taken.toString()}" min="0" max="1440">
@@ -163,20 +169,13 @@ class Assignment {
 
 		// Add event listener for editing the items.
 		const estimate_label: HTMLElement = assignmentElement.querySelector("p.estimate-label")!;
-		estimate_label.addEventListener("click", (event): void => {
-			if ((event.target as Node)?.nodeName === "INPUT") {
-				return;
-			}
-			assignmentElement.classList.add("editing");
-		});
-
 		const time_taken_label: HTMLElement =
 			assignmentElement.querySelector("p.time-taken-label")!;
-		time_taken_label.addEventListener("click", (event): void => {
-			if ((event.target as Node)?.nodeName === "INPUT") {
-				return;
-			}
-			assignmentElement.classList.add("editing");
+		estimate_label.addEventListener("click", (event: MouseEvent): void => {
+			this.addEditing(assignmentElement, event);
+		});
+		time_taken_label.addEventListener("click", (event: MouseEvent): void => {
+			this.addEditing(assignmentElement, event);
 		});
 
 		// Add event listener to get rid of the editing class.
@@ -191,11 +190,13 @@ class Assignment {
 
 			if (isNaN(Number(estimate))) {
 				estimate = "TBD";
+			} else {
+				estimate += "m";
 			}
 
-			this.utility.log(`Updating estimate to ${estimate}m`);
+			this.utility.log(`Updating estimate to ${estimate}`);
 
-			estimate_label.textContent = `Estimate: ${estimate}m`;
+			estimate_label.textContent = `Estimate: ${estimate}`;
 		});
 
 		const time_taken_edit: HTMLElement =
@@ -237,5 +238,13 @@ class Assignment {
 		});
 
 		return assignmentElement;
+	}
+
+	addEditing(assignmentElement: HTMLElement, event: MouseEvent): void {
+		if ((event.target as Node)?.nodeName === "INPUT") {
+			return;
+		}
+		this.utility.log("Adding editing class to assignment.");
+		assignmentElement.classList.add("editing");
 	}
 }

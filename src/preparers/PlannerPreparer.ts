@@ -302,7 +302,6 @@ class PlannerPreparer extends BasePreparer {
 		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
 
 		const parent: HTMLElement = node.parentElement!;
-		console.log(parent);
 
 		parent.append(showMoreButton);
 

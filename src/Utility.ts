@@ -3,7 +3,7 @@ class Utility {
 	location: string = window.location.host.split(".")[0];
 
 	log(message: string): void {
-		const logging: boolean = true;
+		const logging: boolean = false;
 		if (logging) {
 			console.log(message);
 		}
@@ -282,11 +282,11 @@ class Utility {
 		data.estimator.estimateTime(assignment);
 
 		if (assignment.basic_estimate === null) {
-			this.notify("error", "No estimator failed to estimate.");
-			return "";
+			this.notify("error", "Estimator failed to estimate.");
+			return "TBD";
 		} else if (!data.settings.useBasicEstimate) {
 			this.log("Basic estimate not used.");
-			return "";
+			return "TBD";
 		} else {
 			this.log("Basic estimate used.");
 			return assignment.basic_estimate.toString();
