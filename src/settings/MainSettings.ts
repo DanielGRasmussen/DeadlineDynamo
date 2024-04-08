@@ -52,6 +52,30 @@ class MainSettings extends BaseSettings {
 
 		settings.appendChild(plannedWeeks);
 
+		// Week start day
+		const weekStartData: string = `
+			<div class="week-start-day">
+				<label for="weekStart">Week start day: </label>
+				<select id="weekStart">
+					<option value="0">Sunday</option>
+					<option value="1">Monday</option>
+					<option value="2">Tuesday</option>
+					<option value="3">Wednesday</option>
+					<option value="4">Thursday</option>
+					<option value="5">Friday</option>
+					<option value="6">Saturday</option>
+				</select>
+			</div>
+		`;
+
+		const weekStart: HTMLElement = this.utility.convertHtml(weekStartData);
+
+		// Set the current value
+		(weekStart.querySelector("#weekStart") as HTMLSelectElement).value =
+			this.startDay.toString();
+
+		settings.appendChild(weekStart);
+
 		// Clear storage button
 		const clearStorageData: string = `
 			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
@@ -91,6 +115,9 @@ class MainSettings extends BaseSettings {
 			(document.getElementById("plannedWeeks") as HTMLInputElement).value
 		);
 
+		// Week start day
+		this.startDay = parseInt((document.getElementById("weekStart") as HTMLSelectElement).value);
+
 		this.utility.log(`Settings: ${JSON.stringify(this)}`);
 	}
 
@@ -104,5 +131,9 @@ class MainSettings extends BaseSettings {
 		// Planned weeks
 		(document.getElementById("plannedWeeks") as HTMLInputElement).value =
 			this.planDistance.toString();
+
+		// Week start day
+		(document.getElementById("weekStart") as HTMLSelectElement).value =
+			this.startDay.toString();
 	}
 }

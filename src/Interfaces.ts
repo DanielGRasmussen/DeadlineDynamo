@@ -208,6 +208,7 @@ interface SettingsJson {
 	estimateMultiplier: EstimateMultiplier;
 	planDistance: number;
 	showEvents: boolean;
+	startDay: number;
 }
 
 interface WorkHours {

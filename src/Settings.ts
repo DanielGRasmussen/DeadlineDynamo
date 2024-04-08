@@ -6,16 +6,20 @@ class Settings {
 	estimateMultiplier!: EstimateMultiplier;
 	planDistance!: number;
 	showEvents!: boolean;
+	// Start day is 0 for Sunday, 1 for Monday, etc.
+	startDay!: number;
 
 	constructor() {
 		// Load settings from storage.
-		this.utility.loadSettings().then(settings => {
+		this.utility.loadSettings().then((settings: SettingsJson) => {
 			this.useBasicEstimate = settings.useBasicEstimate;
 			this.useHistoryEstimate = settings.useHistoryEstimate;
 			this.workHours = settings.workHours;
 			this.estimateMultiplier = settings.estimateMultiplier;
 			this.planDistance = settings.planDistance;
 			this.showEvents = settings.showEvents;
+			this.startDay = settings.startDay;
+
 			this.createSettings();
 		});
 	}

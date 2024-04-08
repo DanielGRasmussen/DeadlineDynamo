@@ -1,5 +1,4 @@
 class Planner {
-	data: Data = data;
 	utility: Utility = data.utility;
 	// [0] Header buttons are added. [1] Data is done loading.
 	conditions: boolean[] = data.loadConditions;
@@ -21,8 +20,8 @@ class Planner {
 		for (let i: number = 0; i < 20; i++) {
 			await this.utility.wait(500);
 
-			if (this.data.courses.length !== 0) {
-				this.courses = this.data.courses;
+			if (data.courses.length !== 0) {
+				this.courses = data.courses;
 			}
 
 			if (!triggeredHeader && this.conditions[0]) {
@@ -64,7 +63,9 @@ class Planner {
 				this.addWeekdaySlots();
 
 				// Scroll down to current day.
-				this.utility.scrollToToday();
+				if (document.body.classList.contains("dd-view")) {
+					this.utility.scrollToToday();
+				}
 
 				triggeredMain = true;
 			}
@@ -84,12 +85,11 @@ class Planner {
 		const sibling: ChildNode | null = planner.firstChild;
 
 		// Get the first day of the week.
-		const monday: Date = this.utility.getMonday(new Date(), offset);
+		const day: Date = this.utility.getWeekStart(new Date(), offset);
 
 		// Add the slots for each day of the week.
 		for (let i: number = 0; i < 7 * this.settings.planDistance; i++) {
-			const day: Date = new Date(monday);
-			day.setDate(day.getDate() + i);
+			day.setDate(day.getDate() + 1);
 
 			let date: string = this.utility.formatDate(day, false)[0];
 			if (day.getDate() === new Date().getDate()) {
@@ -103,7 +103,7 @@ class Planner {
 			const dayElement: string = `
 				<div class="weekday">
 					<h3 class="weekday-name">${date}</h3>
-					<ul class="weekday-assignments ${day.toISOString().slice(0, 10)}"></ul>
+					<ul class="weekday-assignments day-${day.toISOString().slice(0, 10)}"></ul>
 				</div>
 			`;
 

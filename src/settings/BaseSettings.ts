@@ -6,6 +6,7 @@ abstract class BaseSettings {
 	estimateMultiplier: EstimateMultiplier;
 	planDistance: number;
 	showEvents: boolean;
+	startDay: number;
 
 	constructor(settings: Settings) {
 		this.useBasicEstimate = settings.useBasicEstimate;
@@ -14,6 +15,7 @@ abstract class BaseSettings {
 		this.estimateMultiplier = settings.estimateMultiplier;
 		this.planDistance = settings.planDistance;
 		this.showEvents = settings.showEvents;
+		this.startDay = settings.startDay;
 
 		// Open nav.
 		const toggle: HTMLElement | null = document.querySelector("#courseMenuToggle");
@@ -88,7 +90,8 @@ abstract class BaseSettings {
 			workHours: this.workHours,
 			estimateMultiplier: this.estimateMultiplier,
 			planDistance: this.planDistance,
-			showEvents: this.showEvents
+			showEvents: this.showEvents,
+			startDay: this.startDay
 		});
 		this.utility.saveStorage("settings", settings);
 

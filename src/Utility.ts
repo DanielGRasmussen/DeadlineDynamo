@@ -51,15 +51,20 @@ class Utility {
 		this.log("Scrolling to today.");
 		const date: string = new Date().toISOString().slice(0, 10);
 
-		const today: Element | null = document.getElementsByClassName(date)[0];
+		const today: Element | undefined = document.getElementsByClassName(`day-${date}`)[0];
 
-		if (today === null) {
+		if (today === undefined) {
 			this.notify("error", "Today not found.");
 			return;
 		}
 
 		// Get the top of the element.
-		const elementRect: DOMRect = today.parentElement!.getBoundingClientRect();
+		const elementRect: DOMRect | undefined = today.parentElement?.getBoundingClientRect();
+
+		if (elementRect === undefined) {
+			this.notify("error", "Element not found.");
+			return;
+		}
 
 		const desiredY: number = elementRect.top + window.scrollY - 80;
 
@@ -78,7 +83,7 @@ class Utility {
 		return info[name];
 	}
 
-	async loadSettings(originalSettings?: SettingsJson): Promise<SettingsJson> {
+	async loadSettings(): Promise<SettingsJson> {
 		this.log("Loading settings from storage.");
 		const settingsJson: string | undefined = await this.loadStorage("settings");
 		// Default settings. To be overridden if settings are found in storage.
@@ -96,7 +101,8 @@ class Utility {
 			},
 			estimateMultiplier: {},
 			planDistance: 1,
-			showEvents: true
+			showEvents: true,
+			startDay: 1
 		};
 
 		if (settingsJson === undefined) {
@@ -113,15 +119,8 @@ class Utility {
 			}
 		} else {
 			this.log("Settings found.");
-			settings = JSON.parse(settingsJson);
-		}
-
-		if (originalSettings !== undefined) {
-			// Merge the settings with the original settings.
-			for (const key in originalSettings) {
-				// @ts-expect-error This is how I decided to merge the settings.
-				originalSettings[key] = settings[key];
-			}
+			// Set values to default for anything that's undefined.
+			settings = { ...settings, ...JSON.parse(settingsJson) };
 		}
 
 		this.log(JSON.stringify(settings));
@@ -133,10 +132,10 @@ class Utility {
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
 			// Create an empty plan for this week.
-			const monday: Date = this.getMonday(new Date());
+			const start: Date = this.getWeekStart(new Date());
 			const plan: Plan = {};
 			for (let i: number = 0; i < 5; i++) {
-				const day: Date = new Date(monday);
+				const day: Date = new Date(start);
 				day.setDate(day.getDate() + i);
 				plan[day.toISOString().slice(0, 10)] = [];
 			}
@@ -334,17 +333,27 @@ class Utility {
 		return [formattedDate, formattedTime];
 	}
 
-	getMonday(date: Date, offset: number = 0): Date {
-		const monday: Date = new Date(date);
-		monday.setDate(monday.getDate() - monday.getDay() + 1 + offset * 7);
-		monday.setHours(0, 0, 0, 0);
-		return monday;
+	getWeekStart(date: Date, offset: number = 0): Date {
+		// Gets the start of the week for the given date. Offset is the number of weeks to go back. 0 is the current
+		// week, 1 is the previous week, etc.
+		const start: Date = new Date(date);
+
+		// Subtract the number of days since the start of the week to get the start day.
+		start.setDate(start.getDate() - start.getDay() + data.settings.startDay - 1 + offset * 7);
+
+		// If the start day is set to after the current day, go back a week.
+		if (start > date) {
+			start.setDate(start.getDate() - 7);
+		}
+
+		start.setHours(0, 0, 0, 0);
+		return start;
 	}
 
 	daysUntil(date: Date): number {
 		// Gets days between the monday and the date.
-		const monday: Date = this.getMonday(new Date());
-		const difference: number = date.getTime() - monday.getTime();
+		const start: Date = this.getWeekStart(new Date());
+		const difference: number = date.getTime() - start.getTime();
 		return Math.ceil(difference / (1000 * 60 * 60 * 24));
 	}
 

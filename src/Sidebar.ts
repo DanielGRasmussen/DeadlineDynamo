@@ -101,7 +101,6 @@ class Sidebar {
 			".weekday-assignments, .course-assignments, .sidebar-courses"
 		);
 		const containers: HTMLElement[] = Array.from(assignment_containers);
-		console.log(containers);
 
 		this.utility.log("Adding dragula.");
 

@@ -2,37 +2,26 @@ class Data {
 	utility: Utility = new Utility();
 	backPlan: number = 0;
 	today: Date = new Date();
-	startDate: Date;
-	endDate: Date;
+	startDate!: Date;
+	endDate!: Date;
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[];
 	courses: Course[] = this.apiFetcher.courses;
-	settings: SettingsJson = {
-		useBasicEstimate: true,
-		useHistoryEstimate: true,
-		workHours: {
-			monday: 6,
-			tuesday: 6,
-			wednesday: 6,
-			thursday: 6,
-			friday: 6,
-			saturday: 6,
-			sunday: 0
-		},
-		estimateMultiplier: {},
-		planDistance: 1,
-		showEvents: true
-	};
+	settings!: SettingsJson;
 	plan: Plan = {};
 
 	constructor(loadConditions: boolean[]) {
 		this.loadConditions = loadConditions;
-		// Set the start and end date for the plan.
-		this.startDate = new Date(
-			this.today.setDate(this.today.getDate() - this.today.getDay() + 1 + this.backPlan)
-		);
+		this.main().then(_ => {});
+	}
+
+	async main(): Promise<void> {
+		this.settings = await this.utility.loadSettings();
+		await this.utility.loadPlan(this.plan);
+
+		this.startDate = this.utility.getWeekStart(new Date());
 		this.endDate = new Date(
 			this.startDate.setDate(
 				this.startDate.getDate() + this.settings.planDistance * 7 + this.backPlan
@@ -44,13 +33,6 @@ class Data {
 		this.today.setHours(0, 0, 0, 0);
 		this.startDate.setHours(0, 0, 0, 0);
 		this.endDate.setHours(23, 59, 59, 999);
-
-		this.main().then(_ => {});
-	}
-
-	async main(): Promise<void> {
-		await this.utility.loadSettings(this.settings);
-		await this.utility.loadPlan(this.plan);
 
 		const isFirstLoadUp: boolean = await this.getCourses();
 

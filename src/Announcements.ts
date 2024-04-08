@@ -15,7 +15,7 @@ class Announcements {
 			.filter((assignment: Assignment): boolean => {
 				if (assignment.type !== "announcement") {
 					return false;
-				} else if (assignment.due_date < this.utility.getMonday(new Date())) {
+				} else if (assignment.due_date < this.utility.getWeekStart(new Date())) {
 					return false;
 				}
 

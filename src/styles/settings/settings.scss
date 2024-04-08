@@ -3,7 +3,8 @@ input[type = "checkbox"] + label {
 }
 
 // Put the textbox on a new line.
-label + input[type = "number"] {
+label + input[type = "number"],
+label + select {
 	display: block;
 }
 
