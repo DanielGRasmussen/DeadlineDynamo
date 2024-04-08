@@ -123,6 +123,7 @@ class Utility {
 			planDistance: 1,
 			showEvents: true,
 			startDay: 1,
+			openInNewTab: true,
 			log: false
 		};
 

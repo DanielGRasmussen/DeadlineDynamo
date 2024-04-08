@@ -209,6 +209,7 @@ interface SettingsJson {
 	planDistance: number;
 	showEvents: boolean;
 	startDay: number;
+	openInNewTab: boolean;
 	log: boolean;
 }
 

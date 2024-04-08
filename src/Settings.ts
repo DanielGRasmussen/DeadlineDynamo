@@ -8,6 +8,8 @@ class Settings {
 	showEvents!: boolean;
 	// Start day is 0 for Sunday, 1 for Monday, etc.
 	startDay!: number;
+	// Determines if assignments open up in current tab or new tab.
+	openInNewTab!: boolean;
 	// Determines if utility.log() should log.
 	log!: boolean;
 
@@ -21,6 +23,7 @@ class Settings {
 			this.planDistance = settings.planDistance;
 			this.showEvents = settings.showEvents;
 			this.startDay = settings.startDay;
+			this.openInNewTab = settings.openInNewTab;
 			this.log = settings.log;
 
 			this.createSettings();

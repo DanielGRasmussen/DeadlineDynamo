@@ -7,6 +7,7 @@ abstract class BaseSettings {
 	planDistance: number;
 	showEvents: boolean;
 	startDay: number;
+	openInNewTab: boolean;
 	log: boolean;
 
 	constructor(settings: Settings) {
@@ -17,6 +18,7 @@ abstract class BaseSettings {
 		this.planDistance = settings.planDistance;
 		this.showEvents = settings.showEvents;
 		this.startDay = settings.startDay;
+		this.openInNewTab = settings.openInNewTab;
 		this.log = settings.log;
 
 		// Open nav.
@@ -94,6 +96,7 @@ abstract class BaseSettings {
 			planDistance: this.planDistance,
 			showEvents: this.showEvents,
 			startDay: this.startDay,
+			openInNewTab: this.openInNewTab,
 			log: this.log
 		});
 		this.utility.saveStorage("settings", settings);

@@ -40,6 +40,23 @@ class MainSettings extends BaseSettings {
 			(showEvents.querySelector("#showEvents") as HTMLInputElement).checked = true;
 		}
 
+		// Open in new tab
+		const newTabData: string = `
+			<div class="new-tab">
+				<label for="newTab">Open assignments in new tab: </label>
+				<input type="checkbox" id="newTab">
+			</div>
+		`;
+
+		const newTab: HTMLElement = this.utility.convertHtml(newTabData);
+
+		settings.appendChild(newTab);
+
+		// Load the current value from storage
+		if (this.openInNewTab) {
+			(newTab.querySelector("#newTab") as HTMLInputElement).checked = true;
+		}
+
 		// Planned weeks
 		const plannedWeeksData: string = `
 			<div class="planned-weeks">

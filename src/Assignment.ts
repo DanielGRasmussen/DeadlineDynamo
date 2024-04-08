@@ -90,9 +90,11 @@ class Assignment {
 
 		const link: string = `/courses/${this.course_id}/${link_type}/${this.id}`;
 
+		const target: string = data.settings.openInNewTab ? "target='_blank'" : "";
+
 		let title: string;
 		if (this.type !== "calendar_event") {
-			title = `<a target="_blank" href="${link}" class="name">${this.name}</a>`;
+			title = `<a ${target} href="${link}" class="name">${this.name}</a>`;
 		} else {
 			title = `<p class="name">${this.name}</p>`;
 		}
