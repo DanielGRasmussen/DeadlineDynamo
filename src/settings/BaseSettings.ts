@@ -7,6 +7,7 @@ abstract class BaseSettings {
 	planDistance: number;
 	showEvents: boolean;
 	startDay: number;
+	log: boolean;
 
 	constructor(settings: Settings) {
 		this.useBasicEstimate = settings.useBasicEstimate;
@@ -16,6 +17,7 @@ abstract class BaseSettings {
 		this.planDistance = settings.planDistance;
 		this.showEvents = settings.showEvents;
 		this.startDay = settings.startDay;
+		this.log = settings.log;
 
 		// Open nav.
 		const toggle: HTMLElement | null = document.querySelector("#courseMenuToggle");
@@ -91,7 +93,8 @@ abstract class BaseSettings {
 			estimateMultiplier: this.estimateMultiplier,
 			planDistance: this.planDistance,
 			showEvents: this.showEvents,
-			startDay: this.startDay
+			startDay: this.startDay,
+			log: this.log
 		});
 		this.utility.saveStorage("settings", settings);
 

@@ -7,14 +7,13 @@ class Data {
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
 	// [0] Header buttons are added. [1] Main is done loading.
-	loadConditions: boolean[];
+	loadConditions: boolean[] = [false, false];
 	courses: Course[] = this.apiFetcher.courses;
 	settings!: SettingsJson;
 	plan: Plan = {};
 
-	constructor(loadConditions: boolean[]) {
-		this.loadConditions = loadConditions;
-		this.main().then(_ => {});
+	constructor() {
+		this.main();
 	}
 
 	async main(): Promise<void> {
@@ -33,6 +32,8 @@ class Data {
 		this.today.setHours(0, 0, 0, 0);
 		this.startDate.setHours(0, 0, 0, 0);
 		this.endDate.setHours(23, 59, 59, 999);
+
+		new PlannerPreparer();
 
 		const isFirstLoadUp: boolean = await this.getCourses();
 
@@ -162,3 +163,7 @@ class Data {
 		}
 	}
 }
+
+// Make data a global so that all classes can get basic data without having to mess around with a confusing
+// amount of arguments/hand-me-downs.
+const data: Data = new Data();

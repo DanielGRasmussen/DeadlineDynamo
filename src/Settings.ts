@@ -8,6 +8,8 @@ class Settings {
 	showEvents!: boolean;
 	// Start day is 0 for Sunday, 1 for Monday, etc.
 	startDay!: number;
+	// Determines if utility.log() should log.
+	log!: boolean;
 
 	constructor() {
 		// Load settings from storage.
@@ -19,6 +21,7 @@ class Settings {
 			this.planDistance = settings.planDistance;
 			this.showEvents = settings.showEvents;
 			this.startDay = settings.startDay;
+			this.log = settings.log;
 
 			this.createSettings();
 		});
@@ -33,6 +36,9 @@ class Settings {
 		} else if (location.endsWith("/deadline-dynamo/estimates-planning")) {
 			this.utility.log("Creating the estimates & planning settings.");
 			new EstimatesPlanningSettings(this);
+		} else if (location.endsWith("/deadline-dynamo/developer")) {
+			this.utility.log("Creating the developer settings.");
+			new DeveloperSettings(this);
 		}
 	}
 }

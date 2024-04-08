@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "DeadlineDynamo",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "A Chrome extension to plan Canvas assignments efficiently.",
 	"icons": {
 		"16": "src/images/icon - 16px.png",
@@ -60,6 +60,16 @@
 		},
 
 		{
+			"matches": ["https://*.instructure.com/deadline-dynamo/developer"],
+			"js": [
+				"dist/out-tsc/settings/DeveloperSettings.js"
+			],
+			"css": [
+				"dist/styles/settings/settings-developer.css"
+			]
+		},
+
+		{
 			"matches": ["https://*.instructure.com/", "https://*.instructure.com/?*"],
 			"js": [
 				"dist/out-tsc/Utility.js",
@@ -71,8 +81,8 @@
 				"dist/out-tsc/Sidebar.js",
 				"third_party/dragula.min.js",
 				"dist/out-tsc/Planner.js",
-				"dist/out-tsc/Data.js",
-				"dist/out-tsc/preparers/PlannerPreparer.js"
+				"dist/out-tsc/preparers/PlannerPreparer.js",
+				"dist/out-tsc/Data.js"
 			],
 			"css": [
 				"dist/styles/main.css",

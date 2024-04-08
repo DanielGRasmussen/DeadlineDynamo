@@ -250,7 +250,8 @@ class SettingsPreparer extends BasePreparer {
 
 		const links: string[][] = [
 			["", "Main"],
-			["estimates-planning", "Estimating & Planning"]
+			["estimates-planning", "Estimating & Planning"],
+			["developer", "Developer Settings"]
 		];
 
 		for (const link of links) {

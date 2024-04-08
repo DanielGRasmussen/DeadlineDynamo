@@ -1,11 +1,31 @@
 class Utility {
 	domParser: DOMParser = new DOMParser();
 	location: string = window.location.host.split(".")[0];
+	logging: boolean = false;
+	logs: string[] = [];
+
+	constructor() {
+		this.loadSettings().then((settings: SettingsJson): void => {
+			// While developing I might change the default value of log so I want to make sure it's always correct.
+			if (settings.log !== this.logging) {
+				this.logging = settings.log;
+				this.log("Logging setting changed.");
+			}
+		});
+	}
 
 	log(message: string): void {
-		const logging: boolean = false;
-		if (logging) {
+		if (this.logging) {
+			for (let i: number = 0; i < this.logs.length; i++) {
+				const log: string | undefined = this.logs.pop();
+				if (log !== undefined) {
+					console.log(log);
+				}
+			}
+
 			console.log(message);
+		} else {
+			this.logs.push(message);
 		}
 	}
 
@@ -102,7 +122,8 @@ class Utility {
 			estimateMultiplier: {},
 			planDistance: 1,
 			showEvents: true,
-			startDay: 1
+			startDay: 1,
+			log: false
 		};
 
 		if (settingsJson === undefined) {

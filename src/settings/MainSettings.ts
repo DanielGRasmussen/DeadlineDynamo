@@ -76,24 +76,6 @@ class MainSettings extends BaseSettings {
 
 		settings.appendChild(weekStart);
 
-		// Clear storage button
-		const clearStorageData: string = `
-			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
-		`;
-
-		const clearStorage: HTMLElement = this.utility.convertHtml(clearStorageData);
-		clearStorage.addEventListener("click", (): void => {
-			if (
-				confirm(
-					"Are you sure you want to clear all data?\nThis is permanent and can not be undone."
-				)
-			) {
-				this.utility.clearStorage();
-				this.utility.notify("success", "Storage cleared!");
-			}
-		});
-		container.appendChild(clearStorage);
-
 		// Buttons
 		const buttons: HTMLElement = this.getButtons();
 
