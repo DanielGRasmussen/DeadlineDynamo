@@ -6,7 +6,8 @@
 		"ts:watch": "tsc-watch",
 		"sass": "sass src/styles:dist/styles",
 		"sass:watch": "sass --watch src/styles:dist/styles",
-		"format": "eslint --fix src/ && stylelint \"src/**/*.scss\" --fix --color --formatter verbose"
+		"format": "eslint --fix src/ && stylelint \"src/**/*.scss\" --fix --color --formatter verbose",
+		"zip": "bash zip.sh"
 	},
 	"devDependencies": {
 		"@types/chrome": "^0.0.260",

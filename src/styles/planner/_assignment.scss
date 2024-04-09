@@ -73,7 +73,7 @@
 		&:not(.completed, .editing) .estimate-label,
 		&.completed:not(.collapsed).editing .estimate-edit,
 		&.completed:not(.collapsed, .editing) .estimate-label,
-		.location {
+		&.type-event .location {
 			display: block;
 			grid-column: 2 / 3;
 			grid-row: 2 / 3;

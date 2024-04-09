@@ -6,16 +6,26 @@ class Settings {
 	estimateMultiplier!: EstimateMultiplier;
 	planDistance!: number;
 	showEvents!: boolean;
+	// Start day is 0 for Sunday, 1 for Monday, etc.
+	startDay!: number;
+	// Determines if assignments open up in current tab or new tab.
+	openInNewTab!: boolean;
+	// Determines if utility.log() should log.
+	log!: boolean;
 
 	constructor() {
 		// Load settings from storage.
-		this.utility.loadSettings().then(settings => {
+		this.utility.loadSettings().then((settings: SettingsJson) => {
 			this.useBasicEstimate = settings.useBasicEstimate;
 			this.useHistoryEstimate = settings.useHistoryEstimate;
 			this.workHours = settings.workHours;
 			this.estimateMultiplier = settings.estimateMultiplier;
 			this.planDistance = settings.planDistance;
 			this.showEvents = settings.showEvents;
+			this.startDay = settings.startDay;
+			this.openInNewTab = settings.openInNewTab;
+			this.log = settings.log;
+
 			this.createSettings();
 		});
 	}
@@ -29,6 +39,9 @@ class Settings {
 		} else if (location.endsWith("/deadline-dynamo/estimates-planning")) {
 			this.utility.log("Creating the estimates & planning settings.");
 			new EstimatesPlanningSettings(this);
+		} else if (location.endsWith("/deadline-dynamo/developer")) {
+			this.utility.log("Creating the developer settings.");
+			new DeveloperSettings(this);
 		}
 	}
 }

@@ -3,6 +3,10 @@ class EstimatesPlanningSettings extends BaseSettings {
 		return "Estimates & Planning";
 	}
 
+	getClass(): string {
+		return "estimates-planning";
+	}
+
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
 		this.utility.log("Creating the estimates & planning settings.");
