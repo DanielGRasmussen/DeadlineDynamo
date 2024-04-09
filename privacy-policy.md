@@ -1,11 +1,11 @@
 # Deadline Dynamo Privacy Policy
-Last updated: 4/2/2024
+Last updated: 4/9/2024
 
 DeadlineDynamo takes your privacy seriously. This Privacy Policy outlines how we collect,
-use, and protect the information you provide when using our Chrome extension.
+use, and protect the information you provide when using our Firefox addon.
 
 ## Information We Collect
-DeadlineDynamo is a Chrome extension designed to help you plan and manage your assignments on the
+DeadlineDynamo is a Firefox addon designed to help you plan and manage your assignments on the
 BYU-Idaho Canvas platform. To provide this functionality, the extension collects and stores the
 following information on:
 
@@ -21,7 +21,7 @@ following information on:
 This data is necessary for the extension to function correctly.
 The extension also stores user settings and states of items in our UI. The extension allows you to
 customize various settings, such as work hours, estimate multipliers, and planning preferences. These
-settings are stored on your device and Chrome's sync storage. Please note that Deadline Dynamo does
+settings are stored on your device and Firefox's sync storage. Please note that Deadline Dynamo does
 not collect or store any personal information that could directly identify you, such as your name,
 email address, or student ID.
 
@@ -37,19 +37,19 @@ is used to:
 5. We do not share or sell any of the collected information with third parties.
 
 ## Data Storage and Retention
-All the data collected by DeadlineDynamo is stored using Chrome's Sync Storage API, which
-synchronizes data across your signed-in Chrome instances. No data is transmitted or stored on
+All the data collected by DeadlineDynamo is stored using Firefox's Sync Storage API, which
+synchronizes data across your signed-in Firefox instances. No data is transmitted or stored on
 remote servers controlled by us. The data will be retained until you remove the extension, clear your
-browsing data, sign out of your Google Account, or switch to a different Google Account. Please note that Chrome's Sync Storage is tied
-to your Google Account, and the data may be accessible on any device where you are signed in with
-the same Google Account.
+browsing data, sign out of your Firefox Sync Account, or switch to a different Firefox Sync Account.
+Please note that Firefox's Sync Storage is tied to your Firefox Sync Account, and the data may be
+accessible on any device where you are signed in with the same Firefox Sync Account.
 
 ## Security
 DeadlineDynamo takes reasonable measures to protect the information collected from unauthorized
 access, disclosure, alteration, or destruction. However, please note that no method of data
 transmission or storage is completely secure, and we cannot guarantee absolute security. While the
-extension doesn't transmit data to remote servers, the security of the data stored in Chrome's
-Sync Storage is subject to Google's security practices and policies.
+extension doesn't transmit data to remote servers, the security of the data stored in Firefox's
+Sync Storage is subject to Firefox's security practices and policies.
 
 ## Changes to This Privacy Policy
 We may update this Privacy Policy from time to time to reflect changes in our practices or for
