@@ -4,10 +4,10 @@
 	"version": "1.0.4",
 	"description": "A Chrome extension to plan Canvas assignments efficiently.",
 	"icons": {
-		"16": "src/images/icon - 16px.png",
-		"32": "src/images/icon - 32px.png",
-		"48": "src/images/icon - 48px.png",
-		"128": "src/images/icon - 128px.png"
+		"16": "images/icon - 16px.png",
+		"32": "images/icon - 32px.png",
+		"48": "images/icon - 48px.png",
+		"128": "images/icon - 128px.png"
 	},
 	"permissions": [ "storage" ],
 	"background": {
