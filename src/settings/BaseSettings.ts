@@ -28,10 +28,12 @@ abstract class BaseSettings {
 		}
 
 		this.addHeaderLocation();
+		this.addActiveLink();
 		this.createSettingsPage();
 	}
 
 	abstract getName(): string;
+	abstract getClass(): string;
 
 	addHeaderLocation(): void {
 		// Adds the location to the header.
@@ -52,6 +54,10 @@ abstract class BaseSettings {
 		const location: HTMLElement = this.utility.convertHtml(locationData);
 
 		header.appendChild(location);
+	}
+
+	addActiveLink(): void {
+		document.querySelector(`.dd-nav .${this.getClass()}`)!.classList.add("active");
 	}
 
 	abstract createSettingsPage(): Promise<void>;

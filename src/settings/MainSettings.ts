@@ -3,6 +3,10 @@ class MainSettings extends BaseSettings {
 		return "Main";
 	}
 
+	getClass(): string {
+		return "main";
+	}
+
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
 		this.utility.log("Creating the main settings.");

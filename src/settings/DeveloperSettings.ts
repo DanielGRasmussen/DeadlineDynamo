@@ -3,6 +3,10 @@ class DeveloperSettings extends BaseSettings {
 		return "Developer";
 	}
 
+	getClass(): string {
+		return "developer";
+	}
+
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
 		this.utility.log("Creating the developer settings.");

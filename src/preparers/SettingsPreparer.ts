@@ -239,7 +239,7 @@ class SettingsPreparer extends BasePreparer {
 			<div id="left-side" class="ic-app-course-menu ic-sticky-on list-view">
 				<div id="sticky-container" class="ic-sticky-frame">
 					<nav>
-						<ul id="section-tabs"></ul>
+						<ul id="section-tabs" class="dd-nav"></ul>
 					</nav>
 				</div>
 			</div>
@@ -248,15 +248,16 @@ class SettingsPreparer extends BasePreparer {
 		const nav: HTMLElement = this.utility.convertHtml(navData);
 		const list: HTMLUListElement = nav.querySelector("ul")!;
 
+		// [href, Display Text, class]
 		const links: string[][] = [
-			["", "Main"],
-			["estimates-planning", "Estimating & Planning"],
-			["developer", "Developer Settings"]
+			["", "Main", "main"],
+			["estimates-planning", "Estimating & Planning", "estimates-planning"],
+			["developer", "Developer Settings", "developer"]
 		];
 
 		for (const link of links) {
 			const listItemData: string = `
-				<li class="section">
+				<li class="section ${link[2]}">
 					<a href="${this.link}/${link[0]}">${link[1]}</a>
 				</li>
 			`;
