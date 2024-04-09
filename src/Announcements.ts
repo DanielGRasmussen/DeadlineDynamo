@@ -1,5 +1,4 @@
 class Announcements {
-	utility: Utility = data.utility;
 	courses: Course[] = data.courses;
 	announcements!: Assignment[];
 	announcements_open: boolean = false;
@@ -11,7 +10,7 @@ class Announcements {
 		const announcement_button: Element | null = document.querySelector(".announcement-button");
 
 		if (announcement_button === null) {
-			this.utility.notify("error", "Announcement button not found.");
+			utility.notify("error", "Announcement button not found.");
 			return;
 		}
 
@@ -61,7 +60,7 @@ class Announcements {
 
 	createAnnouncements(button: Element): void {
 		// Create the container for the announcements.
-		const container: HTMLElement = this.utility.convertHtml(`
+		const container: HTMLElement = utility.convertHtml(`
 			<div class="announcement-container">
 				<h4>Announcements</h4>
 			</div>
@@ -74,15 +73,15 @@ class Announcements {
 			});
 
 			if (course === undefined) {
-				this.utility.notify("error", "Course not found.");
+				utility.notify("error", "Course not found.");
 				return;
 			}
 
-			const announcementDate: string[] = this.utility.formatDate(announcement.due_date, true);
+			const announcementDate: string[] = utility.formatDate(announcement.due_date, true);
 
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
 
-			const announcement_element: HTMLElement = this.utility.convertHtml(`
+			const announcement_element: HTMLElement = utility.convertHtml(`
 				<div class="announcement">
 					<a target="_blank" title="${announcement.name}" href="${link}">${announcement.name}</a>
 					<p class="course">${course.code}</p>
@@ -103,7 +102,7 @@ class Announcements {
 		const container: HTMLElement | null = document.querySelector(".announcement-container");
 
 		if (container === null) {
-			this.utility.notify("error", "Announcement container not found.");
+			utility.notify("error", "Announcement container not found.");
 			return;
 		}
 
@@ -140,7 +139,7 @@ class Announcements {
 			button = document.querySelector(".announcement-button");
 
 			if (button === null) {
-				this.utility.notify("error", "Announcement button not found.");
+				utility.notify("error", "Announcement button not found.");
 				return;
 			}
 		}
@@ -167,7 +166,7 @@ class Announcements {
 			button.addEventListener("click", this.markAllAsRead.bind(this));
 
 			// Display unread count to the user.
-			const unreadElement: HTMLElement = this.utility.convertHtml(`
+			const unreadElement: HTMLElement = utility.convertHtml(`
 				<p class="count">${unreadText}</p>
 			`);
 

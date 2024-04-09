@@ -22,8 +22,6 @@ class Assignment {
 	submission_types: string[] = [];
 	// Added by the auto planner.
 	priority: number = 0;
-	// Just utils.
-	utility: Utility = data.utility;
 
 	constructor(
 		id: number,
@@ -66,7 +64,7 @@ class Assignment {
 	}
 
 	makeElement(course?: Course): HTMLElement {
-		const due_date: [string, string] = this.utility.formatDate(this.due_date, true);
+		const due_date: [string, string] = utility.formatDate(this.due_date, true);
 
 		let link_type: string;
 		let assignment_type: string;
@@ -90,7 +88,7 @@ class Assignment {
 
 		const link: string = `/courses/${this.course_id}/${link_type}/${this.id}`;
 
-		const target: string = data.settings.openInNewTab ? "target='_blank'" : "";
+		const target: string = g_settings.openInNewTab ? "target='_blank'" : "";
 
 		let title: string;
 		if (this.type !== "calendar_event") {
@@ -103,12 +101,12 @@ class Assignment {
 			course = data.courses!.find((course: Course): boolean => course.id === this.course_id);
 
 			if (course === undefined) {
-				this.utility.notify("error", "Course not found.");
+				utility.notify("error", "Course not found.");
 				return document.createElement("li");
 			}
 		}
 
-		const estimate: string | typeof NaN = this.utility.getEstimate(this, course);
+		const estimate: string | typeof NaN = utility.getEstimate(this, course);
 
 		let estimate_label_value: string;
 		let estimate_input_value: string;
@@ -144,7 +142,7 @@ class Assignment {
 					<span class="times">
 						${
 							this.start_date && this.end_date
-								? `${this.utility.formatDate(this.start_date, true)[1]} - ${this.utility.formatDate(this.end_date, true)[1]}`
+								? `${utility.formatDate(this.start_date, true)[1]} - ${utility.formatDate(this.end_date, true)[1]}`
 								: ""
 						}
 					</span>
@@ -156,7 +154,7 @@ class Assignment {
 			</li>
 		`;
 
-		const assignmentElement: HTMLElement = this.utility.convertHtml(assignmentData);
+		const assignmentElement: HTMLElement = utility.convertHtml(assignmentData);
 
 		// Add event listener for expanding/collapsing the assignment.
 		const visibility: HTMLElement = assignmentElement.querySelector(".visibility")!;
@@ -188,7 +186,7 @@ class Assignment {
 			}
 			assignmentElement.classList.remove("editing");
 
-			let estimate: string | typeof NaN = this.utility.getEstimate(this, course!);
+			let estimate: string | typeof NaN = utility.getEstimate(this, course!);
 
 			if (isNaN(Number(estimate))) {
 				estimate = "TBD";
@@ -196,7 +194,7 @@ class Assignment {
 				estimate += "m";
 			}
 
-			this.utility.log(`Updating estimate to ${estimate}`);
+			utility.log(`Updating estimate to ${estimate}`);
 
 			estimate_label.textContent = `Estimate: ${estimate}`;
 		});
@@ -213,7 +211,7 @@ class Assignment {
 				time_taken_edit.querySelector("input") as HTMLInputElement
 			).value;
 
-			this.utility.log(`Updating time taken to ${time_taken_value}m`);
+			utility.log(`Updating time taken to ${time_taken_value}m`);
 
 			time_taken_label.textContent =
 				this.time_taken === null ? "Time taken: TBD" : `Time taken: ${time_taken_value}m`;
@@ -246,7 +244,7 @@ class Assignment {
 		if ((event.target as Node)?.nodeName === "INPUT") {
 			return;
 		}
-		this.utility.log("Adding editing class to assignment.");
+		utility.log("Adding editing class to assignment.");
 		assignmentElement.classList.add("editing");
 	}
 }

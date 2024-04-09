@@ -9,10 +9,10 @@ class EstimatesPlanningSettings extends BaseSettings {
 
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
-		this.utility.log("Creating the estimates & planning settings.");
+		utility.log("Creating the estimates & planning settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the content wrapper.");
+			utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -24,7 +24,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.convertHtml(containerData);
+		const container: HTMLElement = utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Use estimates
@@ -41,7 +41,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 			</div>
 		`;
 
-		const useEstimates: HTMLElement = this.utility.convertHtml(useEstimatesData);
+		const useEstimates: HTMLElement = utility.convertHtml(useEstimatesData);
 
 		settings.appendChild(useEstimates);
 
@@ -59,7 +59,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 			</div>
 		`;
 
-		const workHours: HTMLElement = this.utility.convertHtml(workHoursData);
+		const workHours: HTMLElement = utility.convertHtml(workHoursData);
 
 		for (const day in this.workHours) {
 			const workHoursDayData: string = `
@@ -69,7 +69,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 				</p>
 			`;
 
-			const workHoursDay: HTMLElement = this.utility.convertHtml(workHoursDayData);
+			const workHoursDay: HTMLElement = utility.convertHtml(workHoursDayData);
 			workHours.appendChild(workHoursDay);
 		}
 
@@ -82,13 +82,13 @@ class EstimatesPlanningSettings extends BaseSettings {
 			</div>
 		`;
 
-		const estimateMultiplier: HTMLElement = this.utility.convertHtml(estimateMultiplierData);
+		const estimateMultiplier: HTMLElement = utility.convertHtml(estimateMultiplierData);
 
 		for (const courseId in this.estimateMultiplier) {
 			// Get course name
-			const courseInfo: string | undefined = await this.utility.loadStorage(courseId);
+			const courseInfo: string | undefined = await utility.loadStorage(courseId);
 			if (courseInfo === undefined) {
-				this.utility.notify("error", "Couldn't find course info.");
+				utility.notify("error", "Couldn't find course info.");
 				return;
 			}
 
@@ -103,7 +103,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 				</p>
 			`;
 
-			const estimateMultiplierCourse: HTMLElement = this.utility.convertHtml(
+			const estimateMultiplierCourse: HTMLElement = utility.convertHtml(
 				estimateMultiplierCourseData
 			);
 			estimateMultiplier.appendChild(estimateMultiplierCourse);
@@ -122,7 +122,7 @@ class EstimatesPlanningSettings extends BaseSettings {
 
 	getSettings(): void {
 		// Gets settings from the page and updates the class properties.
-		this.utility.log("Getting settings.");
+		utility.log("Getting settings.");
 		// Use estimates
 		this.useBasicEstimate = (
 			document.getElementById("useBasicEstimate") as HTMLInputElement
@@ -148,12 +148,12 @@ class EstimatesPlanningSettings extends BaseSettings {
 			);
 		}
 
-		this.utility.log(`Settings: ${JSON.stringify(this)}`);
+		utility.log(`Settings: ${JSON.stringify(this)}`);
 	}
 
 	restoreSettings(): void {
 		// Restores the settings to their previous state if the user presses the cancel button.
-		this.utility.log("Restoring settings.");
+		utility.log("Restoring settings.");
 		// Use estimates
 		(document.getElementById("useBasicEstimate") as HTMLInputElement).checked =
 			this.useBasicEstimate;

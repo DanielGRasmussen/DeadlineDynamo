@@ -1,19 +1,16 @@
 class Sidebar {
-	utility: Utility = data.utility;
 	estimator: Estimator = data.estimator;
 	courses: Course[] = data.courses;
-	settings: SettingsJson = data.settings;
-	plan: Plan = data.plan;
 	addedDragula: boolean = false;
 	drake: Drake | undefined;
 
 	createSidebar(): void {
 		// Check if the sidebar is already open.
-		this.utility.log("Creating sidebar.");
+		utility.log("Creating sidebar.");
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
-			this.utility.notify("error", "Planner not found.");
+			utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -37,13 +34,13 @@ class Sidebar {
 			</span>
 		`;
 
-		const sidebar: HTMLElement = this.utility.convertHtml(sidebarHTML);
+		const sidebar: HTMLElement = utility.convertHtml(sidebarHTML);
 
 		// This is the element that the default pullout sidebars are placed by, so we will do the same.
 		const sidebarSibling: HTMLElement | null = document.getElementById("nav-tray-portal");
 
 		if (sidebarSibling === null) {
-			this.utility.notify("error", "Sidebar sibling not found.");
+			utility.notify("error", "Sidebar sibling not found.");
 			return;
 		}
 
@@ -53,7 +50,7 @@ class Sidebar {
 		const closeButton: HTMLElement | null = document.querySelector(".sidebar-close");
 
 		if (closeButton === null) {
-			this.utility.notify("error", "Sidebar close button not found.");
+			utility.notify("error", "Sidebar close button not found.");
 			return;
 		}
 
@@ -63,18 +60,13 @@ class Sidebar {
 		const planButton: HTMLElement | null = document.querySelector(".plan");
 
 		if (planButton === null) {
-			this.utility.notify("error", "Plan button not found.");
+			utility.notify("error", "Plan button not found.");
 			return;
 		}
 
 		planButton.addEventListener("click", (): void => {
-			this.plan = this.utility.createPlan(
-				this.plan,
-				this.courses!,
-				this.estimator,
-				this.settings
-			);
-			this.utility.saveStorage("plan", JSON.stringify(this.plan));
+			g_plan = utility.createPlan(this.courses!, this.estimator);
+			utility.saveStorage("plan", JSON.stringify(g_plan));
 		});
 
 		this.addCoursesToSidebar();
@@ -102,7 +94,7 @@ class Sidebar {
 		);
 		const containers: HTMLElement[] = Array.from(assignment_containers);
 
-		this.utility.log("Adding dragula.");
+		utility.log("Adding dragula.");
 
 		// @ts-expect-error - Dragula is defined in the dragula package.
 		this.drake = dragula(containers, {
@@ -136,7 +128,7 @@ class Sidebar {
 		);
 
 		if (course === undefined) {
-			this.utility.notify("error", "Course not found.");
+			utility.notify("error", "Course not found.");
 			return;
 		}
 
@@ -146,14 +138,14 @@ class Sidebar {
 		);
 
 		if (assignment === undefined) {
-			this.utility.notify("error", "Assignment not found.");
+			utility.notify("error", "Assignment not found.");
 			return;
 		}
 
 		// Remove the assignment from the plan.
-		for (const day in this.plan) {
-			if (this.plan[day] !== undefined) {
-				this.plan[day] = this.plan[day].filter(
+		for (const day in g_plan) {
+			if (g_plan[day] !== undefined) {
+				g_plan[day] = g_plan[day].filter(
 					(planItem: PlanItem): boolean => planItem.id !== assignment.id
 				);
 			}
@@ -163,8 +155,8 @@ class Sidebar {
 			// The assignment is being moved to the planner.
 
 			// Add the assignment to the plan.
-			const target_day: string = target.classList[1];
-			let target_day_plan: PlanItem[] = this.plan[target_day];
+			const target_day: string = target.classList[1].substring(4);
+			let target_day_plan: PlanItem[] = g_plan[target_day];
 
 			if (target_day_plan === undefined) {
 				target_day_plan = [];
@@ -176,11 +168,11 @@ class Sidebar {
 			};
 
 			target_day_plan.push(planItem);
-			this.plan[target_day] = target_day_plan;
+			g_plan[target_day] = target_day_plan;
 
 			// If the is being planned for after it's due date send an alert.
 			if (new Date(target_day) > new Date(assignment.due_date)) {
-				this.utility.notify(
+				utility.notify(
 					"warning",
 					`${assignment.name} is being planned for after it's due date.`
 				);
@@ -199,7 +191,7 @@ class Sidebar {
 			);
 
 			if (target_course === null) {
-				this.utility.notify("error", "Target course not found.");
+				utility.notify("error", "Target course not found.");
 				return;
 			}
 			const new_element: HTMLElement = el.cloneNode(true) as HTMLElement;
@@ -216,17 +208,17 @@ class Sidebar {
 		// Update the unplanned/uncompleted count.
 		this.updateUnplannedCount();
 
-		this.utility.saveStorage("plan", JSON.stringify(this.plan));
+		utility.saveStorage("plan", JSON.stringify(g_plan));
 		course.saveCourse();
 	}
 
 	deleteSidebar(): void {
 		// Deletes the sidebar for when the X button is pressed.
-		this.utility.log("Deleting sidebar.");
+		utility.log("Deleting sidebar.");
 		const sidebar: HTMLElement | null = document.querySelector(".dd-sidebar");
 
 		if (sidebar === null) {
-			this.utility.notify("error", "Sidebar not found.");
+			utility.notify("error", "Sidebar not found.");
 			return;
 		}
 
@@ -246,7 +238,7 @@ class Sidebar {
 		const planner: HTMLElement | null = document.getElementById("dd-planner");
 
 		if (planner === null) {
-			this.utility.notify("error", "Planner not found.");
+			utility.notify("error", "Planner not found.");
 			return;
 		}
 
@@ -258,7 +250,7 @@ class Sidebar {
 		const sidebarCourses: HTMLElement | null = document.querySelector(".sidebar-courses");
 
 		if (sidebarCourses === null) {
-			this.utility.notify("error", "Sidebar courses not found.");
+			utility.notify("error", "Sidebar courses not found.");
 			return;
 		}
 
@@ -271,13 +263,13 @@ class Sidebar {
 				</div>
 			`;
 
-			const courseDiv: HTMLElement = this.utility.convertHtml(courseElement);
+			const courseDiv: HTMLElement = utility.convertHtml(courseElement);
 
 			// Make the course name clickable to collapse the course.
 			const courseName: HTMLElement | null = courseDiv.querySelector(".course-name");
 
 			if (courseName === null) {
-				this.utility.notify("error", "Course name not found.");
+				utility.notify("error", "Course name not found.");
 				return;
 			}
 
@@ -287,7 +279,7 @@ class Sidebar {
 					!(mouseEvent.target instanceof HTMLElement) ||
 					!mouseEvent.target.parentElement
 				) {
-					this.utility.notify("error", "Can't add hook to collapse course list.");
+					utility.notify("error", "Can't add hook to collapse course list.");
 					return;
 				}
 				mouseEvent.target.parentElement.classList.toggle("collapsed");
@@ -304,9 +296,9 @@ class Sidebar {
 		assignmentContainer: HTMLElement,
 		assignments: Assignment[] = course.assignments
 	): Promise<void> {
-		this.utility.log("Adding assignments to sidebar.");
+		utility.log("Adding assignments to sidebar.");
 		if (!this.courses) {
-			this.utility.notify("error", "Courses not found.");
+			utility.notify("error", "Courses not found.");
 			return;
 		}
 
@@ -352,11 +344,11 @@ class Sidebar {
 
 	addUnplannedCount(): void {
 		// Adds the count of unplanned/uncompleted assignments to the sidebar button.
-		this.utility.log("Adding unplanned count.");
+		utility.log("Adding unplanned count.");
 		const sidebarButton: HTMLElement | null = document.querySelector(".dd-sidebar-button");
 
 		if (sidebarButton === null) {
-			this.utility.notify("error", "Sidebar button not found.");
+			utility.notify("error", "Sidebar button not found.");
 			return;
 		}
 
@@ -384,7 +376,7 @@ class Sidebar {
 			unplannedText = "9+";
 		}
 
-		const countElement: HTMLElement = this.utility.convertHtml(`
+		const countElement: HTMLElement = utility.convertHtml(`
 			<p class="count">${unplannedText}</p>
 		`);
 

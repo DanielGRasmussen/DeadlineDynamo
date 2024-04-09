@@ -3,7 +3,6 @@ class Course {
 	name: string;
 	code: string;
 	assignments: Assignment[] = [];
-	utility: Utility = data.utility;
 
 	constructor(
 		id: number,
@@ -12,7 +11,7 @@ class Course {
 		assignments: AssignmentJson[],
 		localAssignments: LocalAssignmentJson[] = []
 	) {
-		this.utility.log("Making course: " + name);
+		utility.log("Making course: " + name);
 		this.id = id;
 		this.name = name;
 		this.code = code;
@@ -90,12 +89,12 @@ class Course {
 					(oldAssignment.planned || oldAssignment.lock)
 				) {
 					if (oldAssignment.type === "calendar_event") {
-						this.utility.notify(
+						utility.notify(
 							"info",
 							`Time changed for ${oldAssignment.name} from ${this.name}.`
 						);
 					} else {
-						this.utility.notify(
+						utility.notify(
 							"info",
 							`Due date changed for ${oldAssignment.name} in ${this.name}`
 						);
@@ -180,7 +179,6 @@ class Course {
 		const key: string = `course-${this.id}`;
 		const data: LocalCourseJson = JSON.parse(JSON.stringify(this));
 		// Remove the unneeded items from data.
-		delete data.utility;
 		for (const assignment of data.assignments) {
 			delete assignment.description;
 			delete assignment.submission_types;
@@ -189,18 +187,18 @@ class Course {
 		const dataString: string = JSON.stringify(data);
 
 		// Get course ids, ensure this course id is in that list, and save the course.
-		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
+		const courseIds: string | undefined = await utility.loadStorage("courseIds");
 		// Ensure we can access this course id again.
 		if (courseIds === undefined) {
-			this.utility.saveStorage("courseIds", JSON.stringify([key]));
+			utility.saveStorage("courseIds", JSON.stringify([key]));
 		} else {
 			const courses: string[] = JSON.parse(courseIds);
 			if (!courses.includes(key)) {
 				courses.push(key);
-				this.utility.saveStorage("courseIds", JSON.stringify(courses));
+				utility.saveStorage("courseIds", JSON.stringify(courses));
 			}
 		}
 
-		this.utility.saveStorage(key, dataString);
+		utility.saveStorage(key, dataString);
 	}
 }

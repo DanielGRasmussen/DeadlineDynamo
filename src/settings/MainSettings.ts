@@ -9,10 +9,10 @@ class MainSettings extends BaseSettings {
 
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
-		this.utility.log("Creating the main settings.");
+		utility.log("Creating the main settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the content wrapper.");
+			utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -24,7 +24,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.convertHtml(containerData);
+		const container: HTMLElement = utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Show events
@@ -35,7 +35,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const showEvents: HTMLElement = this.utility.convertHtml(showEventsData);
+		const showEvents: HTMLElement = utility.convertHtml(showEventsData);
 
 		settings.appendChild(showEvents);
 
@@ -52,7 +52,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const newTab: HTMLElement = this.utility.convertHtml(newTabData);
+		const newTab: HTMLElement = utility.convertHtml(newTabData);
 
 		settings.appendChild(newTab);
 
@@ -69,7 +69,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const plannedWeeks: HTMLElement = this.utility.convertHtml(plannedWeeksData);
+		const plannedWeeks: HTMLElement = utility.convertHtml(plannedWeeksData);
 
 		settings.appendChild(plannedWeeks);
 
@@ -89,7 +89,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const weekStart: HTMLElement = this.utility.convertHtml(weekStartData);
+		const weekStart: HTMLElement = utility.convertHtml(weekStartData);
 
 		// Set the current value
 		(weekStart.querySelector("#weekStart") as HTMLSelectElement).value =
@@ -108,7 +108,7 @@ class MainSettings extends BaseSettings {
 
 	getSettings(): void {
 		// Gets settings from the page and updates the class properties.
-		this.utility.log("Getting settings.");
+		utility.log("Getting settings.");
 
 		// Show events
 		this.showEvents = (document.getElementById("showEvents") as HTMLInputElement).checked;
@@ -121,12 +121,12 @@ class MainSettings extends BaseSettings {
 		// Week start day
 		this.startDay = parseInt((document.getElementById("weekStart") as HTMLSelectElement).value);
 
-		this.utility.log(`Settings: ${JSON.stringify(this)}`);
+		utility.log(`Settings: ${JSON.stringify(this)}`);
 	}
 
 	restoreSettings() {
 		// Restores the settings to their previous state if the user presses the cancel button.
-		this.utility.log("Restoring settings.");
+		utility.log("Restoring settings.");
 
 		// Show events
 		(document.getElementById("showEvents") as HTMLInputElement).checked = this.showEvents;
