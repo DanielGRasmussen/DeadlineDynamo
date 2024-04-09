@@ -1,5 +1,5 @@
 {
-	"manifest_version": 3,
+	"manifest_version": 2,
 	"name": "DeadlineDynamo",
 	"version": "1.1",
 	"description": "A Chrome extension to plan Canvas assignments efficiently.",
@@ -10,28 +10,16 @@
 		"128": "images/icon - 128px.png"
 	},
 	"permissions": [ "storage" ],
-	"background": {
-		"service_worker": "dist/out-tsc/welcome.js"
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "v0.5@deadlinedynamo.com"
+		}
 	},
+
 	"content_scripts": [
 		{
-			"matches": ["https://*.instructure.com/*"],
+			"matches": ["https://*.instructure.com/deadline-dynamo", "https://*.instructure.com/deadline-dynamo/*"],
 			"js": [
-				"dist/out-tsc/Utility.js",
-				"dist/out-tsc/preparers/BasePreparer.js",
-				"dist/out-tsc/preparers/SettingsPreparer.js"
-			],
-			"css": [
-				"dist/styles/settings/links.css",
-				"dist/styles/alert.css"
-			],
-			"run_at": "document_start"
-		},
-
-		{
-			"matches": ["https://*.instructure.com/deadline-dynamo/*"],
-			"js": [
-				"dist/out-tsc/Settings.js",
 				"dist/out-tsc/settings/BaseSettings.js"
 			],
 			"css": [
@@ -70,9 +58,32 @@
 		},
 
 		{
-			"matches": ["https://*.instructure.com/", "https://*.instructure.com/?*"],
+			"matches": ["https://*.instructure.com/deadline-dynamo", "https://*.instructure.com/deadline-dynamo/*"],
+			"js": [
+				"dist/out-tsc/Settings.js"
+			],
+			"css": [
+				"dist/styles/settings/settings.css"
+			]
+		},
+
+		{
+			"matches": ["https://*.instructure.com/*"],
 			"js": [
 				"dist/out-tsc/Utility.js",
+				"dist/out-tsc/preparers/BasePreparer.js",
+				"dist/out-tsc/preparers/SettingsPreparer.js"
+			],
+			"css": [
+				"dist/styles/settings/links.css",
+				"dist/styles/alert.css"
+			],
+			"run_at": "document_start"
+		},
+
+		{
+			"matches": ["https://*.instructure.com/", "https://*.instructure.com/?*"],
+			"js": [
 				"dist/out-tsc/ApiFetcher.js",
 				"dist/out-tsc/Estimator.js",
 				"dist/out-tsc/Assignment.js",
