@@ -12,28 +12,28 @@ class PlannerPreparer extends BasePreparer {
 	}
 
 	async setView(): Promise<void> {
-		const view: string | undefined = await this.utility.loadStorage("view");
+		const view: string | undefined = await utility.loadStorage("view");
 
 		if (view === undefined) {
-			this.utility.saveStorage("view", "1");
+			utility.saveStorage("view", "1");
 			this.view = 1;
 		} else {
 			this.view = parseInt(view);
 		}
 
-		this.utility.log(`View: ${this.view}`);
+		utility.log(`View: ${this.view}`);
 
 		let body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 		while (body === undefined) {
 			body = document.getElementsByTagName("body")[0];
-			await this.utility.wait(20);
+			await utility.wait(20);
 		}
 
 		this.setViewClass();
 	}
 
 	setViewClass(): void {
-		this.utility.log(`Setting view to ${this.view}.`);
+		utility.log(`Setting view to ${this.view}.`);
 
 		const body: HTMLBodyElement = document.getElementsByTagName("body")[0];
 
@@ -106,7 +106,7 @@ class PlannerPreparer extends BasePreparer {
 
 	createViewButton(node: HTMLElement): void {
 		// Adds the view button in the top right dropdown.
-		this.utility.log("Adding view button.");
+		utility.log("Adding view button.");
 
 		let list: HTMLElement | null = node.querySelector(
 			"ul.css-1dndbkc-menu ul.css-1te3it8-menuItemGroup__items"
@@ -119,7 +119,7 @@ class PlannerPreparer extends BasePreparer {
 		}
 
 		if (list === null) {
-			this.utility.notify("error", "List not found.");
+			utility.notify("error", "List not found.");
 			return;
 		}
 
@@ -139,7 +139,7 @@ class PlannerPreparer extends BasePreparer {
 			</li>
 		`;
 
-		const viewButton: HTMLElement = this.utility.convertHtml(viewButtonData);
+		const viewButton: HTMLElement = utility.convertHtml(viewButtonData);
 
 		list.append(viewButton);
 
@@ -157,20 +157,20 @@ class PlannerPreparer extends BasePreparer {
 						<div id="dd-planner"></div>
 					`;
 
-		const planner: HTMLElement = this.utility.convertHtml(plannerData);
+		const planner: HTMLElement = utility.convertHtml(plannerData);
 
 		const originalPlanner: Element | null = node.querySelector("#dashboard_header_container");
 
 		if (!originalPlanner) {
-			this.utility.notify("error", "No header container.");
+			utility.notify("error", "No header container.");
 			return;
 		}
 
 		originalPlanner.after(planner);
-		this.utility.log("Added planner.");
+		utility.log("Added planner.");
 
 		// Adds the spinner for the main planning UI.
-		this.utility.log("Adding spinner.");
+		utility.log("Adding spinner.");
 		// This gets hidden by css when the planner is loaded.
 		const spinnerData: string = `
 			<div class="dd-spinner">
@@ -180,12 +180,12 @@ class PlannerPreparer extends BasePreparer {
 			</div>
 		`;
 
-		const spinner: HTMLElement = this.utility.convertHtml(spinnerData);
+		const spinner: HTMLElement = utility.convertHtml(spinnerData);
 
 		planner.append(spinner);
 
 		// Now that the planner is added, we can trigger the planner class.
-		this.utility.log("Triggering the planner.");
+		utility.log("Triggering the planner.");
 		this.planner = new Planner();
 	}
 
@@ -197,7 +197,7 @@ class PlannerPreparer extends BasePreparer {
 		);
 
 		if (buttonSibling === null) {
-			this.utility.notify("error", "Button sibling not found.");
+			utility.notify("error", "Button sibling not found.");
 			return;
 		}
 
@@ -239,7 +239,7 @@ class PlannerPreparer extends BasePreparer {
 			</button>
 		`;
 
-		const sidebarButton: HTMLElement = this.utility.convertHtml(sidebarButtonData);
+		const sidebarButton: HTMLElement = utility.convertHtml(sidebarButtonData);
 
 		buttonSibling.after(sidebarButton);
 
@@ -264,7 +264,7 @@ class PlannerPreparer extends BasePreparer {
 			</div>
 		`;
 
-		const announcementButton: HTMLElement = this.utility.convertHtml(announcementButtonData);
+		const announcementButton: HTMLElement = utility.convertHtml(announcementButtonData);
 
 		buttonSibling.before(announcementButton);
 
@@ -277,10 +277,10 @@ class PlannerPreparer extends BasePreparer {
 			</button>
 		`;
 
-		const scrollButton: HTMLElement = this.utility.convertHtml(scrollButtonData);
+		const scrollButton: HTMLElement = utility.convertHtml(scrollButtonData);
 
 		scrollButton.addEventListener("click", () => {
-			this.utility.scrollToToday();
+			utility.scrollToToday();
 		});
 
 		announcementButton.before(scrollButton);
@@ -290,12 +290,12 @@ class PlannerPreparer extends BasePreparer {
 	}
 
 	addShowMoreButton(node: HTMLElement): void {
-		this.utility.log("Adding show more button.");
+		utility.log("Adding show more button.");
 		const showMoreButtonData: string = `
 			<span class="show-more-button">Show More</span>
 		`;
 
-		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
+		const showMoreButton: HTMLElement = utility.convertHtml(showMoreButtonData);
 
 		const parent: HTMLElement = node.parentElement!;
 
@@ -340,19 +340,19 @@ class PlannerPreparer extends BasePreparer {
 
 	removeNothingPlanned(node: HTMLElement): void {
 		node.style.display = "none";
-		this.utility.log("Hiding nothing planned message.");
+		utility.log("Hiding nothing planned message.");
 	}
 
 	changeView(list: HTMLElement, view: number): void {
 		if (this.ignoreViewChange) {
-			this.utility.log("Ignoring view change.");
+			utility.log("Ignoring view change.");
 			// This was triggered by the click event in this function.
 			this.ignoreViewChange = false;
 			return;
 		}
-		this.utility.log(`Changing view to ${view}.`);
+		utility.log(`Changing view to ${view}.`);
 		this.view = view;
-		this.utility.saveStorage("view", view.toString());
+		utility.saveStorage("view", view.toString());
 
 		this.setViewClass();
 

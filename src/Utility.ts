@@ -6,6 +6,13 @@ class Utility {
 
 	constructor() {
 		this.loadSettings().then((settings: SettingsJson): void => {
+			g_settings = settings;
+
+			this.loadPlan().then((plan: Plan): void => {
+				g_plan = plan;
+				this.log("Plan loaded.");
+			});
+
 			// While developing I might change the default value of log so I want to make sure it's always correct.
 			if (settings.log !== this.logging) {
 				this.logging = settings.log;
@@ -99,7 +106,7 @@ class Utility {
 	async loadStorage(key: string): Promise<string | undefined> {
 		const name: string = `${this.location}-${key}`;
 		this.log(`Loading ${name} from storage.`);
-		const info: { [p: string]: string } = await chrome.storage.sync.get(name);
+		const info: { [p: string]: string } = await browser.storage.sync.get(name);
 		return info[name];
 	}
 
@@ -149,7 +156,7 @@ class Utility {
 		return settings;
 	}
 
-	async loadPlan(originalPlan: Plan): Promise<Plan> {
+	async loadPlan(): Promise<Plan> {
 		this.log("Loading plan from storage.");
 		const plan: string | undefined = await this.loadStorage("plan");
 		if (plan === undefined) {
@@ -162,12 +169,6 @@ class Utility {
 				plan[day.toISOString().slice(0, 10)] = [];
 			}
 
-			if (originalPlan !== undefined) {
-				// Merge the plan with the original plan.
-				for (const date in plan) {
-					originalPlan[date] = plan[date];
-				}
-			}
 			return plan;
 		} else {
 			const planObject: Plan = JSON.parse(plan);
@@ -178,12 +179,6 @@ class Utility {
 				});
 			}
 
-			if (originalPlan !== undefined) {
-				// Merge the plan with the original plan.
-				for (const date in planObject) {
-					originalPlan[date] = planObject[date];
-				}
-			}
 			return planObject;
 		}
 	}
@@ -194,7 +189,7 @@ class Utility {
 		try {
 			const info: { [p: string]: string } = {};
 			info[name] = data;
-			chrome.storage.sync.set(info).then(_ => {});
+			browser.storage.sync.set(info).then(_ => {});
 		} catch (error) {
 			// This likely happened because of too much data trying to be saved.
 			console.log(key);
@@ -204,10 +199,10 @@ class Utility {
 
 	async clearStorage(): Promise<void> {
 		this.log("Clearing storage.");
-		await chrome.storage.sync.clear();
+		await browser.storage.sync.clear();
 	}
 
-	createPlan(plan: Plan, courses: Course[], estimator: Estimator, settings: SettingsJson): Plan {
+	createPlan(courses: Course[], estimator: Estimator): Plan {
 		// Create a list of all assignments sorted by priority.
 		this.log("Creating plan.");
 		const allAssignments: Assignment[] = [];
@@ -230,10 +225,12 @@ class Utility {
 		allAssignments.sort((a, b) => b.priority - a.priority);
 
 		// Plan the assignments.
-		for (const day of Object.keys(plan)) {
+		for (const day of Object.keys(g_plan)) {
 			const date: Date = new Date(day);
 			const workHours: number =
-				settings.workHours[date.toLocaleString("en-US", { weekday: "long" }).toLowerCase()];
+				g_settings.workHours[
+					date.toLocaleString("en-US", { weekday: "long" }).toLowerCase()
+				];
 
 			// Plan the assignments for this day.
 			let timeRemaining: number = workHours * 60;
@@ -253,7 +250,7 @@ class Utility {
 						id: assignment.id,
 						due_date: assignment.due_date
 					};
-					plan[day].push(plannedAssignment);
+					g_plan[day].push(plannedAssignment);
 					assignment.planned = true;
 					timeRemaining -= estimate;
 				}
@@ -277,7 +274,7 @@ class Utility {
 			);
 		}
 
-		return plan;
+		return g_plan;
 	}
 
 	getEstimate(assignment: Assignment, course: Course): string {
@@ -286,11 +283,11 @@ class Utility {
 			// If there is a user estimate, use that.
 			this.log("User estimate found.");
 			return assignment.user_estimate.toString();
-		} else if (data.settings.useHistoryEstimate && assignment.history_estimate !== null) {
+		} else if (g_settings.useHistoryEstimate && assignment.history_estimate !== null) {
 			// If there is a history estimate, use that.
 			this.log("History estimate found.");
 			return assignment.history_estimate.toString();
-		} else if (data.settings.useHistoryEstimate) {
+		} else if (g_settings.useHistoryEstimate) {
 			// Otherwise try to make a history based estimate.
 			data.estimator.historyEstimate(course, assignment);
 
@@ -305,7 +302,7 @@ class Utility {
 		if (assignment.basic_estimate === null) {
 			this.notify("error", "Estimator failed to estimate.");
 			return "TBD";
-		} else if (!data.settings.useBasicEstimate) {
+		} else if (!g_settings.useBasicEstimate) {
 			this.log("Basic estimate not used.");
 			return "TBD";
 		} else {
@@ -361,7 +358,7 @@ class Utility {
 		const start: Date = new Date(date);
 
 		// Subtract the number of days since the start of the week to get the start day.
-		start.setDate(start.getDate() - start.getDay() + data.settings.startDay - 1 + offset * 7);
+		start.setDate(start.getDate() - start.getDay() + g_settings.startDay - 1 + offset * 7);
 
 		// If the start day is set to after the current day, go back a week.
 		if (start > date) {
@@ -396,3 +393,9 @@ class Utility {
 		return links;
 	}
 }
+
+// If these are globals then not every single class has to load them up. Just about everything waits on these to
+// load. So it's better to have them load once as early as possible and then be available to everything.
+const utility: Utility = new Utility();
+let g_settings!: SettingsJson;
+let g_plan!: Plan;

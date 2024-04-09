@@ -1,14 +1,13 @@
 abstract class BasePreparer {
-	utility: Utility = new Utility();
 	observer: MutationObserver = new MutationObserver(this.listener.bind(this));
 	conditions: Condition[];
 
 	constructor() {
 		this.conditions = this.getConditions();
-		this.utility.log(`Got ${this.conditions.length} conditions.`);
+		utility.log(`Got ${this.conditions.length} conditions.`);
 
 		this.observer.observe(document, { childList: true, subtree: true });
-		this.utility.log("Started observer.");
+		utility.log("Started observer.");
 	}
 
 	abstract getConditions(): Condition[];
@@ -99,7 +98,7 @@ abstract class BasePreparer {
 
 				if (!anyChecked) {
 					// No conditions checked. No point in continuing to listen.
-					this.utility.log("No conditions checked. Disconnecting observer.");
+					utility.log("No conditions checked. Disconnecting observer.");
 					this.observer.disconnect();
 				}
 			});

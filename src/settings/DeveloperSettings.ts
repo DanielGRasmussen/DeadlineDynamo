@@ -9,10 +9,10 @@ class DeveloperSettings extends BaseSettings {
 
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
-		this.utility.log("Creating the developer settings.");
+		utility.log("Creating the developer settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the content wrapper.");
+			utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -24,7 +24,7 @@ class DeveloperSettings extends BaseSettings {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.convertHtml(containerData);
+		const container: HTMLElement = utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Show events
@@ -35,7 +35,7 @@ class DeveloperSettings extends BaseSettings {
 			</div>
 		`;
 
-		const logging: HTMLElement = this.utility.convertHtml(loggingData);
+		const logging: HTMLElement = utility.convertHtml(loggingData);
 
 		settings.appendChild(logging);
 
@@ -49,15 +49,15 @@ class DeveloperSettings extends BaseSettings {
 			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
 		`;
 
-		const clearStorage: HTMLElement = this.utility.convertHtml(clearStorageData);
+		const clearStorage: HTMLElement = utility.convertHtml(clearStorageData);
 		clearStorage.addEventListener("click", (): void => {
 			if (
 				confirm(
 					"Are you sure you want to clear all data?\nThis is permanent and can not be undone."
 				)
 			) {
-				this.utility.clearStorage();
-				this.utility.notify("success", "Storage cleared!");
+				utility.clearStorage();
+				utility.notify("success", "Storage cleared!");
 			}
 		});
 		container.appendChild(clearStorage);
@@ -73,17 +73,17 @@ class DeveloperSettings extends BaseSettings {
 
 	getSettings(): void {
 		// Gets settings from the page and updates the class properties.
-		this.utility.log("Getting settings.");
+		utility.log("Getting settings.");
 
 		// Logging
 		this.log = (document.querySelector("#Logging") as HTMLInputElement).checked;
 
-		this.utility.log(`Settings: ${JSON.stringify(this)}`);
+		utility.log(`Settings: ${JSON.stringify(this)}`);
 	}
 
 	restoreSettings() {
 		// Restores the settings to their previous state if the user presses the cancel button.
-		this.utility.log("Restoring settings.");
+		utility.log("Restoring settings.");
 
 		// Logging
 		(document.querySelector("#Logging") as HTMLInputElement).checked = this.log;

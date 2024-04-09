@@ -1,5 +1,4 @@
 class Data {
-	utility: Utility = new Utility();
 	backPlan: number = 0;
 	today: Date = new Date();
 	startDate!: Date;
@@ -9,21 +8,22 @@ class Data {
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[] = [false, false];
 	courses: Course[] = this.apiFetcher.courses;
-	settings!: SettingsJson;
-	plan: Plan = {};
 
 	constructor() {
 		this.main();
 	}
 
 	async main(): Promise<void> {
-		this.settings = await this.utility.loadSettings();
-		await this.utility.loadPlan(this.plan);
-
-		this.startDate = this.utility.getWeekStart(new Date());
+		while (true) {
+			if (g_settings !== undefined && g_plan !== undefined) {
+				break;
+			}
+			await utility.wait(5);
+		}
+		this.startDate = utility.getWeekStart(new Date());
 		this.endDate = new Date(
 			this.startDate.setDate(
-				this.startDate.getDate() + this.settings.planDistance * 7 + this.backPlan
+				this.startDate.getDate() + g_settings.planDistance * 7 + this.backPlan
 			)
 		);
 
@@ -32,8 +32,6 @@ class Data {
 		this.today.setHours(0, 0, 0, 0);
 		this.startDate.setHours(0, 0, 0, 0);
 		this.endDate.setHours(23, 59, 59, 999);
-
-		new PlannerPreparer();
 
 		const isFirstLoadUp: boolean = await this.getCourses();
 
@@ -44,7 +42,7 @@ class Data {
 			await this.updateAssignments();
 		}
 
-		this.utility.log("Done loading.");
+		utility.log("Done loading.");
 		this.loadConditions[1] = true;
 
 		// This sends a request per course causing it to take too long for everything else.
@@ -55,8 +53,8 @@ class Data {
 		// Gets all courses.
 		// If it's the first time loading up, it gets everything from scratch.
 		// If it's not the first time, it gets everything from local storage.
-		this.utility.log("Getting courses.");
-		const courseIds: string | undefined = await this.utility.loadStorage("courseIds");
+		utility.log("Getting courses.");
+		const courseIds: string | undefined = await utility.loadStorage("courseIds");
 
 		if (courseIds === undefined) {
 			// First time loading up so it'll return true.
@@ -71,7 +69,7 @@ class Data {
 		let courseJson: LocalCourseJson;
 		let course: Course;
 		for (const course_id of course_ids) {
-			courseData = await this.utility.loadStorage(course_id);
+			courseData = await utility.loadStorage(course_id);
 
 			if (courseData === undefined) {
 				// Get all data from scratch if any course localstorage data is missing.
@@ -94,7 +92,7 @@ class Data {
 
 	async firstLoadUp() {
 		// First time loading up, therefore we need to get everything from scratch.
-		this.utility.log("First time loading up.");
+		utility.log("First time loading up.");
 		await this.apiFetcher.makeCourses();
 		this.courses = this.apiFetcher.courses;
 
@@ -106,11 +104,11 @@ class Data {
 	async updateCourses(): Promise<void> {
 		// Gets updated info for courses
 		if (this.courses.length === 0) {
-			this.utility.notify("error", "No courses loaded!");
+			utility.notify("error", "No courses loaded!");
 			return;
 		}
 
-		this.utility.log("Updating courses.");
+		utility.log("Updating courses.");
 
 		const newCourses: CourseJson[] = await this.apiFetcher.fetchCourses();
 		// Check if any courses have been added or removed.
@@ -129,11 +127,11 @@ class Data {
 	async updateAssignments(): Promise<void> {
 		// Gets updated info for assignments.
 		if (this.courses.length === 0) {
-			this.utility.notify("error", "Courses not loaded!");
+			utility.notify("error", "Courses not loaded!");
 			return;
 		}
 
-		this.utility.log("Updating assignments.");
+		utility.log("Updating assignments.");
 
 		const newAssignments: AssignmentJson[] = await this.apiFetcher.fetchAssignments();
 
@@ -148,11 +146,11 @@ class Data {
 	async addExtraData(): Promise<void> {
 		// Adds extra data to the courses.
 		if (this.courses.length === 0) {
-			this.utility.notify("error", "Courses not loaded!");
+			utility.notify("error", "Courses not loaded!");
 			return;
 		}
 
-		this.utility.log("Adding extra data.");
+		utility.log("Adding extra data.");
 
 		for (const course of this.courses) {
 			const extraData: AssignmentExtraJson[] = await this.apiFetcher.fetchExtraAssignmentData(
@@ -167,3 +165,4 @@ class Data {
 // Make data a global so that all classes can get basic data without having to mess around with a confusing
 // amount of arguments/hand-me-downs.
 const data: Data = new Data();
+new PlannerPreparer();

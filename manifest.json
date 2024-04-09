@@ -18,6 +18,14 @@
 
 	"content_scripts": [
 		{
+			"matches": ["https://*.instructure.com/*"],
+			"js": [
+				"dist/out-tsc/Utility.js"
+			],
+			"run_at": "document_start"
+		},
+
+		{
 			"matches": ["https://*.instructure.com/deadline-dynamo", "https://*.instructure.com/deadline-dynamo/*"],
 			"js": [
 				"dist/out-tsc/settings/BaseSettings.js"
@@ -70,7 +78,6 @@
 		{
 			"matches": ["https://*.instructure.com/*"],
 			"js": [
-				"dist/out-tsc/Utility.js",
 				"dist/out-tsc/preparers/BasePreparer.js",
 				"dist/out-tsc/preparers/SettingsPreparer.js"
 			],

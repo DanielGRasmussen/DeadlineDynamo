@@ -1,5 +1,4 @@
 abstract class BaseSettings {
-	utility: Utility = new Utility();
 	useBasicEstimate: boolean;
 	useHistoryEstimate: boolean;
 	workHours: WorkHours;
@@ -10,16 +9,16 @@ abstract class BaseSettings {
 	openInNewTab: boolean;
 	log: boolean;
 
-	constructor(settings: Settings) {
-		this.useBasicEstimate = settings.useBasicEstimate;
-		this.useHistoryEstimate = settings.useHistoryEstimate;
-		this.workHours = settings.workHours;
-		this.estimateMultiplier = settings.estimateMultiplier;
-		this.planDistance = settings.planDistance;
-		this.showEvents = settings.showEvents;
-		this.startDay = settings.startDay;
-		this.openInNewTab = settings.openInNewTab;
-		this.log = settings.log;
+	constructor() {
+		this.useBasicEstimate = g_settings.useBasicEstimate;
+		this.useHistoryEstimate = g_settings.useHistoryEstimate;
+		this.workHours = g_settings.workHours;
+		this.estimateMultiplier = g_settings.estimateMultiplier;
+		this.planDistance = g_settings.planDistance;
+		this.showEvents = g_settings.showEvents;
+		this.startDay = g_settings.startDay;
+		this.openInNewTab = g_settings.openInNewTab;
+		this.log = g_settings.log;
 
 		// Open nav.
 		const toggle: HTMLElement | null = document.querySelector("#courseMenuToggle");
@@ -37,11 +36,11 @@ abstract class BaseSettings {
 
 	addHeaderLocation(): void {
 		// Adds the location to the header.
-		this.utility.log("Adding location to the header.");
+		utility.log("Adding location to the header.");
 		const header: HTMLElement | null = document.querySelector("#breadcrumbs ul");
 		if (header === null) {
 			// This triggers when on mobile.
-			this.utility.notify("error", "Couldn't find the header.");
+			utility.notify("error", "Couldn't find the header.");
 			return;
 		}
 
@@ -51,7 +50,7 @@ abstract class BaseSettings {
 			</li>
 		`;
 
-		const location: HTMLElement = this.utility.convertHtml(locationData);
+		const location: HTMLElement = utility.convertHtml(locationData);
 
 		header.appendChild(location);
 	}
@@ -71,7 +70,7 @@ abstract class BaseSettings {
 			</div>
 		`;
 
-		const buttons: HTMLElement = this.utility.convertHtml(buttonsData);
+		const buttons: HTMLElement = utility.convertHtml(buttonsData);
 
 		// Add event listeners to the buttons
 		const cancelButton: Element = buttons.querySelector("#cancel-button")!;
@@ -105,8 +104,8 @@ abstract class BaseSettings {
 			openInNewTab: this.openInNewTab,
 			log: this.log
 		});
-		this.utility.saveStorage("settings", settings);
+		utility.saveStorage("settings", settings);
 
-		this.utility.notify("success", "Settings saved!");
+		utility.notify("success", "Settings saved!");
 	}
 }

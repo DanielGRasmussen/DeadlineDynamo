@@ -22,11 +22,11 @@
 	position: absolute;
 	top: 60px;
 
-	@media (min-width: 470px) {
+	@media (width >= 470px) {
 		right: 100px;
 	}
 
-	@media (max-width: 470px) {
+	@media (width <= 470px) {
 		left: 0;
 		width: 270px;
 	}
