@@ -392,6 +392,14 @@ class Utility {
 
 		return links;
 	}
+
+	isTouchDevice(): boolean {
+		// Combine multiple detection methods for increased accuracy:
+		return (
+			("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
+			!window.matchMedia("(pointer: none)").matches
+		); // Exclude devices with only pen/stylus input
+	}
 }
 
 // If these are globals then not every single class has to load them up. Just about everything waits on these to

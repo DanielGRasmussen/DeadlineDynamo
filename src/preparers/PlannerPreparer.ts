@@ -29,6 +29,10 @@ class PlannerPreparer extends BasePreparer {
 			await utility.wait(20);
 		}
 
+		if (utility.isTouchDevice()) {
+			body.classList.add("dd-touch");
+		}
+
 		this.setViewClass();
 	}
 
@@ -154,8 +158,8 @@ class PlannerPreparer extends BasePreparer {
 	addNewPlanner(node: HTMLElement): void {
 		// Add our planner element where the original planner was (after #dashboard_header_container).
 		const plannerData: string = `
-						<div id="dd-planner"></div>
-					`;
+			<div id="dd-planner"></div>
+		`;
 
 		const planner: HTMLElement = utility.convertHtml(plannerData);
 
