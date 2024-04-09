@@ -171,6 +171,7 @@ class Course {
 			if (newAssignment !== undefined) {
 				assignment.description = newAssignment.description;
 				assignment.submission_types = newAssignment.submission_types;
+				data.estimator.estimateTime(assignment);
 			}
 		}
 	}

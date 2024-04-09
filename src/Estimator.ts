@@ -1,6 +1,5 @@
 class Estimator {
 	courses!: Course[];
-
 	assignment!: Assignment;
 	courseId!: number;
 
