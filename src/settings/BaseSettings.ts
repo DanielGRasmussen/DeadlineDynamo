@@ -6,6 +6,9 @@ abstract class BaseSettings {
 	estimateMultiplier: EstimateMultiplier;
 	planDistance: number;
 	showEvents: boolean;
+	startDay: number;
+	openInNewTab: boolean;
+	log: boolean;
 
 	constructor(settings: Settings) {
 		this.useBasicEstimate = settings.useBasicEstimate;
@@ -14,6 +17,9 @@ abstract class BaseSettings {
 		this.estimateMultiplier = settings.estimateMultiplier;
 		this.planDistance = settings.planDistance;
 		this.showEvents = settings.showEvents;
+		this.startDay = settings.startDay;
+		this.openInNewTab = settings.openInNewTab;
+		this.log = settings.log;
 
 		// Open nav.
 		const toggle: HTMLElement | null = document.querySelector("#courseMenuToggle");
@@ -22,10 +28,12 @@ abstract class BaseSettings {
 		}
 
 		this.addHeaderLocation();
+		this.addActiveLink();
 		this.createSettingsPage();
 	}
 
 	abstract getName(): string;
+	abstract getClass(): string;
 
 	addHeaderLocation(): void {
 		// Adds the location to the header.
@@ -46,6 +54,10 @@ abstract class BaseSettings {
 		const location: HTMLElement = this.utility.convertHtml(locationData);
 
 		header.appendChild(location);
+	}
+
+	addActiveLink(): void {
+		document.querySelector(`.dd-nav .${this.getClass()}`)!.classList.add("active");
 	}
 
 	abstract createSettingsPage(): Promise<void>;
@@ -88,7 +100,10 @@ abstract class BaseSettings {
 			workHours: this.workHours,
 			estimateMultiplier: this.estimateMultiplier,
 			planDistance: this.planDistance,
-			showEvents: this.showEvents
+			showEvents: this.showEvents,
+			startDay: this.startDay,
+			openInNewTab: this.openInNewTab,
+			log: this.log
 		});
 		this.utility.saveStorage("settings", settings);
 

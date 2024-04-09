@@ -1,7 +1,6 @@
 class PlannerPreparer extends BasePreparer {
 	// [0] Header buttons are added. [1] Data is done loading.
-	loadConditions: boolean[] = [false, false];
-	data: Data = new Data(this.loadConditions);
+	loadConditions: boolean[] = data.loadConditions;
 	planner: Planner | undefined;
 	view!: number;
 	// To ignore a view change triggered by us.
@@ -262,9 +261,6 @@ class PlannerPreparer extends BasePreparer {
 						</span>
 					</span>
 				</span>
-				<div class="announcement-container">
-					<h4>Announcements</h4>
-				</div>
 			</div>
 		`;
 
@@ -302,7 +298,6 @@ class PlannerPreparer extends BasePreparer {
 		const showMoreButton: HTMLElement = this.utility.convertHtml(showMoreButtonData);
 
 		const parent: HTMLElement = node.parentElement!;
-		console.log(parent);
 
 		parent.append(showMoreButton);
 
@@ -311,14 +306,16 @@ class PlannerPreparer extends BasePreparer {
 
 	async showMore(): Promise<void> {
 		// Change our planning dates and get the new assignments.
-		this.data.backPlan -= 1;
-		this.data.startDate.setDate(this.data.startDate.getDate() - 7);
+		data.backPlan -= 1;
+		data.startDate.setDate(data.startDate.getDate() - 7);
 
-		this.planner!.addWeekdaySlots(this.data.backPlan);
+		this.planner!.addWeekdaySlots(data.backPlan);
 
-		await this.data.updateAssignments();
+		await data.updateAssignments();
 
 		this.planner!.sidebar.updateUnplannedCount();
+		this.planner!.announcements!.getAnnouncements();
+		this.planner!.announcements!.updateUnreadCount();
 	}
 
 	isNothingPlannedMessage(element: HTMLElement): boolean {
@@ -368,7 +365,3 @@ class PlannerPreparer extends BasePreparer {
 		}
 	}
 }
-
-// Make data a global so that all classes can get basic data without having to mess around with a confusing
-// amount of arguments/hand-me-downs.
-const data: Data = new PlannerPreparer().data;
