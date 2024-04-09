@@ -21,13 +21,11 @@ class Data {
 			await utility.wait(5);
 		}
 		this.startDate = utility.getWeekStart(new Date());
-		this.endDate = new Date(
-			this.startDate.setDate(
-				this.startDate.getDate() + g_settings.planDistance * 7 + this.backPlan
-			)
+		this.endDate = new Date();
+		this.endDate.setDate(
+			this.startDate.getDate() + g_settings.planDistance * 7 + this.backPlan
 		);
 
-		this.startDate = new Date(this.today);
 		this.today = new Date();
 		this.today.setHours(0, 0, 0, 0);
 		this.startDate.setHours(0, 0, 0, 0);
