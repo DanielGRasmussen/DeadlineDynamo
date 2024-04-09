@@ -261,9 +261,6 @@ class PlannerPreparer extends BasePreparer {
 						</span>
 					</span>
 				</span>
-				<div class="announcement-container">
-					<h4>Announcements</h4>
-				</div>
 			</div>
 		`;
 
@@ -317,6 +314,8 @@ class PlannerPreparer extends BasePreparer {
 		await data.updateAssignments();
 
 		this.planner!.sidebar.updateUnplannedCount();
+		this.planner!.announcements!.getAnnouncements();
+		this.planner!.announcements!.updateUnreadCount();
 	}
 
 	isNothingPlannedMessage(element: HTMLElement): boolean {

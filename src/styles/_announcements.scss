@@ -6,10 +6,10 @@
 	position: relative;
 	width: 38px;
 	margin-right: 24px;
+
 }
 
 .announcement-container {
-	display: none;
 	width: 300px;
 	min-height: 93px;
 	background: white;
@@ -20,8 +20,16 @@
 	// The box shadow that canvas uses.
 	box-shadow: rgb(0 0 0 / 20%) 0 0.0625rem 0.125rem, rgb(0 0 0 / 10%) 0 0.0625rem 0.1875rem;
 	position: absolute;
-	top: 45px;
-	right: -120px;
+	top: 60px;
+
+	@media (min-width: 470px) {
+		right: 100px;
+	}
+
+	@media (max-width: 470px) {
+		left: 0;
+		width: 270px;
+	}
 
 	h4 {
 		color: $greyed-text;
@@ -91,9 +99,4 @@
 	margin-inline: calc(-0.5625rem) 0;
 	border-inline-color: transparent;
 	inset-inline-start: 50%;
-}
-
-.announcement-container:hover,
-.announcement-button:focus-within .announcement-container {
-	display: block;
 }

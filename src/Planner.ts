@@ -7,6 +7,7 @@ class Planner {
 	plan: Plan = data.plan;
 
 	sidebar: Sidebar = new Sidebar();
+	announcements: Announcements | undefined;
 
 	constructor() {
 		this.start().then(_ => {});
@@ -50,7 +51,7 @@ class Planner {
 				this.utility.log("Creating announcements.");
 
 				// Populate the list of announcements.
-				new Announcements();
+				this.announcements = new Announcements();
 
 				triggeredAnnouncements = true;
 
