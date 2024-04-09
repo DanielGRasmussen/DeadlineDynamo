@@ -3,12 +3,16 @@ class MainSettings extends BaseSettings {
 		return "Main";
 	}
 
+	getClass(): string {
+		return "main";
+	}
+
 	async createSettingsPage(): Promise<void> {
 		// Creates the settings page.
-		this.utility.log("Creating the main settings.");
+		utility.log("Creating the main settings.");
 		const target: Element | null = document.querySelector("div.settings-wrapper");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the content wrapper.");
+			utility.notify("error", "Couldn't find the content wrapper.");
 			return;
 		}
 
@@ -20,7 +24,7 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const container: HTMLElement = this.utility.convertHtml(containerData);
+		const container: HTMLElement = utility.convertHtml(containerData);
 		const settings: Element = container.querySelector(".settings")!;
 
 		// Show events
@@ -31,13 +35,30 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const showEvents: HTMLElement = this.utility.convertHtml(showEventsData);
+		const showEvents: HTMLElement = utility.convertHtml(showEventsData);
 
 		settings.appendChild(showEvents);
 
 		// Load the current value from storage
 		if (this.showEvents) {
 			(showEvents.querySelector("#showEvents") as HTMLInputElement).checked = true;
+		}
+
+		// Open in new tab
+		const newTabData: string = `
+			<div class="new-tab">
+				<label for="newTab">Open assignments in new tab: </label>
+				<input type="checkbox" id="newTab">
+			</div>
+		`;
+
+		const newTab: HTMLElement = utility.convertHtml(newTabData);
+
+		settings.appendChild(newTab);
+
+		// Load the current value from storage
+		if (this.openInNewTab) {
+			(newTab.querySelector("#newTab") as HTMLInputElement).checked = true;
 		}
 
 		// Planned weeks
@@ -48,27 +69,33 @@ class MainSettings extends BaseSettings {
 			</div>
 		`;
 
-		const plannedWeeks: HTMLElement = this.utility.convertHtml(plannedWeeksData);
+		const plannedWeeks: HTMLElement = utility.convertHtml(plannedWeeksData);
 
 		settings.appendChild(plannedWeeks);
 
-		// Clear storage button
-		const clearStorageData: string = `
-			<button id="clearStorage" class="clear-storage btn btn-danger">Clear Storage</button>
+		// Week start day
+		const weekStartData: string = `
+			<div class="week-start-day">
+				<label for="weekStart">Week start day: </label>
+				<select id="weekStart">
+					<option value="0">Sunday</option>
+					<option value="1">Monday</option>
+					<option value="2">Tuesday</option>
+					<option value="3">Wednesday</option>
+					<option value="4">Thursday</option>
+					<option value="5">Friday</option>
+					<option value="6">Saturday</option>
+				</select>
+			</div>
 		`;
 
-		const clearStorage: HTMLElement = this.utility.convertHtml(clearStorageData);
-		clearStorage.addEventListener("click", (): void => {
-			if (
-				confirm(
-					"Are you sure you want to clear all data?\nThis is permanent and can not be undone."
-				)
-			) {
-				this.utility.clearStorage();
-				this.utility.notify("success", "Storage cleared!");
-			}
-		});
-		container.appendChild(clearStorage);
+		const weekStart: HTMLElement = utility.convertHtml(weekStartData);
+
+		// Set the current value
+		(weekStart.querySelector("#weekStart") as HTMLSelectElement).value =
+			this.startDay.toString();
+
+		settings.appendChild(weekStart);
 
 		// Buttons
 		const buttons: HTMLElement = this.getButtons();
@@ -81,7 +108,7 @@ class MainSettings extends BaseSettings {
 
 	getSettings(): void {
 		// Gets settings from the page and updates the class properties.
-		this.utility.log("Getting settings.");
+		utility.log("Getting settings.");
 
 		// Show events
 		this.showEvents = (document.getElementById("showEvents") as HTMLInputElement).checked;
@@ -91,12 +118,15 @@ class MainSettings extends BaseSettings {
 			(document.getElementById("plannedWeeks") as HTMLInputElement).value
 		);
 
-		this.utility.log(`Settings: ${JSON.stringify(this)}`);
+		// Week start day
+		this.startDay = parseInt((document.getElementById("weekStart") as HTMLSelectElement).value);
+
+		utility.log(`Settings: ${JSON.stringify(this)}`);
 	}
 
 	restoreSettings() {
 		// Restores the settings to their previous state if the user presses the cancel button.
-		this.utility.log("Restoring settings.");
+		utility.log("Restoring settings.");
 
 		// Show events
 		(document.getElementById("showEvents") as HTMLInputElement).checked = this.showEvents;
@@ -104,5 +134,9 @@ class MainSettings extends BaseSettings {
 		// Planned weeks
 		(document.getElementById("plannedWeeks") as HTMLInputElement).value =
 			this.planDistance.toString();
+
+		// Week start day
+		(document.getElementById("weekStart") as HTMLSelectElement).value =
+			this.startDay.toString();
 	}
 }

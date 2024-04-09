@@ -1,5 +1,5 @@
-chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails): void => {
+browser.runtime.onInstalled.addListener((details: browser.runtime._OnInstalledDetails): void => {
 	if (details.reason === "install") {
-		chrome.tabs.create({ url: "welcome.html" });
+		browser.tabs.create({ url: "welcome.html" });
 	}
 });

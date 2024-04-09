@@ -22,8 +22,6 @@ class Assignment {
 	submission_types: string[] = [];
 	// Added by the auto planner.
 	priority: number = 0;
-	// Just utils.
-	utility: Utility = data.utility;
 
 	constructor(
 		id: number,
@@ -66,7 +64,7 @@ class Assignment {
 	}
 
 	makeElement(course?: Course): HTMLElement {
-		const due_date: [string, string] = this.utility.formatDate(this.due_date, true);
+		const due_date: [string, string] = utility.formatDate(this.due_date, true);
 
 		let link_type: string;
 		let assignment_type: string;
@@ -90,9 +88,11 @@ class Assignment {
 
 		const link: string = `/courses/${this.course_id}/${link_type}/${this.id}`;
 
+		const target: string = g_settings.openInNewTab ? "target='_blank'" : "";
+
 		let title: string;
 		if (this.type !== "calendar_event") {
-			title = `<a target="_blank" href="${link}" class="name">${this.name}</a>`;
+			title = `<a ${target} href="${link}" class="name">${this.name}</a>`;
 		} else {
 			title = `<p class="name">${this.name}</p>`;
 		}
@@ -101,15 +101,21 @@ class Assignment {
 			course = data.courses!.find((course: Course): boolean => course.id === this.course_id);
 
 			if (course === undefined) {
-				this.utility.notify("error", "Course not found.");
+				utility.notify("error", "Course not found.");
 				return document.createElement("li");
 			}
 		}
 
-		let estimate: string | typeof NaN = this.utility.getEstimate(this, course);
+		const estimate: string | typeof NaN = utility.getEstimate(this, course);
 
+		let estimate_label_value: string;
+		let estimate_input_value: string;
 		if (isNaN(Number(estimate))) {
-			estimate = "TBD";
+			estimate_label_value = "TBD";
+			estimate_input_value = "";
+		} else {
+			estimate_label_value = `${estimate}m`;
+			estimate_input_value = estimate;
 		}
 
 		const assignmentData: string = `
@@ -117,10 +123,10 @@ class Assignment {
 				${title}
 				<p class="estimate-edit">
 					<span>Estimate: </span>
-					<input class="estimate-input assignment-${this.id}" type="number" value="${estimate}" min="0" max="1440">
+					<input class="estimate-input assignment-${this.id}" type="number" value="${estimate_input_value}" min="0" max="1440">
 					<span> minutes</span>
 				</p>
-				<p class="estimate-label">Estimate: ${estimate}m</p>
+				<p class="estimate-label">Estimate: ${estimate_label_value}</p>
 				<div class="time-taken-edit">
 					<span title="How long it took you to complete the assignment. It is used for history based estimations.">Time taken: </span>
 					<input class="time-taken-input assignment-${this.id}" type="number" value="${this.time_taken === null ? "" : this.time_taken.toString()}" min="0" max="1440">
@@ -136,7 +142,7 @@ class Assignment {
 					<span class="times">
 						${
 							this.start_date && this.end_date
-								? `${this.utility.formatDate(this.start_date, true)[1]} - ${this.utility.formatDate(this.end_date, true)[1]}`
+								? `${utility.formatDate(this.start_date, true)[1]} - ${utility.formatDate(this.end_date, true)[1]}`
 								: ""
 						}
 					</span>
@@ -148,7 +154,7 @@ class Assignment {
 			</li>
 		`;
 
-		const assignmentElement: HTMLElement = this.utility.convertHtml(assignmentData);
+		const assignmentElement: HTMLElement = utility.convertHtml(assignmentData);
 
 		// Add event listener for expanding/collapsing the assignment.
 		const visibility: HTMLElement = assignmentElement.querySelector(".visibility")!;
@@ -163,20 +169,13 @@ class Assignment {
 
 		// Add event listener for editing the items.
 		const estimate_label: HTMLElement = assignmentElement.querySelector("p.estimate-label")!;
-		estimate_label.addEventListener("click", (event): void => {
-			if ((event.target as Node)?.nodeName === "INPUT") {
-				return;
-			}
-			assignmentElement.classList.add("editing");
-		});
-
 		const time_taken_label: HTMLElement =
 			assignmentElement.querySelector("p.time-taken-label")!;
-		time_taken_label.addEventListener("click", (event): void => {
-			if ((event.target as Node)?.nodeName === "INPUT") {
-				return;
-			}
-			assignmentElement.classList.add("editing");
+		estimate_label.addEventListener("click", (event: MouseEvent): void => {
+			this.addEditing(assignmentElement, event);
+		});
+		time_taken_label.addEventListener("click", (event: MouseEvent): void => {
+			this.addEditing(assignmentElement, event);
 		});
 
 		// Add event listener to get rid of the editing class.
@@ -187,15 +186,17 @@ class Assignment {
 			}
 			assignmentElement.classList.remove("editing");
 
-			let estimate: string | typeof NaN = this.utility.getEstimate(this, course!);
+			let estimate: string | typeof NaN = utility.getEstimate(this, course!);
 
 			if (isNaN(Number(estimate))) {
 				estimate = "TBD";
+			} else {
+				estimate += "m";
 			}
 
-			this.utility.log(`Updating estimate to ${estimate}m`);
+			utility.log(`Updating estimate to ${estimate}`);
 
-			estimate_label.textContent = `Estimate: ${estimate}m`;
+			estimate_label.textContent = `Estimate: ${estimate}`;
 		});
 
 		const time_taken_edit: HTMLElement =
@@ -210,7 +211,7 @@ class Assignment {
 				time_taken_edit.querySelector("input") as HTMLInputElement
 			).value;
 
-			this.utility.log(`Updating time taken to ${time_taken_value}m`);
+			utility.log(`Updating time taken to ${time_taken_value}m`);
 
 			time_taken_label.textContent =
 				this.time_taken === null ? "Time taken: TBD" : `Time taken: ${time_taken_value}m`;
@@ -237,5 +238,13 @@ class Assignment {
 		});
 
 		return assignmentElement;
+	}
+
+	addEditing(assignmentElement: HTMLElement, event: MouseEvent): void {
+		if ((event.target as Node)?.nodeName === "INPUT") {
+			return;
+		}
+		utility.log("Adding editing class to assignment.");
+		assignmentElement.classList.add("editing");
 	}
 }

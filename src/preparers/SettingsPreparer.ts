@@ -109,7 +109,7 @@ class SettingsPreparer extends BasePreparer {
 			</li>
 		`;
 
-		const sidebarElement: HTMLElement = this.utility.convertHtml(sidebarElementData);
+		const sidebarElement: HTMLElement = utility.convertHtml(sidebarElementData);
 
 		// Find the list of links on the sidebar.
 		const target: HTMLElement | null = document.querySelector(
@@ -117,7 +117,7 @@ class SettingsPreparer extends BasePreparer {
 		);
 
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the target.");
+			utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 		target.after(sidebarElement);
@@ -163,7 +163,7 @@ class SettingsPreparer extends BasePreparer {
 			</li>
 		`;
 
-		const navButton: HTMLElement = this.utility.convertHtml(navButtonData);
+		const navButton: HTMLElement = utility.convertHtml(navButtonData);
 
 		navList.children[2].after(navButton);
 	}
@@ -176,11 +176,11 @@ class SettingsPreparer extends BasePreparer {
 		const containerData: string = `
 			<div class="settings-wrapper"></div>
 		`;
-		const container: HTMLElement = this.utility.convertHtml(containerData);
+		const container: HTMLElement = utility.convertHtml(containerData);
 
 		const target: Element | null = document.querySelector("#content");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the target.");
+			utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 		target.insertBefore(container, target.firstChild);
@@ -219,14 +219,14 @@ class SettingsPreparer extends BasePreparer {
 			</div>
 		`;
 
-		const header: HTMLElement = this.utility.convertHtml(headerData);
+		const header: HTMLElement = utility.convertHtml(headerData);
 
 		const nav: HTMLElement = this.createNav();
 
 		// Find the main content area.
 		const target: HTMLElement | null = document.querySelector("#main");
 		if (target === null) {
-			this.utility.notify("error", "Couldn't find the target.");
+			utility.notify("error", "Couldn't find the target.");
 			return;
 		}
 
@@ -239,28 +239,30 @@ class SettingsPreparer extends BasePreparer {
 			<div id="left-side" class="ic-app-course-menu ic-sticky-on list-view">
 				<div id="sticky-container" class="ic-sticky-frame">
 					<nav>
-						<ul id="section-tabs"></ul>
+						<ul id="section-tabs" class="dd-nav"></ul>
 					</nav>
 				</div>
 			</div>
 		`;
 
-		const nav: HTMLElement = this.utility.convertHtml(navData);
+		const nav: HTMLElement = utility.convertHtml(navData);
 		const list: HTMLUListElement = nav.querySelector("ul")!;
 
+		// [href, Display Text, class]
 		const links: string[][] = [
-			["", "Main"],
-			["estimates-planning", "Estimating & Planning"]
+			["", "Main", "main"],
+			["estimates-planning", "Estimating & Planning", "estimates-planning"],
+			["developer", "Developer Settings", "developer"]
 		];
 
 		for (const link of links) {
 			const listItemData: string = `
-				<li class="section">
+				<li class="section ${link[2]}">
 					<a href="${this.link}/${link[0]}">${link[1]}</a>
 				</li>
 			`;
 
-			const listItem: HTMLElement = this.utility.convertHtml(listItemData);
+			const listItem: HTMLElement = utility.convertHtml(listItemData);
 
 			list.appendChild(listItem);
 		}

@@ -3,7 +3,8 @@ input[type = "checkbox"] + label {
 }
 
 // Put the textbox on a new line.
-label + input[type = "number"] {
+label + input[type = "number"],
+label + select {
 	display: block;
 }
 
@@ -42,5 +43,18 @@ i.icon-hamburger::before {
 	.settings-container {
 		flex-direction: column;
 		padding-left: 25px;
+	}
+}
+
+// Sidebar link
+$active-color: #2d3b45;
+
+.dd-nav li.active {
+	border-left: 2px solid $active-color;
+	border-radius: 0;
+	font-weight: bold;
+
+	a {
+		color: $active-color;
 	}
 }

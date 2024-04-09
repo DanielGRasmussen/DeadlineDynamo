@@ -31,7 +31,7 @@
 
 // Change margins on the buttons
 .dd-sidebar-button,
-span.announcement-button {
+div.announcement-button {
 	@media (width <= 896px) {
 		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
 		margin-right: 12px !important;
@@ -40,5 +40,15 @@ span.announcement-button {
 	@media (width <= 592px) {
 		// The specificity they use is 0,10,0. I don't have an ID I can use. So I have to use !important.
 		margin-right: 8px !important;
+	}
+}
+
+.dd-scroll-button {
+	@media (width <= 896px) {
+		margin-right: 9px;
+	}
+
+	@media (width <= 592px) {
+		margin-right: 6px;
 	}
 }

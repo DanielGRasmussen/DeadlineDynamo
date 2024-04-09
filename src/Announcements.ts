@@ -1,11 +1,35 @@
 class Announcements {
-	utility: Utility = data.utility;
 	courses: Course[] = data.courses;
 	announcements!: Assignment[];
+	announcements_open: boolean = false;
+	handleClickOutsideListener: (event: MouseEvent) => void;
 
 	constructor() {
+		this.handleClickOutsideListener = this.handleClickOutside.bind(this);
+
+		const announcement_button: Element | null = document.querySelector(".announcement-button");
+
+		if (announcement_button === null) {
+			utility.notify("error", "Announcement button not found.");
+			return;
+		}
+
+		announcement_button.addEventListener("click", (): void => {
+			if (!this.announcements_open) {
+				this.getAnnouncements();
+				this.createAnnouncements(announcement_button);
+				this.markAllAsRead();
+				this.updateUnreadCount(announcement_button, 0);
+
+				this.enableClickOutsideListener();
+			} else {
+				this.removeAnnouncements();
+			}
+		});
+
+		// We have to have the unread count off the bat.
 		this.getAnnouncements();
-		this.createAnnouncements();
+		this.addUnreadCount(announcement_button);
 	}
 
 	getAnnouncements(): void {
@@ -15,7 +39,7 @@ class Announcements {
 			.filter((assignment: Assignment): boolean => {
 				if (assignment.type !== "announcement") {
 					return false;
-				} else if (assignment.due_date < this.utility.getMonday(new Date())) {
+				} else if (assignment.due_date < data.startDate) {
 					return false;
 				}
 
@@ -34,55 +58,104 @@ class Announcements {
 		});
 	}
 
-	createAnnouncements(): void {
-		// Adds the announcements to the container
+	createAnnouncements(button: Element): void {
+		// Create the container for the announcements.
+		const container: HTMLElement = utility.convertHtml(`
+			<div class="announcement-container">
+				<h4>Announcements</h4>
+			</div>
+		`);
 
-		// Check if our announcement button is there. It should be.
-		const announcement_container: Element | null = document.querySelector(
-			".announcement-button > .announcement-container"
-		);
-
-		if (announcement_container === null) {
-			this.utility.notify("error", "Announcement button not found.");
-			return;
-		}
-
-		// To display the number of unread announcements.
-		let unread: number = 0;
-
-		// Add the announcements to the container
+		// Add the announcements to the container.
 		for (const announcement of this.announcements) {
-			// Get course name
 			const course: Course | undefined = this.courses.find((course: Course): boolean => {
 				return course.id === announcement.course_id;
 			});
 
 			if (course === undefined) {
-				this.utility.notify("error", "Course not found.");
+				utility.notify("error", "Course not found.");
 				return;
 			}
 
-			if (!announcement.read) {
-				unread++;
-			}
-
-			const announcementDate: string[] = this.utility.formatDate(announcement.due_date, true);
+			const announcementDate: string[] = utility.formatDate(announcement.due_date, true);
 
 			const link: string = `/courses/${announcement.course_id}/discussion_topics/${announcement.id}`;
 
-			const announcementData: string = `
+			const announcement_element: HTMLElement = utility.convertHtml(`
 				<div class="announcement">
 					<a target="_blank" title="${announcement.name}" href="${link}">${announcement.name}</a>
 					<p class="course">${course.code}</p>
 					<p class="date">${announcementDate[0]} ${announcementDate[1]}</p>
 				</div>
-			`;
+			`);
 
-			const announcementDiv: HTMLElement = this.utility.convertHtml(announcementData);
-			announcement_container.appendChild(announcementDiv);
+			container.appendChild(announcement_element);
 		}
 
-		// Whenever the button is clicked mark all announcements as read.
+		// Add the container to the announcement button.
+		button.after(container);
+
+		this.announcements_open = true;
+	}
+
+	removeAnnouncements(): void {
+		const container: HTMLElement | null = document.querySelector(".announcement-container");
+
+		if (container === null) {
+			utility.notify("error", "Announcement container not found.");
+			return;
+		}
+
+		container.remove();
+
+		this.announcements_open = false;
+		this.disableClickOutsideListener();
+	}
+
+	handleClickOutside(event: MouseEvent): void {
+		const button: HTMLElement | null = document.querySelector(".announcement-button");
+		const container: HTMLElement | null = document.querySelector(".announcement-container");
+
+		if (
+			button &&
+			!button.contains(event.target as Node) &&
+			container &&
+			!container.contains(event.target as Node)
+		) {
+			this.removeAnnouncements();
+		}
+	}
+
+	enableClickOutsideListener(): void {
+		document.addEventListener("click", this.handleClickOutsideListener);
+	}
+
+	disableClickOutsideListener(): void {
+		document.removeEventListener("click", this.handleClickOutsideListener);
+	}
+
+	updateUnreadCount(button?: Element | null, unread: number = -1): void {
+		if (button === undefined) {
+			button = document.querySelector(".announcement-button");
+
+			if (button === null) {
+				utility.notify("error", "Announcement button not found.");
+				return;
+			}
+		}
+
+		button!.querySelector(".count")?.remove();
+
+		this.addUnreadCount(button!, unread);
+	}
+
+	addUnreadCount(button: Element, unread: number = -1): void {
+		if (unread === -1) {
+			unread = this.announcements.filter((announcement: Assignment): boolean => {
+				return !announcement.read;
+			}).length;
+		}
+
 		if (unread !== 0) {
 			// If it is greater than 9, just display 9+.
 			let unreadText: string = unread.toString();
@@ -90,12 +163,10 @@ class Announcements {
 				unreadText = "9+";
 			}
 
-			const button: HTMLElement = announcement_container.parentElement!;
-
-			button.addEventListener("click", this.markAllAsRead.bind(this, button));
+			button.addEventListener("click", this.markAllAsRead.bind(this));
 
 			// Display unread count to the user.
-			const unreadElement: HTMLElement = this.utility.convertHtml(`
+			const unreadElement: HTMLElement = utility.convertHtml(`
 				<p class="count">${unreadText}</p>
 			`);
 
@@ -103,16 +174,9 @@ class Announcements {
 		}
 	}
 
-	markAllAsRead(button: HTMLElement): void {
+	markAllAsRead(): void {
 		for (const announcement of this.announcements) {
 			announcement.read = true;
-		}
-
-		button.querySelector(".count")?.remove();
-
-		// Save the courses now.
-		for (const course of this.courses) {
-			course.saveCourse();
 		}
 	}
 }

@@ -1,0 +1,72 @@
+@import "../colors";
+
+.dd-sidebar .assignment {
+	padding: 0 0 0.5rem;
+	align-items: center;
+	cursor: grab;
+	list-style: none;
+
+	.name {
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		overflow: hidden;
+		padding-left: 50px;
+		margin-top: 0.5rem;
+		display: block;
+	}
+
+	.estimate-edit,
+	.time-taken-edit {
+		padding-top: 0.5rem;
+		padding-left: 50px;
+		margin: 0;
+
+		input {
+			margin-bottom: 0;
+			max-width: 45px;
+		}
+	}
+
+	> .estimate-label,
+	> .time-taken-label,
+		// Events never go to the planner.
+	.location,
+		// Visibility doesn't effect anything in the sidebar.
+	.visibility,
+		// If it is completed there's no point in setting an estimate.
+	&.completed .estimate-edit,
+		// Hide the time-taken if it isn't completed.
+	&:not(.completed) .time-taken-edit,
+	&:not(.completed) .time-taken-label {
+		display: none;
+	}
+
+	.due-date {
+		font-size: 0.75em;
+		color: $greyed-text;
+		padding: 0.5rem 0 0.5rem 50px;
+
+		span {
+			display: block;
+		}
+	}
+}
+
+// Add the canvas line between each assignment.
+// Don't add one before the first assignment.
+// Don't add one between hidden assignments (caused by dragged items that are hidden.)
+// Don't add one if the toggle show completed is off and the assignment is completed.
+.dd-sidebar:has(.sidebar-show-complete:not(:checked)) .assignment:not(.completed, .hidden) + .assignment::before,
+.dd-sidebar:has(.sidebar-show-complete:checked) .assignment:not(.hidden) + .assignment::before {
+	content: "";
+	display: block;
+	background: linear-gradient(90deg, transparent 7%, $light-grey 25%, $light-grey 75%, transparent 93%);
+	height: 1px;
+	margin-bottom: 3px;
+	width: 100%;
+}
+
+// Hide the completed assignments when the toggle is off.
+.dd-sidebar:has(.sidebar-show-complete:not(:checked)) .sidebar-course li.completed {
+	display: none;
+}

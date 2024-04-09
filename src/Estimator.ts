@@ -1,16 +1,12 @@
 class Estimator {
-	utility!: Utility;
 	courses!: Course[];
-	settings!: SettingsJson;
 
 	assignment!: Assignment;
 	courseId!: number;
 
 	estimateTime(assignment: Assignment): void {
-		if (!this.utility) {
-			this.utility = data.utility;
+		if (!this.courses) {
 			this.courses = data.courses;
-			this.settings = data.settings;
 		}
 		// Check if there is a basic estimate that isn't 0. If it is 0 then it was set by a failure to load in time.
 		// If there isn't then it should just predict the same thing.
@@ -57,7 +53,7 @@ class Estimator {
 		// TODO: Add multiplier for points. Points should be relative to overall points in that category for that class.
 
 		this.assignment.basic_estimate = Math.floor(
-			baseTime * keywordModifier * this.settings.estimateMultiplier[`course-${this.courseId}`]
+			baseTime * keywordModifier * g_settings.estimateMultiplier[`course-${this.courseId}`]
 		);
 	}
 
@@ -201,7 +197,7 @@ class Estimator {
 
 		// We should prioritize assignments that are due soon.
 		const dueDate: Date = new Date(assignment.due_date);
-		const daysUntilDue: number = this.utility.daysUntil(dueDate);
+		const daysUntilDue: number = utility.daysUntil(dueDate);
 
 		// Modify the priority based on the days until due.
 		if (daysUntilDue <= 1) {
