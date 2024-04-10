@@ -1,8 +1,41 @@
 class Estimator {
 	courses!: Course[];
-
 	assignment!: Assignment;
 	courseId!: number;
+
+	getEstimate(assignment: Assignment, course: Course): string {
+		utility.log("Getting estimate.");
+		if (assignment.user_estimate !== null) {
+			// If there is a user estimate, use that.
+			utility.log("User estimate found.");
+			return assignment.user_estimate.toString();
+		} else if (g_settings.useHistoryEstimate && assignment.history_estimate !== null) {
+			// If there is a history estimate, use that.
+			utility.log("History estimate found.");
+			return assignment.history_estimate.toString();
+		} else if (g_settings.useHistoryEstimate) {
+			// Otherwise try to make a history based estimate.
+			this.historyEstimate(course, assignment);
+
+			if (assignment.history_estimate !== null) {
+				utility.log("History estimate made.");
+				return assignment.history_estimate.toString();
+			}
+		}
+		// If a history based estimate can't be made, use the basic estimate.
+		data.estimator.estimateTime(assignment);
+
+		if (assignment.basic_estimate === null) {
+			utility.notify("error", "Estimator failed to estimate.");
+			return "TBD";
+		} else if (!g_settings.useBasicEstimate) {
+			utility.log("Basic estimate not used.");
+			return "TBD";
+		} else {
+			utility.log("Basic estimate used.");
+			return assignment.basic_estimate.toString();
+		}
+	}
 
 	estimateTime(assignment: Assignment): void {
 		if (!this.courses) {

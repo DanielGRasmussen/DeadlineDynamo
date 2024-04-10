@@ -148,7 +148,7 @@ class Planner {
 		// Hide the spinner now that the planner is done loading.
 		const spinner: HTMLElement | null = document.querySelector(".dd-spinner");
 		if (spinner === null) {
-			utility.notify("error", "Spinner not found.");
+			utility.log("Spinner not found.");
 			return;
 		}
 
@@ -189,5 +189,22 @@ class Planner {
 
 			weekdayAssignments.appendChild(assignmentDiv);
 		});
+	}
+
+	remakePlanner(): void {
+		// Remakes the planner.
+		utility.log("Remaking planner.");
+		const planner: HTMLElement | null = document.getElementById("dd-planner");
+
+		if (planner === null) {
+			utility.notify("error", "Planner not found.");
+			return;
+		}
+
+		// Remove all the weekday slots.
+		planner.innerHTML = "";
+
+		// Add the weekday slots.
+		this.addWeekdaySlots();
 	}
 }

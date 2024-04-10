@@ -178,5 +178,8 @@ class Announcements {
 		for (const announcement of this.announcements) {
 			announcement.read = true;
 		}
+		for (const course of this.courses) {
+			course.saveCourse();
+		}
 	}
 }

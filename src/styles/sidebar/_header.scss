@@ -17,6 +17,10 @@
 		cursor: pointer;
 		border-radius: 0.375rem;
 
+		@media (width <= 330px) {
+			margin-right: 0;
+		}
+
 		// Center the close svg
 		display: flex;
 		align-items: center;
