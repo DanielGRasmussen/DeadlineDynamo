@@ -202,115 +202,6 @@ class Utility {
 		await browser.storage.sync.clear();
 	}
 
-	createPlan(courses: Course[], estimator: Estimator): Plan {
-		// Create a list of all assignments sorted by priority.
-		this.log("Creating plan.");
-		const allAssignments: Assignment[] = [];
-
-		for (const course of courses) {
-			for (const assignment of course.assignments) {
-				// Filter out assignments that shouldn't be automatically planned.
-				if (
-					!assignment.planned &&
-					!assignment.lock &&
-					!assignment.submitted &&
-					assignment.type !== "announcement"
-				) {
-					assignment.priority = estimator.getPriority(assignment);
-					allAssignments.push(assignment);
-				}
-			}
-		}
-
-		allAssignments.sort((a, b) => b.priority - a.priority);
-
-		// Plan the assignments.
-		for (const day of Object.keys(g_plan)) {
-			const date: Date = new Date(day);
-			const workHours: number =
-				g_settings.workHours[
-					date.toLocaleString("en-US", { weekday: "long" }).toLowerCase()
-				];
-
-			// Plan the assignments for this day.
-			let timeRemaining: number = workHours * 60;
-			for (const assignment of allAssignments) {
-				// Skip the assignment if it is planned.
-				if (assignment.planned) {
-					continue;
-				}
-
-				const estimate: number = parseInt(
-					this.getEstimate(assignment, courses[assignment.course_id])
-				);
-
-				// If the assignment can be planned without running over the limit, plan it.
-				if (timeRemaining - estimate >= 0) {
-					const plannedAssignment: PlanItem = {
-						id: assignment.id,
-						due_date: assignment.due_date
-					};
-					g_plan[day].push(plannedAssignment);
-					assignment.planned = true;
-					timeRemaining -= estimate;
-				}
-			}
-		}
-
-		// Save the courses.
-		for (const course of courses) {
-			course.saveCourse();
-		}
-
-		// If there are leftover assignments let the user know.
-		const leftoverAssignments: Assignment[] = allAssignments.filter(
-			assignment => !assignment.planned && !assignment.lock && !assignment.submitted
-		);
-
-		if (leftoverAssignments.length > 0) {
-			this.notify(
-				"info",
-				`There are ${leftoverAssignments.length} assignments that could not be planned.`
-			);
-		}
-
-		return g_plan;
-	}
-
-	getEstimate(assignment: Assignment, course: Course): string {
-		this.log("Getting estimate.");
-		if (assignment.user_estimate !== null) {
-			// If there is a user estimate, use that.
-			this.log("User estimate found.");
-			return assignment.user_estimate.toString();
-		} else if (g_settings.useHistoryEstimate && assignment.history_estimate !== null) {
-			// If there is a history estimate, use that.
-			this.log("History estimate found.");
-			return assignment.history_estimate.toString();
-		} else if (g_settings.useHistoryEstimate) {
-			// Otherwise try to make a history based estimate.
-			data.estimator.historyEstimate(course, assignment);
-
-			if (assignment.history_estimate !== null) {
-				this.log("History estimate made.");
-				return assignment.history_estimate.toString();
-			}
-		}
-		// If a history based estimate can't be made, use the basic estimate.
-		data.estimator.estimateTime(assignment);
-
-		if (assignment.basic_estimate === null) {
-			this.notify("error", "Estimator failed to estimate.");
-			return "TBD";
-		} else if (!g_settings.useBasicEstimate) {
-			this.log("Basic estimate not used.");
-			return "TBD";
-		} else {
-			this.log("Basic estimate used.");
-			return assignment.basic_estimate.toString();
-		}
-	}
-
 	formatDate(date: Date, shortDay: boolean): [string, string] {
 		let dayOfWeek: string;
 		if (shortDay) {
@@ -391,6 +282,14 @@ class Utility {
 		}
 
 		return links;
+	}
+
+	isTouchDevice(): boolean {
+		// Combine multiple detection methods for increased accuracy:
+		return (
+			("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
+			!window.matchMedia("(pointer: none)").matches
+		); // Exclude devices with only pen/stylus input
 	}
 }
 

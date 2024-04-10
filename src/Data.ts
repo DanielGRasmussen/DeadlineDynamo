@@ -5,6 +5,7 @@ class Data {
 	endDate!: Date;
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
+	planner?: Planner;
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[] = [false, false];
 	courses: Course[] = this.apiFetcher.courses;
@@ -40,11 +41,10 @@ class Data {
 			await this.updateAssignments();
 		}
 
+		await this.addExtraData();
+
 		utility.log("Done loading.");
 		this.loadConditions[1] = true;
-
-		// This sends a request per course causing it to take too long for everything else.
-		await this.addExtraData();
 	}
 
 	async getCourses(): Promise<boolean> {
@@ -150,13 +150,18 @@ class Data {
 
 		utility.log("Adding extra data.");
 
+		const promises: Promise<void>[] = [];
 		for (const course of this.courses) {
-			const extraData: AssignmentExtraJson[] = await this.apiFetcher.fetchExtraAssignmentData(
-				course.id
+			promises.push(
+				this.apiFetcher
+					.fetchExtraAssignmentData(course.id)
+					.then((extraData: AssignmentExtraJson[]): void => {
+						course.addExtraData(extraData);
+					})
 			);
-
-			course.addExtraData(extraData);
 		}
+
+		await Promise.all(promises);
 	}
 }
 

@@ -65,7 +65,9 @@ class Sidebar {
 		}
 
 		planButton.addEventListener("click", (): void => {
-			g_plan = utility.createPlan(this.courses!, this.estimator);
+			const autoPlanner: AutoPlanner = new AutoPlanner();
+			autoPlanner.createPlan();
+			autoPlanner.displayNewPlan();
 			utility.saveStorage("plan", JSON.stringify(g_plan));
 		});
 

@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "DeadlineDynamo",
-	"version": "1.1",
+	"version": "1.2",
 	"description": "A Firefox addon to plan Canvas assignments efficiently.",
 	"icons": {
 		"16": "images/icon - 16px.png",
@@ -93,6 +93,7 @@
 			"js": [
 				"dist/out-tsc/ApiFetcher.js",
 				"dist/out-tsc/Estimator.js",
+				"dist/out-tsc/AutoPlanner.js",
 				"dist/out-tsc/Assignment.js",
 				"dist/out-tsc/Course.js",
 				"dist/out-tsc/Announcements.js",

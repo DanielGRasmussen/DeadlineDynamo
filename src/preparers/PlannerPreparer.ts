@@ -29,6 +29,10 @@ class PlannerPreparer extends BasePreparer {
 			await utility.wait(20);
 		}
 
+		if (utility.isTouchDevice()) {
+			body.classList.add("dd-touch");
+		}
+
 		this.setViewClass();
 	}
 
@@ -154,8 +158,8 @@ class PlannerPreparer extends BasePreparer {
 	addNewPlanner(node: HTMLElement): void {
 		// Add our planner element where the original planner was (after #dashboard_header_container).
 		const plannerData: string = `
-						<div id="dd-planner"></div>
-					`;
+			<div id="dd-planner"></div>
+		`;
 
 		const planner: HTMLElement = utility.convertHtml(plannerData);
 
@@ -186,7 +190,7 @@ class PlannerPreparer extends BasePreparer {
 
 		// Now that the planner is added, we can trigger the planner class.
 		utility.log("Triggering the planner.");
-		this.planner = new Planner();
+		data.planner = new Planner();
 	}
 
 	createHeaderButtons(): void {
@@ -309,13 +313,13 @@ class PlannerPreparer extends BasePreparer {
 		data.backPlan -= 1;
 		data.startDate.setDate(data.startDate.getDate() - 7);
 
-		this.planner!.addWeekdaySlots(data.backPlan);
+		data.planner!.addWeekdaySlots(data.backPlan);
 
 		await data.updateAssignments();
 
-		this.planner!.sidebar.updateUnplannedCount();
-		this.planner!.announcements!.getAnnouncements();
-		this.planner!.announcements!.updateUnreadCount();
+		data.planner!.sidebar.updateUnplannedCount();
+		data.planner!.announcements!.getAnnouncements();
+		data.planner!.announcements!.updateUnreadCount();
 	}
 
 	isNothingPlannedMessage(element: HTMLElement): boolean {
