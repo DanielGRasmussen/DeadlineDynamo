@@ -11,6 +11,10 @@
 	},
 	"permissions": [ "storage" ],
 
+	"background": {
+		"service_worker": "dist/out-tsc/welcome.js"
+	},
+
 	"content_scripts": [
 		{
 			"matches": ["https://*.instructure.com/*"],
