@@ -190,7 +190,7 @@ class PlannerPreparer extends BasePreparer {
 
 		// Now that the planner is added, we can trigger the planner class.
 		utility.log("Triggering the planner.");
-		this.planner = new Planner();
+		data.planner = new Planner();
 	}
 
 	createHeaderButtons(): void {
@@ -313,13 +313,13 @@ class PlannerPreparer extends BasePreparer {
 		data.backPlan -= 1;
 		data.startDate.setDate(data.startDate.getDate() - 7);
 
-		this.planner!.addWeekdaySlots(data.backPlan);
+		data.planner!.addWeekdaySlots(data.backPlan);
 
 		await data.updateAssignments();
 
-		this.planner!.sidebar.updateUnplannedCount();
-		this.planner!.announcements!.getAnnouncements();
-		this.planner!.announcements!.updateUnreadCount();
+		data.planner!.sidebar.updateUnplannedCount();
+		data.planner!.announcements!.getAnnouncements();
+		data.planner!.announcements!.updateUnreadCount();
 	}
 
 	isNothingPlannedMessage(element: HTMLElement): boolean {

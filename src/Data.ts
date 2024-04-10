@@ -5,6 +5,7 @@ class Data {
 	endDate!: Date;
 	apiFetcher: ApiFetcher = new ApiFetcher();
 	estimator: Estimator = new Estimator();
+	planner?: Planner;
 	// [0] Header buttons are added. [1] Main is done loading.
 	loadConditions: boolean[] = [false, false];
 	courses: Course[] = this.apiFetcher.courses;

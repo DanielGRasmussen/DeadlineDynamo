@@ -106,7 +106,7 @@ class Assignment {
 			}
 		}
 
-		const estimate: string | typeof NaN = utility.getEstimate(this, course);
+		const estimate: string | typeof NaN = data.estimator.getEstimate(this, course);
 
 		let estimate_label_value: string;
 		let estimate_input_value: string;
@@ -186,7 +186,7 @@ class Assignment {
 			}
 			assignmentElement.classList.remove("editing");
 
-			let estimate: string | typeof NaN = utility.getEstimate(this, course!);
+			let estimate: string | typeof NaN = data.estimator.getEstimate(this, course!);
 
 			if (isNaN(Number(estimate))) {
 				estimate = "TBD";
