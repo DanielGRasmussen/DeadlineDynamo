@@ -76,6 +76,7 @@ class Course {
 		// Uses the old information from assignments and the new information from the API to update the assignments.
 		// Takes a filtered assignments for just this course with API information.
 		// Returns a list of new assignments.
+		let changeOccured: boolean = false;
 		const newAssignments: Assignment[] = [];
 		for (const assignment of assignments) {
 			const oldAssignment: Assignment | undefined = this.assignments.find(
@@ -99,6 +100,7 @@ class Course {
 							`Due date changed for ${oldAssignment.name} in ${this.name}`
 						);
 					}
+					changeOccured = true;
 				}
 
 				if (!oldAssignment.submitted && assignment.submissions.submitted) {
@@ -125,6 +127,10 @@ class Course {
 				newAssignments.push(newAssignment);
 				this.assignments.push(newAssignment);
 			}
+		}
+
+		if (changeOccured) {
+			this.saveCourse();
 		}
 		return newAssignments;
 	}
@@ -171,6 +177,7 @@ class Course {
 			if (newAssignment !== undefined) {
 				assignment.description = newAssignment.description;
 				assignment.submission_types = newAssignment.submission_types;
+				data.estimator.estimateTime(assignment);
 			}
 		}
 	}

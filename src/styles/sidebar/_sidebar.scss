@@ -94,6 +94,11 @@ $sidebar-animation: 0.45s ease-in-out;
 	}
 }
 
+// Lock scroll for the planner when dragging.
+body.gu-unselectable.dd-touch {
+	overflow: hidden;
+}
+
 // Add the no assignments message.
 // .course-assignments:empty::before,
 // I am not sure why but the previous one doesn't trigger
