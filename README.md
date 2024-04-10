@@ -8,6 +8,7 @@ Deadline Dynamo is a web extension that uses the Canvas API to fetch the user's 
 1. Clone the repository
 2. Run `npm install` to install dependencies
 3. Run `npm run build` to build the extension
-4. Open Chrome and navigate to `chrome://extensions/`
-5. Enable developer mode
-6. Click "Load unpacked" and select this repository's folder
+4. Open Firefox and navigate to `about:debugging`
+5. Click on `This Firefox` on the left sidebar
+6. Click on `Load Temporary Add-on...`
+7. Navigate to the base folder of the cloned repository and select the `manifest.json` file

@@ -106,7 +106,7 @@ class Utility {
 	async loadStorage(key: string): Promise<string | undefined> {
 		const name: string = `${this.location}-${key}`;
 		this.log(`Loading ${name} from storage.`);
-		const info: { [p: string]: string } = await chrome.storage.sync.get(name);
+		const info: { [p: string]: string } = await browser.storage.sync.get(name);
 		return info[name];
 	}
 
@@ -189,7 +189,7 @@ class Utility {
 		try {
 			const info: { [p: string]: string } = {};
 			info[name] = data;
-			chrome.storage.sync.set(info).then(_ => {});
+			browser.storage.sync.set(info).then(_ => {});
 		} catch (error) {
 			// This likely happened because of too much data trying to be saved.
 			console.log(key);
@@ -199,7 +199,7 @@ class Utility {
 
 	async clearStorage(): Promise<void> {
 		this.log("Clearing storage.");
-		await chrome.storage.sync.clear();
+		await browser.storage.sync.clear();
 	}
 
 	formatDate(date: Date, shortDay: boolean): [string, string] {

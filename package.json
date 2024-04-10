@@ -10,7 +10,7 @@
 		"zip": "bash zip.sh"
 	},
 	"devDependencies": {
-		"@types/chrome": "^0.0.260",
+		"@types/firefox-webext-browser": "^120.0.3",
 		"@typescript-eslint/eslint-plugin": "^6.19.0",
 		"@typescript-eslint/parser": "^6.19.0",
 		"eslint": "^8.56.0",
