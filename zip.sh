@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Folders to zip
-folders="dist images third_party"
+folders="dist images third_party "
 
 # Files to zip (modify paths if needed)
 files="manifest.json privacy-policy.md README.md welcome.html"
