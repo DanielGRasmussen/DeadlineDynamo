@@ -12,3 +12,11 @@ Deadline Dynamo is a web extension that uses the Canvas API to fetch the user's 
 5. Click on `This Firefox` on the left sidebar
 6. Click on `Load Temporary Add-on...`
 7. Navigate to the base folder of the cloned repository and select the `manifest.json` file
+
+## Download
+
+The extension is available on the Firefox Add-ons website [here](https://addons.mozilla.org/en-US/firefox/addon/deadlinedynamo/).
+
+## Plans
+
+You can find plans for the future on the main branch's README.
