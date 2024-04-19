@@ -11,3 +11,16 @@ Deadline Dynamo is a web extension that uses the Canvas API to fetch the user's 
 4. Open Chrome and navigate to `chrome://extensions/`
 5. Enable developer mode
 6. Click "Load unpacked" and select this repository's folder
+
+## Download
+
+The extension is available on the Chrome Web Store [here](https://chromewebstore.google.com/detail/deadlinedynamo/acoekmocjobgoopjbhdjbiaeegdknfel)
+
+## Plans
+
+* Improve basic estimates
+* Make unsubmitted assignments that are past their due date always appear.
+* Add a setting to copy the original list style of things.
+* Improve the `_assignments.scss` file
+* Add numbers for unplanned assignments next to each course
+* Add settings subpages to mobile nav UI
