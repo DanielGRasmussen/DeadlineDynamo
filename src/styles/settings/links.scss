@@ -1,4 +1,4 @@
-@import "../colors";
+@use "../colors";
 
 // The link to Deadline Dynamo Settings.
 .dd-link.active {
@@ -6,7 +6,7 @@
 
 	// Needed more specificity.
 	.menu-item__text {
-		color: $light-blue;
+		color: colors.$light-blue;
 	}
 
 	img {

@@ -1,5 +1,5 @@
-@import "colors";
-@import "mixins";
+@use "colors";
+@use "mixins";
 
 * {
 	box-sizing: border-box;
@@ -14,13 +14,13 @@ body {
 	color: #333;
 	font-size: 1.15rem;
 
-	@include tablet {
+	@include mixins.tablet {
 		font-size: 1rem;
 	}
 }
 
 header {
-	background-color: $light-blue;
+	background-color: colors.$light-blue;
 	color: white;
 	padding: 1rem;
 	text-align: center;
@@ -39,7 +39,7 @@ main {
 	}
 
 	h2 {
-		color: $light-blue;
+		color: colors.$light-blue;
 		margin-bottom: 1rem;
 	}
 
@@ -48,7 +48,7 @@ main {
 		margin-left: 2rem;
 	}
 
-	@include tablet {
+	@include mixins.tablet {
 		padding: 0.5rem;
 	}
 }

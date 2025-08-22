@@ -1,5 +1,5 @@
-@import "../colors";
-@import "../mixins";
+@use "../colors";
+@use "../mixins";
 
 $sidebar-animation: 0.45s ease-in-out;
 
@@ -71,12 +71,12 @@ $sidebar-animation: 0.45s ease-in-out;
 	&.slide-out {
 		animation: slide-out $sidebar-animation;
 
-		@include less-desktop {
+		@include mixins.less-desktop {
 			animation: slide-down $sidebar-animation;
 		}
 	}
 
-	@include less-desktop {
+	@include mixins.less-desktop {
 		top: 50%;
 		width: 100%;
 		animation: slide-up $sidebar-animation;
@@ -84,7 +84,7 @@ $sidebar-animation: 0.45s ease-in-out;
 }
 
 // Make room for the user to scroll all the way down when the sidebar is open.
-@include less-desktop {
+@include mixins.less-desktop {
 	#content {
 		transition: padding-bottom $sidebar-animation;
 

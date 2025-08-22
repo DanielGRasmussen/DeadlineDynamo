@@ -1,4 +1,4 @@
-@import "../colors";
+@use "../colors";
 
 .dd-sidebar .assignment {
 	padding: 0 0 0.5rem;
@@ -43,7 +43,7 @@
 
 	.due-date {
 		font-size: 0.75em;
-		color: $greyed-text;
+		color: colors.$greyed-text;
 		padding: 0.5rem 0 0.5rem 50px;
 
 		span {
@@ -60,7 +60,7 @@
 .dd-sidebar:has(.sidebar-show-complete:checked) .assignment:not(.hidden) + .assignment::before {
 	content: "";
 	display: block;
-	background: linear-gradient(90deg, transparent 7%, $light-grey 25%, $light-grey 75%, transparent 93%);
+	background: linear-gradient(90deg, transparent 7%, colors.$light-grey 25%, colors.$light-grey 75%, transparent 93%);
 	height: 1px;
 	margin-bottom: 3px;
 	width: 100%;

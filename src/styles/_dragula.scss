@@ -1,5 +1,5 @@
-@import "colors";
-@import "mixins";
+@use "colors";
+@use "mixins";
 
 // Styling for when the item is being dragged.
 .assignment.gu-mirror {
@@ -23,11 +23,11 @@
 		display: block;
 		line-height: 88px;
 		text-align: center;
-		border: dashed $light-grey 2px;
+		border: dashed colors.$light-grey 2px;
 		border-radius: 8px;
 
 		// So it is centered ignoring the sidebar.
-		@include desktop {
+		@include mixins.desktop {
 			padding-right: 434px;
 		}
 	}
@@ -53,7 +53,7 @@ body.gu-unselectable {
 		line-height: 121.778px;
 		text-align: center;
 		font-size: 1.2em;
-		border: dashed $light-grey 2px;
+		border: dashed colors.$light-grey 2px;
 		border-radius: 8px;
 		margin-top: 10px;
 	}

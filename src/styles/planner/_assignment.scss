@@ -1,4 +1,4 @@
-@import "../mixins";
+@use "../mixins";
 
 #dd-planner {
 	.assignment {
@@ -229,7 +229,7 @@
 	&.sidebar-open {
 		.assignment {
 			// Make thinner so the due date is visible.
-			@include desktop {
+			@include mixins.desktop {
 				// Don't move to the right when the sidebar is at the bottom.
 				padding-right: 434px;
 			}

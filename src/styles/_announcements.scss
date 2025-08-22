@@ -1,4 +1,4 @@
-@import "colors";
+@use "colors";
 
 // Announcement button
 .announcement-button {
@@ -32,7 +32,7 @@
 	}
 
 	h4 {
-		color: $greyed-text;
+		color: colors.$greyed-text;
 		font-size: 16px;
 		font-weight: 700;
 	}
@@ -71,7 +71,7 @@
 	.announcement + .announcement::before {
 		content: "";
 		display: block;
-		background: linear-gradient(90deg, transparent 7%, $light-grey 25%, $light-grey 75%, transparent 93%);
+		background: linear-gradient(90deg, transparent 7%, colors.$light-grey 25%, colors.$light-grey 75%, transparent 93%);
 		height: 1px;
 		margin-bottom: 3px;
 		width: 100%;
